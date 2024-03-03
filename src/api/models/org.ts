@@ -1,3 +1,4 @@
+import { Batch, Stage } from "./stage";
 import { Id, Timestamp, ZJUId } from "./shared";
 
 interface Org {
@@ -15,24 +16,16 @@ interface Department {
   createdAt: Timestamp;
 }
 
-/**表示来源批次，如[2024,1] */
-type Batch = [number, number];
-
-/**表示(候选)成员阶段。具体意义(包括N面、实习/正式成员、退休、已拒绝等)可自定义。 */
-interface Stage {
-  /**定义/管理此阶段的{@link Org}的id */
-  owner: Id;
-  id: Id;
-  label: string;
-}
-
 /**表示用户对某一{@link Department}的候选或成员等关系。 */
-interface Member {
+export interface Member {
+  id: Id;
   zjuid: ZJUId;
   /**关联{@link Department}的id */
   of: Id;
   batch: Batch;
   stage: Stage;
-  /**用户最后一次阶段改变的时间 */
-  changeAt: Timestamp;
+  /**用户进入此阶段的时间 */
+  enterAt: Timestamp;
+  /**下一{@link Member}关系的id，不为空表示已进入其它阶段，不在此阶段中显示 */
+  next?: Id;
 }
