@@ -1,7 +1,7 @@
 import { Batch, Stage } from "./stage";
 import { Id, Timestamp, ZJUId } from "./shared";
 
-interface Org {
+export interface Org {
   id: Id;
   name: string;
   createdAt: Timestamp;
@@ -23,7 +23,8 @@ export interface Member {
   /**关联{@link Department}的id */
   of: Id;
   batch: Batch;
-  stage: Stage;
+  stage: Id;
+  taskResult: (null | Id)[];
   /**用户进入此阶段的时间 */
   enterAt: Timestamp;
   /**下一{@link Member}关系的id，不为空表示已进入其它阶段，不在此阶段中显示 */
