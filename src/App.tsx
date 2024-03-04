@@ -1,6 +1,7 @@
-import React from "react";
-import { Navigate, RouterProvider, createBrowserRouter } from "react-router-dom";
-import { consoleRoute } from "./console/Console";
+import React from 'react';
+import { Navigate, RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { consoleRoute } from './console/consoleRoute';
+import { ConfigProvider } from 'antd';
 
 const router = createBrowserRouter([{
   path: '/',
@@ -16,6 +17,7 @@ const router = createBrowserRouter([{
 
 export default function App() {
   return (<React.StrictMode>
-    <RouterProvider router={router} />
+    <ConfigProvider theme={{}}>
+      <RouterProvider router={router} /></ConfigProvider>
   </React.StrictMode>);
 }
