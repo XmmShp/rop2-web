@@ -69,3 +69,12 @@ Object.defineProperty(Date.prototype, 'stringify', {
 export function delay(ms: number): Promise<void> {
   return new Promise((rs) => setTimeout(rs, ms));
 }
+
+/**如果`arg`为`undefined`或`null`，返回空数组；
+ * 
+ * 否则，返回`arg`或`[arg]`(取决于`arg`是否为数组)。 */
+export function toArray<T>(arg: T | T[]): T[] {
+  if (arg === null || arg === undefined) return []
+  if (Array.isArray(arg)) return arg;
+  return [arg];
+}

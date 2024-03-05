@@ -2,10 +2,9 @@ import { Button, Descriptions, Drawer, Flex, Input, Space, Table, Typography } f
 import { PlusOutlined } from '@ant-design/icons';
 import { departs } from '../mockData';
 import { useState } from 'react';
-import { DescriptionsItemType } from 'antd/es/descriptions';
 import { getOrg } from '../store';
 import { Department } from '../api/models/org';
-import { delay } from '../utils';
+import { delay, toArray } from '../utils';
 import { msg } from '../App';
 import LoadableModal from '../LoadableModal';
 
@@ -26,7 +25,9 @@ export default function DepartmentManage() {
     </Flex>
     <Table title={(d) => `部门列表 (${d.length}项)`} rowKey='name' bordered columns={[{
       title: '名称',
-      dataIndex: 'name'
+      render(value, record, index) {
+        return <Typography.Text italic={toArray(record.tag).includes('default')}>{record.name}</Typography.Text>
+      }
     }, {
       title: '操作',
       render(value, record, index) {
@@ -41,7 +42,7 @@ export default function DepartmentManage() {
               setObj(record);
               setOp('rename');
             }}>重命名</Button>
-          <Button size='small' danger type='link'
+          <Button disabled={record.tag === 'default'} size='small' danger type='link'
             onClick={() => {
               setObj(record);
               setOp('delete');
@@ -90,6 +91,10 @@ function DetailDrawer({ obj, onClose }: { obj: Department | undefined; onClose: 
     }, {
       label: '归属组织',
       children: getOrg(obj.parent).name,
+      span: 2
+    }, {
+      label: '标签',
+      children: toArray(obj.tag).join(', ') || '无',
       span: 2
     }];
   return <Drawer size='large' title='部门详情' placement='right' closable open={Boolean(items)} onClose={onClose}>

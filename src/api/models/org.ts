@@ -7,6 +7,8 @@ export interface Org {
   createdAt: Timestamp;
 }
 
+type DepartmentTag = 'default';
+
 /**表示{@link Org}下设的部门。 */
 export interface Department {
   id: Id;
@@ -14,6 +16,7 @@ export interface Department {
   parent: Id;
   name: string;
   createdAt: Timestamp;
+  tag?: DepartmentTag | DepartmentTag[];
 }
 
 /**表示用户对某一{@link Department}的候选或成员等关系。 */
