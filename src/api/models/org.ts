@@ -14,7 +14,6 @@ export interface Department {
   parent: Id;
   name: string;
   createdAt: Timestamp;
-
 }
 
 /**表示用户对某一{@link Department}的候选或成员等关系。 */

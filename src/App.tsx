@@ -1,8 +1,9 @@
 import React from 'react';
 import { Navigate, Outlet, RouterProvider, createBrowserRouter } from 'react-router-dom';
-import { ConfigProvider, theme } from 'antd';
+import { ConfigProvider, message, theme } from 'antd';
 import { DashboardOutlined, ApartmentOutlined, FormOutlined, AuditOutlined } from '@ant-design/icons';
 import { mapRecur, useDarkMode } from './utils';
+import { MessageInstance } from 'antd/es/message/interface';
 
 export const consoleRoutes = mapRecur([
   {
@@ -82,14 +83,18 @@ const router = createBrowserRouter([{
   ]
 }]);
 
+export let msg: MessageInstance;
 export default function App() {
   const isDark = useDarkMode();
+  const [messageApi, contextHolder] = message.useMessage();
+  msg = messageApi;
   return (<React.StrictMode>
     <ConfigProvider theme={{
       algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
       cssVar: true,
       hashed: false
     }}>
+      {contextHolder}
       <RouterProvider router={router} /></ConfigProvider>
   </React.StrictMode>);
 }

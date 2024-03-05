@@ -64,3 +64,8 @@ Object.defineProperty(Date.prototype, 'stringify', {
     return result;
   }
 } satisfies ThisType<Date>);
+
+/**仅限测试，返回一个指定延时后兑现的Promise */
+export function delay(ms: number): Promise<void> {
+  return new Promise((rs) => setTimeout(rs, ms));
+}
