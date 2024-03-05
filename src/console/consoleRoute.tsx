@@ -5,6 +5,7 @@ import { ConsoleLayout } from './ConsoleLayout';
 
 export const paths = mapRecur([{
   label: '仪表盘',
+  title: '仪表盘',
   path: 'dash',
   icon: <DashboardOutlined />,
   element: <div>仪表盘</div>
