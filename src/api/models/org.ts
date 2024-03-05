@@ -8,12 +8,13 @@ export interface Org {
 }
 
 /**表示{@link Org}下设的部门。 */
-interface Department {
+export interface Department {
   id: Id;
   /**从属{@link Org}的id */
   parent: Id;
   name: string;
   createdAt: Timestamp;
+
 }
 
 /**表示用户对某一{@link Department}的候选或成员等关系。 */

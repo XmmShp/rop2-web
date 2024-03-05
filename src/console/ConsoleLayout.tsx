@@ -1,12 +1,10 @@
-import { Avatar, Dropdown, Layout, Menu } from 'antd';
+import { Avatar, Dropdown, Flex, GetProp, Layout, Menu, Typography } from 'antd';
 import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { paths } from './consoleRoute';
-import { singleMatch } from '../utils';
+import { mapRecur, singleMatch, without } from '../utils';
 import { useState } from 'react';
-import useToken from 'antd/es/theme/useToken';
 import './ConsoleLayout.scss';
 
-export function ConsoleLayout() {
+export default function ConsoleLayout({ routes }: { routes: GetProp<typeof Menu, 'items'> }) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const subFunc = singleMatch(pathname, /^\/console\/(\w+(\/\w+)*)(?!\/)\/?\??/);
@@ -15,7 +13,6 @@ export function ConsoleLayout() {
     if (!matched) return [];
     return [matched];
   });
-  const [, { colorBgContainer, fontSizeHeading5 }] = useToken();
   if (!subFunc) return <Navigate to='dash' />;
   return (<Layout style={{ minHeight: '100vh' }}>
     <Layout.Sider theme='light' style={{
@@ -31,20 +28,20 @@ export function ConsoleLayout() {
         openKeys={openKeys}
         onOpenChange={(keys) => setOpenKeys(keys)}
         onClick={(info) => navigate(info.key)}
-        items={paths} />
+        items={mapRecur(routes as any, 'children', (o) => without(o as any, ['lazy', 'path'])) as any} />
     </Layout.Sider>
 
     <Layout.Content>
-      <div className='title-bar' >
-        <span className='title' >求是潮纳新开放系统V2</span>
-        <Link to='.'>求是潮2024春季纳新</Link>
-
+      <Flex className='title-bar' align='center' justify='space-between'>
+        <span className='title'>求是潮纳新开放系统V2</span>
+        <Link className='current-activity' to='/'>正在进行的纳新名称</Link>
         <Dropdown trigger={['click']} menu={{ items: [{ label: '退出', }].map((v, i) => { return { ...v, key: i } }) }}>
-          <div className='user-area' >
+          <Flex className='user-area' align='center' >
             <Avatar className='avatar'>test</Avatar>
-            <span className='username'>测试用户</span></div>
+            <span className='username'>测试用户 </span>
+          </Flex>
         </Dropdown>
-      </div>
+      </Flex>
       <Outlet />
     </Layout.Content>
   </Layout>);
