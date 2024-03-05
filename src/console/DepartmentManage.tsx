@@ -17,7 +17,7 @@ export default function DepartmentManage() {
     <Typography.Text>
       组织可以下设一个或多个<Typography.Text strong>部门</Typography.Text>。
       <br />
-      所有组织创建时都具有一个特殊的<Typography.Text strong>默认部门</Typography.Text>，其组织的面试可在整个组织共享。
+      所有组织创建时都具有一个特殊的<Typography.Text strong>默认部门</Typography.Text>，其组织的面试场次可在整个组织共享。
     </Typography.Text>
     <Flex wrap='wrap'>
       <Button icon={<PlusOutlined />} type='primary'
@@ -31,7 +31,7 @@ export default function DepartmentManage() {
     }, {
       title: '操作',
       render(value, record, index) {
-        return (<Space size='small'>
+        return (<Space size={0}>
           <Button size='small' type='link'
             onClick={() => {
               setObj(record);

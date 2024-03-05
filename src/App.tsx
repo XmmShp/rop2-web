@@ -27,7 +27,10 @@ export const consoleRoutes = mapRecur([
     }, {
       label: '阶段',
       path: 'stage',
-      element: <></>,
+      async lazy() {
+        const { default: Component } = await import('./console/StageManage');
+        return { element: <Component /> };
+      }
     }, {
       label: '管理员',
       path: 'admin',
