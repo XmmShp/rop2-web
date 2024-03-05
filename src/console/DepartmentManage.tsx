@@ -1,5 +1,4 @@
-import { Button, Descriptions, Drawer, Flex, Input, Modal, Space, Table, Typography } from 'antd';
-import './DepartmentManage.scss';
+import { Button, Descriptions, Drawer, Flex, Input, Space, Table, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { departs } from '../mockData';
 import { useState } from 'react';
@@ -11,17 +10,19 @@ import { msg } from '../App';
 import LoadableModal from '../LoadableModal';
 
 export default function DepartmentManage() {
-  const [detailObj, setDetailObj] = useState<DescriptionsItemType[] | null>(null);
-  const [renameObj, setRenameObj] = useState<Department | null>(null);
-  const [deleteObj, setDeleteObj] = useState<Department | null>(null);
-  return (<Flex className='department' vertical gap='small'>
+  const [op, setOp] = useState<undefined
+    | 'detail' | 'rename' | 'delete' | 'new'>(undefined);
+  function clearOp() { setOp(undefined) }
+  const [obj, setObj] = useState<undefined | Department>(undefined);
+  return (<Flex style={{ padding: '.4em 1em' }} vertical gap='small'>
     <Typography.Text>
       组织可以下设一个或多个<Typography.Text strong>部门</Typography.Text>。
       <br />
       所有组织创建时都具有一个特殊的<Typography.Text strong>默认部门</Typography.Text>，其组织的面试可在整个组织共享。
     </Typography.Text>
     <Flex wrap='wrap'>
-      <Button icon={<PlusOutlined />} type='primary'>新增</Button>
+      <Button icon={<PlusOutlined />} type='primary'
+        onClick={() => setOp('new')}>新增</Button>
     </Flex>
     <Table title={(d) => `部门列表 (${d.length}项)`} rowKey='name' bordered columns={[{
       title: '名称',
@@ -32,84 +33,100 @@ export default function DepartmentManage() {
         return (<Space size='small'>
           <Button size='small' type='link'
             onClick={() => {
-              setDetailObj([{
-                label: 'ID',
-                children: record.id,
-                span: 1
-              }, {
-                label: '创建时间',
-                children: new Date(record.createdAt * 1000).stringify(),
-                span: 1
-              }, {
-                label: '名称',
-                children: record.name,
-                span: 2
-              }, {
-                label: '归属组织',
-                children: getOrg(record.parent).name,
-                span: 2
-              }]);
+              setObj(record);
+              setOp('detail');
             }}>详情</Button>
           <Button size='small' type='link'
-            onClick={() => setRenameObj(record)}>重命名</Button>
+            onClick={() => {
+              setObj(record);
+              setOp('rename');
+            }}>重命名</Button>
           <Button size='small' danger type='link'
-            onClick={() => setDeleteObj(record)}>删除</Button>
+            onClick={() => {
+              setObj(record);
+              setOp('delete');
+            }}>删除</Button>
         </Space>);
       },
     }]} dataSource={departs}
       pagination={{ hideOnSinglePage: true }} />
     <DetailDrawer
-      onClose={() => setDetailObj(null)}
-      detailObj={detailObj} />
-    <RenameModal
-      onCancel={() => setRenameObj(null)}
-      onConfirm={async (obj) => { await delay(2000); setRenameObj(null); }}
-      renameObj={renameObj} />
+      onClose={clearOp}
+      obj={op === 'detail' ? obj : undefined} />
+    <NameModal
+      onCancel={clearOp}
+      onConfirm={async (newName) => {
+        await delay(2000);
+        clearOp();
+      }}
+      name={op === 'rename' ? obj?.name : undefined}
+      newItem={op === 'new'}
+    />
     <DeleteModal
-      onCancel={() => setDeleteObj(null)}
-      onConfirm={async (obj) => { await delay(2000); setDeleteObj(null); }}
-      deleteObj={deleteObj} />
+      onCancel={clearOp}
+      onConfirm={async () => {
+        await delay(2000);
+        clearOp();
+      }}
+      name={op === 'delete' ? obj?.name : undefined} />
   </Flex >);
 }
 
-function DetailDrawer({ detailObj, onClose }: { detailObj: DescriptionsItemType[] | null; onClose: () => void; }) {
-  return <Drawer size='large' title='部门详情' placement='right' closable open={Boolean(detailObj)} onClose={onClose}>
-    <Descriptions column={2} bordered items={detailObj ?? undefined} />
+function DetailDrawer({ obj, onClose }: { obj: Department | undefined; onClose: () => void; }) {
+  let items = undefined;
+  if (obj)
+    items = [{
+      label: 'ID',
+      children: obj.id,
+      span: 1
+    }, {
+      label: '创建时间',
+      children: new Date(obj.createdAt * 1000).stringify(),
+      span: 1
+    }, {
+      label: '名称',
+      children: obj.name,
+      span: 2
+    }, {
+      label: '归属组织',
+      children: getOrg(obj.parent).name,
+      span: 2
+    }];
+  return <Drawer size='large' title='部门详情' placement='right' closable open={Boolean(items)} onClose={onClose}>
+    <Descriptions column={2} bordered items={items} />
   </Drawer>;
 }
 
-function RenameModal({ renameObj, onConfirm, onCancel }: { renameObj: Department | null, onConfirm: (obj: Department, newName: string) => Promise<void>, onCancel: () => void }) {
-  const [name, setName] = useState('');
+function NameModal({ name, onConfirm, onCancel, newItem: newItem }: { name: string | undefined, onConfirm: (newName: string) => Promise<void>, onCancel: () => void, newItem: boolean }) {
+  const [newName, setNewName] = useState('');
   const [loading, setLoading] = useState(false);
-  if (!renameObj) {
-    if (name)
-      setName('');
-    return <></>;
-  }
-  return (<LoadableModal open title='重命名部门'
-    okButtonProps={{ disabled: !name }}
+  const show = Boolean(name || newItem);
+  if (!show && newName)
+    setNewName('');
+  const opName = newItem ? '新建' : '重命名';
+  return (<LoadableModal open={show} title={`${opName}部门`}
+    okButtonProps={{ disabled: !newName }}
     onCancel={onCancel} onOk={async () => {
       setLoading(true);
-      await onConfirm(renameObj!, name);
+      await onConfirm(newName);
       setLoading(false);
-      msg.success('重命名成功');
+      msg.success(`${opName}成功`);
     }}>
     <Typography.Text>
-      为<Typography.Text underline strong>{renameObj.name}</Typography.Text>指定新名称(须在组织内唯一):
+      为<Typography.Text underline strong>{name ?? '新建部门'}</Typography.Text>指定新名称(须在组织内唯一):
     </Typography.Text>
-    <Input disabled={loading} value={name} onChange={(ev) => setName((ev.target.value))} showCount maxLength={16} />
+    <Input disabled={loading} value={newName} onChange={(ev) => setNewName((ev.target.value))} showCount maxLength={16} />
   </LoadableModal>);
 }
 
-function DeleteModal({ deleteObj, onCancel, onConfirm }: { deleteObj: Department | null, onCancel: () => void, onConfirm: (obj: Department) => Promise<void> }) {
-  if (!deleteObj) return <></>;
-  return (<LoadableModal open title='删除部门'
+function DeleteModal({ name, onCancel, onConfirm }: { name: string | undefined, onCancel: () => void, onConfirm: () => Promise<void> }) {
+  return (<LoadableModal open={Boolean(name)} title='删除部门'
     okButtonProps={{ danger: true }} onCancel={onCancel} onOk={async () => {
-      await onConfirm(deleteObj);
+      await onConfirm();
       msg.success('删除成功');
     }}>
     <Typography.Text>
-      您确定要删除<Typography.Text underline strong>{deleteObj.name}</Typography.Text>吗？
+      您确定要删除<Typography.Text underline strong>{name}</Typography.Text>吗？
     </Typography.Text>
   </LoadableModal>);
 }
