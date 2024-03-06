@@ -110,7 +110,7 @@ function NameModal({ name, onConfirm, onCancel, newItem: newItem }: { name: stri
   return (<LoadableModal open={show} title={`${opName}部门`}
     okButtonProps={{ disabled: !newName }}
     onCancel={onCancel} onOk={() =>
-      onConfirm(newName).then(() => msg.success(`${opName}成功`))}>
+      onConfirm(newName).then(() => { msg.success(`${opName}成功`) })}>
     <Typography.Text>
       为<Typography.Text underline strong>{name ?? '新建部门'}</Typography.Text>指定新名称(须在组织内唯一):
     </Typography.Text>

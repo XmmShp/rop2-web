@@ -1,11 +1,11 @@
 import { ConfigProvider, GetProps, Modal } from "antd";
 import { useState } from "react";
 
-export default function LoadableModal({ onOk, cancelButtonProps, children, ...otherProps }: Omit<GetProps<typeof Modal>, 'onOk'> & { onOk: () => Promise<unknown> }) {
+export default function LoadableModal({ onOk, cancelButtonProps, children, ...otherProps }: Omit<GetProps<typeof Modal>, 'onOk' | 'closable' | 'keyboard' | 'maskClosable'> & { onOk: () => Promise<unknown> }) {
   const [loading, setLoading] = useState(false);
   return (<Modal {...otherProps} onOk={async () => {
     setLoading(true);
-    await onOk?.();
+    await onOk();
     setLoading(false);
   }}
     closable={!loading}
