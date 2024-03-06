@@ -91,14 +91,20 @@ export function num(...from: (string | undefined | null | number)[]): number {
   for (const f of from) {
     if (typeof f === 'number') return f;
     if (f === undefined || f === null || !f.trim()) continue;
-    const r = Number(from);
+    const r = Number(f);
     if (isFinite(r)) return r;
   }
   return 0;
 }
 
-/**React Hook，根据url返回登录组织 */
+/**React Hook，根据url或localStorage返回正在管理的组织 */
 export function useOrg(): Id {
   const [params] = useSearchParams();
-  return num(params.get('org'), localStorage.getItem('defaultOrg'), 0);
+  return num(params.get('org'), localStorage.getItem('defaultOrg'));
+}
+
+/**React Hook，根据url或localStorage返回正在管理的表单 */
+export function useForm(): Id {
+  const [params] = useSearchParams();
+  return num(params.get('form'), localStorage.getItem('defaultForm'));
 }

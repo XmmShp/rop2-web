@@ -48,7 +48,7 @@ export const consoleRoutes = mapRecur([
     }, {
       label: '编辑表单',
       path: 'edit',
-      element: <></>,
+      lazy: getConsoleLoader('form', 'FormEdit')
     }]
   }, {
     label: '选拔',

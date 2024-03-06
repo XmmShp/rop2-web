@@ -3,7 +3,7 @@ import { Flex, Typography, Button, Table, Space } from "antd";
 import { notImplement, useOrg } from "../../utils";
 import { useState } from "react";
 import Search from "../shared/Search";
-import { getOrg } from "../../store";
+import { getForm, getOrg } from "../../store";
 import { Id } from "../../api/models/shared";
 
 export default function FormOverview() {
@@ -16,7 +16,7 @@ export default function FormOverview() {
   const [forms, setForms] = useState(refreshData);
   const [filtered, setFiltered] = useState(forms);
   function getHref(formId: Id, op: 'edit' | 'inspect'): string {
-    return `/console/${op === 'edit' ? 'form/edit' : 'inspect/answer'}?org=${orgId}&formid=${formId}`;
+    return `/console/${op === 'edit' ? 'form/edit' : 'inspect/answer'}?org=${orgId}&form=${formId}${op === 'edit' ? `#group-${getForm(formId).entry}` : ''}`;
   }
   return (<Flex vertical gap='small'>
     <Typography.Text>

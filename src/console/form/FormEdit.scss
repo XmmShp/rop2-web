@@ -1,0 +1,25 @@
+.editor {
+  .anchor {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .page {
+    flex: 1 0 auto;
+    margin: 1em 3em 2em;
+    background: var(--ant-color-bg-container);
+    padding: 4em 5em 6em;
+
+    .title {
+      text-align: center;
+      font-weight: bold;
+      font-size: calc(var(--ant-font-size) * 1.75);
+      margin: 0 0 1.4rem 0;
+    }
+
+    .desc {
+      white-space: pre;
+    }
+  }
+}
