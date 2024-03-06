@@ -32,13 +32,30 @@ export const stages: Stage[] = [{
   label: '已填表',
   owner: org.id,
   createAt: now(),
-  tasks: ['choose-interview', 'review']
+  tasks: ['review'],
+}, {
+  id: newId(),
+  label: '一面',
+  owner: org.id,
+  createAt: now(),
+  tasks: ['choose-interview', 'review'],
+}, {
+  id: newId(),
+  label: '二面',
+  owner: org.id,
+  createAt: now(),
+  tasks: ['choose-interview', 'review'],
 }, {
   id: newId(),
   label: '录取',
   owner: org.id,
   createAt: now(),
   tasks: []
-}];
+}]
+stages.forEach((v, i) => {
+  if (i < stages.length - 1) {
+    v.next = stages[i + 1].id;
+  }
+});
 
 setKnown({ org: [org], department: departs, stage: stages })

@@ -2,6 +2,8 @@ import { PlusOutlined } from '@ant-design/icons';
 import { Button, Flex, Space, Table, Typography } from 'antd';
 import { stages } from '../mockData';
 import { taskLabel } from '../api/models/task';
+import { getStage } from '../store';
+import { notImplement } from '../utils';
 
 export default function StageManage() {
   return (<Flex vertical gap='small'>
@@ -14,7 +16,7 @@ export default function StageManage() {
     </Typography.Text>
     <Flex wrap='wrap'>
       <Button icon={<PlusOutlined />} type='primary'
-        onClick={undefined}>新增</Button>
+        onClick={notImplement}>新增</Button>
     </Flex>
     <Table title={(d) => `阶段列表 (${d.length}项)`} rowKey='id' bordered columns={[{
       title: '名称',
@@ -28,15 +30,23 @@ export default function StageManage() {
         }).map(v => taskLabel[v] ?? '位置').join(', ') || '无';
       }
     }, {
+      title: '下一阶段',
+      render(value, record, index) {
+        if (record.next) return getStage(record.next).label;
+        return '无';
+      }
+    }, {
       title: '操作',
       render(value, record, index) {
         return (<Space size={0}>
           <Button size='small' type='link'
-            onClick={() => { }}>详情</Button>
+            onClick={notImplement}>详情</Button>
           <Button size='small' type='link'
-            onClick={() => { }}>重命名</Button>
+            onClick={notImplement}>管理流程</Button>
+          <Button size='small' type='link'
+            onClick={notImplement}>重命名</Button>
           <Button size='small' danger type='link'
-            onClick={() => { }}>删除</Button>
+            onClick={notImplement}>删除</Button>
         </Space>);
       }
     }]} dataSource={stages}

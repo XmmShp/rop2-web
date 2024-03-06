@@ -1,4 +1,5 @@
 import { useLayoutEffect, useState } from "react";
+import { msg } from "./App";
 
 export type Mutable<T> = {
   -readonly [k in keyof T]: T[k] extends Record<keyof any, any> ? Mutable<T[k]> : T[k];
@@ -77,4 +78,8 @@ export function toArray<T>(arg: T | T[]): T[] {
   if (arg === null || arg === undefined) return []
   if (Array.isArray(arg)) return arg;
   return [arg];
+}
+
+export function notImplement() {
+  msg.error('此功能还在开发中哦');
 }

@@ -120,7 +120,7 @@ function NameModal({ name, onConfirm, onCancel, newItem: newItem }: { name: stri
 
 function DeleteModal({ name, onCancel, onConfirm }: { name: string | undefined, onCancel: () => void, onConfirm: () => Promise<void> }) {
   return (<LoadableModal open={Boolean(name)} title='删除部门'
-    okButtonProps={{ danger: true }} onCancel={onCancel} onOk={() => onConfirm().then(() => msg.success('删除成功'))}>
+    okButtonProps={{ danger: true }} onCancel={onCancel} onOk={() => onConfirm().then(() => { msg.success('删除成功') })}>
     <Typography.Text>
       您确定要删除<Typography.Text underline strong>{name}</Typography.Text>吗？
     </Typography.Text>
