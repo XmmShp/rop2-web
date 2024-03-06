@@ -1,3 +1,4 @@
+import { Form } from "./api/models/form";
 import { Department, Org } from "./api/models/org";
 import { Timestamp } from "./api/models/shared";
 import { Stage } from "./api/models/stage";
@@ -64,4 +65,16 @@ stages.forEach((v, i) => {
   }
 });
 
-setKnown({ org: [org], department: departs, stage: stages })
+export const forms: Form[] = [{
+  belongTo: org.id,
+  createAt: now(),
+  stage: stages[1].id,
+  children: [],
+  name: '求是潮2024春季纳新',
+  entry: -1,
+  id: newId(),
+  startAt: now() - 60 * 30,
+  endAt: now() + 60 * 30
+}];
+
+setKnown({ org: [org], department: departs, stage: stages, form: forms })

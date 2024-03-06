@@ -50,6 +50,10 @@ export default function StageManage() {
         </Space>);
       }
     }]} dataSource={stages}
-      pagination={false} />
+      pagination={false}
+      expandable={{
+        rowExpandable(record) { return false },
+        expandIcon() { return <></> }
+      }} />
   </Flex>);
 }

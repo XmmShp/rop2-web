@@ -47,10 +47,12 @@ interface ChoiceQuestion extends CustomQuestion {
 
 type ValidQuestion = BuiltinQuestion | TextQuestion | ChoiceQuestion;
 
-interface Form {
+export interface Form {
   belongTo: Id;
   id: Id;
+  name: string;
   children: QuestionGroup[];
+  /**首个问题组 */
   entry: Id;
   createAt: Timestamp;
   startAt: Timestamp;

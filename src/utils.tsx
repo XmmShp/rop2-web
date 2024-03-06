@@ -1,5 +1,7 @@
 import { useLayoutEffect, useState } from "react";
 import { msg } from "./App";
+import { useSearchParams } from "react-router-dom";
+import { Id } from "./api/models/shared";
 
 export type Mutable<T> = {
   -readonly [k in keyof T]: T[k] extends Record<keyof any, any> ? Mutable<T[k]> : T[k];
@@ -83,4 +85,17 @@ export function toArray<T>(arg: T | T[]): T[] {
 
 export function notImplement() {
   msg.error('此功能还在开发中哦');
+}
+
+export function num(from: string | undefined | null, defaultValue: number): number {
+  if (from === undefined || from === null || !from.trim()) return defaultValue;
+  const r = Number(from);
+  if (isFinite(r)) return r;
+  return defaultValue;
+}
+
+/**React Hook，根据url返回登录组织 */
+export function useOrg(): Id {
+  const [params] = useSearchParams();
+  return num(params.get('org'), 0);
 }

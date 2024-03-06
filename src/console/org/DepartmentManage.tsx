@@ -1,15 +1,21 @@
 import { Button, Flex, Input, Space, Table, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { departs } from '../../mockData';
 import { useState } from 'react';
 import { Department } from '../../api/models/org';
-import { delay, toArray } from '../../utils';
+import { delay, toArray, useOrg } from '../../utils';
 import { msg } from '../../App';
 import LoadableModal from '../shared/LoadableModal';
 import { DetailDrawer } from '../shared/DetailDrawer';
 import { getOrg } from '../../store';
 
 export default function DepartmentManage() {
+  const orgId = useOrg();
+  function refreshData(setState = false) {
+    const result = getOrg(orgId).children;
+    if (setState) setDeparts(result);
+    return result;
+  }
+  const [departs, setDeparts] = useState(refreshData);
   const [op, setOp] = useState<undefined
     | 'detail' | 'rename' | 'delete' | 'new'>(undefined);
   function clearOp() { setOp(undefined) }
@@ -47,34 +53,40 @@ export default function DepartmentManage() {
       <Button icon={<PlusOutlined />} type='primary'
         onClick={() => setOp('new')}>新增</Button>
     </Flex>
-    <Table title={(d) => `部门列表 (${d.length}项)`} rowKey='id' bordered columns={[{
-      title: '名称',
-      render(value, record, index) {
-        return <Typography.Text italic={toArray(record.tag).includes('default')}>{record.name}</Typography.Text>
-      },
-    }, {
-      title: '操作',
-      render(value, record, index) {
-        return (<Space size={0}>
-          <Button size='small' type='link'
-            onClick={() => {
-              setObj(record);
-              setOp('detail');
-            }}>详情</Button>
-          <Button size='small' type='link'
-            onClick={() => {
-              setObj(record);
-              setOp('rename');
-            }}>重命名</Button>
-          <Button disabled={record.tag === 'default'} size='small' danger type='link'
-            onClick={() => {
-              setObj(record);
-              setOp('delete');
-            }}>删除</Button>
-        </Space>);
-      },
-    }]} dataSource={departs}
-      pagination={false} />
+    <Table title={(d) => `部门列表 (${d.length}项)`} rowKey='id' bordered
+      columns={[{
+        title: '名称',
+        render(value, record, index) {
+          return <Typography.Text italic={toArray(record.tag).includes('default')}>{record.name}</Typography.Text>
+        },
+      }, {
+        title: '操作',
+        render(value, record, index) {
+          return (<Space size={0}>
+            <Button size='small' type='link'
+              onClick={() => {
+                setObj(record);
+                setOp('detail');
+              }}>详情</Button>
+            <Button size='small' type='link'
+              onClick={() => {
+                setObj(record);
+                setOp('rename');
+              }}>重命名</Button>
+            <Button disabled={record.tag === 'default'} size='small' danger type='link'
+              onClick={() => {
+                setObj(record);
+                setOp('delete');
+              }}>删除</Button>
+          </Space>);
+        },
+      }]}
+      dataSource={departs}
+      pagination={false}
+      expandable={{
+        rowExpandable(record) { return false },
+        expandIcon() { return <></> }
+      }} />
     <DetailDrawer
       onClose={clearOp}
       items={items} />
@@ -86,6 +98,7 @@ export default function DepartmentManage() {
         else { }
         await delay(2000);
         clearOp();
+        refreshData();
       }}
       name={op === 'rename' ? obj?.name : undefined}
       newItem={op === 'new'}
@@ -96,6 +109,7 @@ export default function DepartmentManage() {
         //TODO 删除部门
         await delay(2000);
         clearOp();
+        refreshData();
       }}
       name={op === 'delete' ? obj?.name : undefined} />
   </Flex >);
