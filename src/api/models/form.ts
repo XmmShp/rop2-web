@@ -55,8 +55,6 @@ interface Form {
   createAt: Timestamp;
   startAt: Timestamp;
   endAt: Timestamp;
-  /**提交后生成的{@link Member.batch} */
-  batch: Batch;
   /**提交后生成的{@link Member.stage} */
   stage: Id;
 }
@@ -68,7 +66,6 @@ interface QuestionGroup {
   next?: Id;
 }
 
-import { Batch } from "./stage";
 /**表示表单答卷。姓名、zjuid等属性在储存时不做特殊处理，提交时由后端生成{@link Member}关系 */
 interface Answer {
   id: Id;
