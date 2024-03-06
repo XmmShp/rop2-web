@@ -5,6 +5,7 @@
   .title-bar {
     position: sticky;
     top: 0;
+    z-index: 20;
     padding: 1em 2em;
     background-color: var(--ant-layout-light-sider-bg);
     box-shadow: 0 1px 6px color-mix(in srgb, var(--ant-color-text) 15%, transparent);

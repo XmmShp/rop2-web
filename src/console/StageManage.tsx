@@ -40,6 +40,6 @@ export default function StageManage() {
         </Space>);
       }
     }]} dataSource={stages}
-      pagination={{ hideOnSinglePage: true }} />
+      pagination={false} />
   </Flex>);
 }

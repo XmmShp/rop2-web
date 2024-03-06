@@ -74,7 +74,7 @@ export default function DepartmentManage() {
         </Space>);
       },
     }]} dataSource={departs}
-      pagination={{ hideOnSinglePage: true }} />
+      pagination={false} />
     <DetailDrawer
       onClose={clearOp}
       items={items} />

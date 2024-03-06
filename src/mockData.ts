@@ -17,6 +17,11 @@ export const departs: Department[] = [{
   tag: 'default'
 }, ...[
   '部门A',
+  '部门B',
+  '部门C',
+  '部门D',
+  '部门E',
+  '部门F',
   'To be, or not to be, that is a question',
 ].map(name => {
   return { name, id: newId(), parent: org.id, createdAt: now() };
