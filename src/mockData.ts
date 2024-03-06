@@ -29,6 +29,12 @@ export const departs: Department[] = [{
 
 export const stages: Stage[] = [{
   id: newId(),
+  label: '已拒绝',
+  owner: org.id,
+  createAt: now(),
+  tasks: [],
+}, {
+  id: newId(),
   label: '已填表',
   owner: org.id,
   createAt: now(),
@@ -53,7 +59,7 @@ export const stages: Stage[] = [{
   tasks: []
 }]
 stages.forEach((v, i) => {
-  if (i < stages.length - 1) {
+  if (i < stages.length - 1 && i > 0) {
     v.next = stages[i + 1].id;
   }
 });

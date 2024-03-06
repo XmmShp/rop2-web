@@ -48,7 +48,7 @@ declare global {
     pad(minLength?: number, floatMaxLength?: number): string;
   }
   interface Date {
-    stringify(withTime?: boolean): string;
+    stringify(withTime?: boolean, useDot?: boolean): string;
   }
 }
 Object.defineProperty(Number.prototype, 'pad', {
@@ -59,8 +59,9 @@ Object.defineProperty(Number.prototype, 'pad', {
   }
 } satisfies ThisType<number>);
 Object.defineProperty(Date.prototype, 'stringify', {
-  value(withTime = false) {
-    let result = `${this.getFullYear()}年${this.getMonth() + 1}月${this.getDate()}日`;
+  value(withTime = false, useDot = false) {
+    const sep = useDot ? ['.', '.', ''] : ['年', '月', '日'];
+    let result = `${this.getFullYear()}${sep[0]}${this.getMonth() + 1}${sep[1]}${this.getDate()}${sep[2]}`;
     if (withTime) result += ` ${this.getHours().pad(2, 0)}:${this.getMinutes().pad(2, 0)}:${this.getSeconds().pad(2, 0)}`;
     return result;
   }

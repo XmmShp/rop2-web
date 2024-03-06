@@ -1,13 +1,13 @@
 import { Button, Flex, Input, Space, Table, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { departs } from '../mockData';
+import { departs } from '../../mockData';
 import { useState } from 'react';
-import { Department } from '../api/models/org';
-import { delay, toArray } from '../utils';
-import { msg } from '../App';
-import LoadableModal from '../LoadableModal';
-import { DetailDrawer } from './DetailDrawer';
-import { getOrg } from '../store';
+import { Department } from '../../api/models/org';
+import { delay, toArray } from '../../utils';
+import { msg } from '../../App';
+import LoadableModal from '../../LoadableModal';
+import { DetailDrawer } from '../DetailDrawer';
+import { getOrg } from '../../store';
 
 export default function DepartmentManage() {
   const [op, setOp] = useState<undefined
@@ -51,7 +51,7 @@ export default function DepartmentManage() {
       title: '名称',
       render(value, record, index) {
         return <Typography.Text italic={toArray(record.tag).includes('default')}>{record.name}</Typography.Text>
-      }
+      },
     }, {
       title: '操作',
       render(value, record, index) {

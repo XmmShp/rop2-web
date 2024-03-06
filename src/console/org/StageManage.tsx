@@ -1,9 +1,9 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { Button, Flex, Space, Table, Typography } from 'antd';
-import { stages } from '../mockData';
-import { taskLabel } from '../api/models/task';
-import { getStage } from '../store';
-import { notImplement } from '../utils';
+import { stages } from '../../mockData';
+import { taskLabel } from '../../api/models/task';
+import { getStage } from '../../store';
+import { notImplement } from '../../utils';
 
 export default function StageManage() {
   return (<Flex vertical gap='small'>
@@ -12,7 +12,7 @@ export default function StageManage() {
       <br />
       候选人所在的阶段对于每个部门是独立的。
       <br />
-      表单可以指定一个关联阶段，候选人提交后，将自动进入该阶段。
+      候选人按顺序完成所有流程后，会自动进入下一阶段。
     </Typography.Text>
     <Flex wrap='wrap'>
       <Button icon={<PlusOutlined />} type='primary'

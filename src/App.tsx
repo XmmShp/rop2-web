@@ -1,10 +1,16 @@
 import React from 'react';
-import { Navigate, Outlet, RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { LazyRouteFunction, Navigate, Outlet, RouteObject, RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { ConfigProvider, message, theme } from 'antd';
 import { DashboardOutlined, ApartmentOutlined, FormOutlined, AuditOutlined } from '@ant-design/icons';
 import { mapRecur, useDarkMode } from './utils';
 import { MessageInstance } from 'antd/es/message/interface';
 
+function getLoader(path: string, props: object = {}): LazyRouteFunction<RouteObject> {
+  return async () => {
+    const { default: Component } = await import(path);
+    return { element: <Component {...props} /> };
+  }
+}
 export const consoleRoutes = mapRecur([
   {
     label: '仪表盘',
@@ -20,21 +26,15 @@ export const consoleRoutes = mapRecur([
     children: [{
       label: '部门',
       path: 'department',
-      async lazy() {
-        const { default: Component } = await import('./console/DepartmentManage');
-        return { element: <Component /> };
-      }
+      lazy: getLoader('./console/org/DepartmentManage')
     }, {
       label: '阶段',
       path: 'stage',
-      async lazy() {
-        const { default: Component } = await import('./console/StageManage');
-        return { element: <Component /> };
-      }
+      lazy: getLoader('./console/org/StageManage')
     }, {
       label: '管理员',
       path: 'admin',
-      element: <></>
+      lazy: getLoader('./console/org/AdminManage')
     }]
   }, {
     label: '表单管理',
@@ -44,7 +44,7 @@ export const consoleRoutes = mapRecur([
     children: [{
       label: '概览',
       path: 'overview',
-      element: <></>,
+      lazy: getLoader('./console/form/FormOverview')
     }, {
       label: '编辑表单',
       path: 'edit',
@@ -78,10 +78,7 @@ const router = createBrowserRouter([{
     }, {
       path: 'console',
       children: consoleRoutes,
-      async lazy() {
-        const { default: Component } = await import('./console/ConsoleLayout');
-        return { element: <Component routes={consoleRoutes} /> };
-      }
+      lazy: getLoader('./console/ConsoleLayout', { routes: consoleRoutes })
     }
   ]
 }]);
