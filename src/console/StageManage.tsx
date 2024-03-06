@@ -6,7 +6,7 @@ import { taskLabel } from '../api/models/task';
 export default function StageManage() {
   return (<Flex style={{ padding: '.4em 1em' }} vertical gap='small'>
     <Typography.Text>
-      组织可以自行定义多个<Typography.Text strong>阶段</Typography.Text>。
+      组织可以定义多个<Typography.Text strong>阶段</Typography.Text>。
       <br />
       候选人所在的阶段对于每个部门是独立的。
       <br />

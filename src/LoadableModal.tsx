@@ -1,7 +1,7 @@
-import { GetProps, Modal } from "antd";
+import { ConfigProvider, GetProps, Modal } from "antd";
 import { useState } from "react";
 
-export default function LoadableModal({ onOk, cancelButtonProps, ...otherProps }: Omit<GetProps<typeof Modal>, 'onOk'> & { onOk: () => Promise<void> }) {
+export default function LoadableModal({ onOk, cancelButtonProps, children, ...otherProps }: Omit<GetProps<typeof Modal>, 'onOk'> & { onOk: () => Promise<unknown> }) {
   const [loading, setLoading] = useState(false);
   return (<Modal {...otherProps} onOk={async () => {
     setLoading(true);
@@ -13,5 +13,9 @@ export default function LoadableModal({ onOk, cancelButtonProps, ...otherProps }
     maskClosable={!loading}
     cancelButtonProps={{ ...cancelButtonProps, disabled: loading }}
     confirmLoading={loading}
-  />);
+  >
+    <ConfigProvider componentDisabled={loading}>
+      {children}
+    </ConfigProvider>
+  </Modal>);
 }

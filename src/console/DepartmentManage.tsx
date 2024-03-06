@@ -57,6 +57,9 @@ export default function DepartmentManage() {
     <NameModal
       onCancel={clearOp}
       onConfirm={async (newName) => {
+        //TODO 重命名/新建部门
+        if (op === 'new') { }
+        else { }
         await delay(2000);
         clearOp();
       }}
@@ -66,6 +69,7 @@ export default function DepartmentManage() {
     <DeleteModal
       onCancel={clearOp}
       onConfirm={async () => {
+        //TODO 删除部门
         await delay(2000);
         clearOp();
       }}
@@ -85,51 +89,43 @@ function DetailDrawer({ obj, onClose }: { obj: Department | undefined; onClose: 
       children: new Date(obj.createdAt * 1000).stringify(),
       span: 1
     }, {
+      label: '标签',
+      children: toArray(obj.tag).join(', ') || '无',
+      span: 1
+    }, {
       label: '名称',
       children: obj.name,
-      span: 2
+      span: 3
     }, {
       label: '归属组织',
       children: getOrg(obj.parent).name,
-      span: 2
-    }, {
-      label: '标签',
-      children: toArray(obj.tag).join(', ') || '无',
-      span: 2
+      span: 3
     }];
   return <Drawer size='large' title='部门详情' placement='right' closable open={Boolean(items)} onClose={onClose}>
-    <Descriptions column={2} bordered items={items} />
+    <Descriptions column={3} bordered items={items} />
   </Drawer>;
 }
 
 function NameModal({ name, onConfirm, onCancel, newItem: newItem }: { name: string | undefined, onConfirm: (newName: string) => Promise<void>, onCancel: () => void, newItem: boolean }) {
   const [newName, setNewName] = useState('');
-  const [loading, setLoading] = useState(false);
   const show = Boolean(name || newItem);
   if (!show && newName)
     setNewName('');
   const opName = newItem ? '新建' : '重命名';
   return (<LoadableModal open={show} title={`${opName}部门`}
     okButtonProps={{ disabled: !newName }}
-    onCancel={onCancel} onOk={async () => {
-      setLoading(true);
-      await onConfirm(newName);
-      setLoading(false);
-      msg.success(`${opName}成功`);
-    }}>
+    onCancel={onCancel} onOk={() =>
+      onConfirm(newName).then(() => msg.success(`${opName}成功`))}>
     <Typography.Text>
       为<Typography.Text underline strong>{name ?? '新建部门'}</Typography.Text>指定新名称(须在组织内唯一):
     </Typography.Text>
-    <Input disabled={loading} value={newName} onChange={(ev) => setNewName((ev.target.value))} showCount maxLength={16} />
+    <Input value={newName} onChange={(ev) => setNewName((ev.target.value))} showCount maxLength={16} />
   </LoadableModal>);
 }
 
 function DeleteModal({ name, onCancel, onConfirm }: { name: string | undefined, onCancel: () => void, onConfirm: () => Promise<void> }) {
   return (<LoadableModal open={Boolean(name)} title='删除部门'
-    okButtonProps={{ danger: true }} onCancel={onCancel} onOk={async () => {
-      await onConfirm();
-      msg.success('删除成功');
-    }}>
+    okButtonProps={{ danger: true }} onCancel={onCancel} onOk={() => onConfirm().then(() => msg.success('删除成功'))}>
     <Typography.Text>
       您确定要删除<Typography.Text underline strong>{name}</Typography.Text>吗？
     </Typography.Text>
