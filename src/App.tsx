@@ -51,14 +51,14 @@ export const consoleRoutes = mapRecur([
       element: <></>,
     }]
   }, {
-    label: '候选人审查',
+    label: '选拔',
     path: 'inspect',
     icon: <AuditOutlined />,
     element: <Outlet />,
     children: [
       {
-        label: '概览',
-        path: 'overview',
+        label: '答卷查看',
+        path: 'answer',
         element: <></>,
       }, {
         label: '面试管理',
