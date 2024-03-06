@@ -1,11 +1,18 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { Button, Flex, Space, Table, Typography } from 'antd';
-import { stages } from '../../mockData';
 import { taskLabel } from '../../api/models/task';
-import { getStage } from '../../store';
-import { notImplement } from '../../utils';
+import { getOrg, getStage } from '../../store';
+import { notImplement, useOrg } from '../../utils';
+import { useState } from 'react';
 
 export default function StageManage() {
+  const orgId = useOrg();
+  function refreshData(setState = false) {
+    const result = getOrg(orgId).stages;
+    if (setState) setStages(result);
+    return result;
+  }
+  const [stages, setStages] = useState(refreshData);
   return (<Flex vertical gap='small'>
     <Typography.Text>
       组织可以定义多个<Typography.Text strong>阶段</Typography.Text>。

@@ -1,13 +1,23 @@
 import { PlusOutlined } from "@ant-design/icons";
 import { Flex, Typography, Button, Table, Space } from "antd";
-import { notImplement } from "../../utils";
-import { forms } from "../../mockData";
+import { notImplement, useOrg } from "../../utils";
 import { useState } from "react";
 import Search from "../shared/Search";
+import { getOrg } from "../../store";
+import { Id } from "../../api/models/shared";
 
-export default function () {
-  const fullValue = forms;
-  const [showValue, setShowValue] = useState(fullValue);
+export default function FormOverview() {
+  const orgId = useOrg();
+  function refreshData(setState = false) {
+    const result = getOrg(orgId).forms;
+    if (setState) setForms(result);
+    return result;
+  }
+  const [forms, setForms] = useState(refreshData);
+  const [filtered, setFiltered] = useState(forms);
+  function getHref(formId: Id, op: 'edit' | 'inspect'): string {
+    return `/console/${op === 'edit' ? 'form/edit' : 'inspect/answer'}?org=${orgId}&formid=${formId}`;
+  }
   return (<Flex vertical gap='small'>
     <Typography.Text>
       组织的每批纳新对应一个<Typography.Text strong>表单</Typography.Text>。
@@ -16,7 +26,7 @@ export default function () {
       <Button icon={<PlusOutlined />} type='primary'
         onClick={notImplement}>新增</Button>
     </Flex>
-    <Search onChange={({ target: { value: search } }) => setShowValue(fullValue.filter(v => v.name.includes(search)))} />
+    <Search onChange={({ target: { value: search } }) => setFiltered(forms.filter(v => v.name.includes(search)))} />
     <Table title={(d) => `表单列表 (${d.length}项)`} rowKey='id' bordered columns={[{
       title: '名称',
       dataIndex: 'name'
@@ -35,12 +45,12 @@ export default function () {
       render(value, record, index) {
         return (<Space size={0}>
           <Button size='small' type='link'
-            onClick={notImplement}>编辑</Button>
+            href={getHref(record.id, 'edit')}>编辑</Button>
           <Button size='small' type='link'
-            onClick={notImplement}>选拔</Button>
+            href={getHref(record.id, 'inspect')}>选拔</Button>
         </Space>);
       }
-    }]} dataSource={showValue} pagination={{
+    }]} dataSource={filtered} pagination={{
       hideOnSinglePage: false,
       showSizeChanger: true,
       showQuickJumper: true

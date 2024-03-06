@@ -4,6 +4,7 @@ import { notImplement } from "../../utils";
 import Search from "../shared/Search";
 import { useState } from "react";
 
+//TODO 目前还未定义管理员的数据结构
 export default function AdminManage() {
   const fullValue = [{ nickname: 'test' }];
   const [showValue, setShowValue] = useState(fullValue);

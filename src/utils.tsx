@@ -87,15 +87,18 @@ export function notImplement() {
   msg.error('此功能还在开发中哦');
 }
 
-export function num(from: string | undefined | null, defaultValue: number): number {
-  if (from === undefined || from === null || !from.trim()) return defaultValue;
-  const r = Number(from);
-  if (isFinite(r)) return r;
-  return defaultValue;
+export function num(...from: (string | undefined | null | number)[]): number {
+  for (const f of from) {
+    if (typeof f === 'number') return f;
+    if (f === undefined || f === null || !f.trim()) continue;
+    const r = Number(from);
+    if (isFinite(r)) return r;
+  }
+  return 0;
 }
 
 /**React Hook，根据url返回登录组织 */
 export function useOrg(): Id {
   const [params] = useSearchParams();
-  return num(params.get('org'), 0);
+  return num(params.get('org'), localStorage.getItem('defaultOrg'), 0);
 }
