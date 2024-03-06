@@ -1,19 +1,43 @@
-import { Button, Descriptions, Drawer, Flex, Input, Space, Table, Typography } from 'antd';
+import { Button, Flex, Input, Space, Table, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { departs } from '../mockData';
 import { useState } from 'react';
-import { getOrg } from '../store';
 import { Department } from '../api/models/org';
 import { delay, toArray } from '../utils';
 import { msg } from '../App';
 import LoadableModal from '../LoadableModal';
+import { DetailDrawer } from './DetailDrawer';
+import { getOrg } from '../store';
 
 export default function DepartmentManage() {
   const [op, setOp] = useState<undefined
     | 'detail' | 'rename' | 'delete' | 'new'>(undefined);
   function clearOp() { setOp(undefined) }
   const [obj, setObj] = useState<undefined | Department>(undefined);
-  return (<Flex style={{ padding: '.4em 1em' }} vertical gap='small'>
+  let items = undefined;
+  if (op === 'detail' && obj)
+    items = [{
+      label: 'ID',
+      children: obj.id,
+      span: 1
+    }, {
+      label: '创建时间',
+      children: new Date(obj.createdAt * 1000).stringify(),
+      span: 1
+    }, {
+      label: '标签',
+      children: toArray(obj.tag).join(', ') || '无',
+      span: 1
+    }, {
+      label: '名称',
+      children: obj.name,
+      span: 3
+    }, {
+      label: '归属组织',
+      children: getOrg(obj.parent).name,
+      span: 3
+    }];
+  return (<Flex vertical gap='small'>
     <Typography.Text>
       组织可以下设一个或多个<Typography.Text strong>部门</Typography.Text>。
       <br />
@@ -23,7 +47,7 @@ export default function DepartmentManage() {
       <Button icon={<PlusOutlined />} type='primary'
         onClick={() => setOp('new')}>新增</Button>
     </Flex>
-    <Table title={(d) => `部门列表 (${d.length}项)`} rowKey='name' bordered columns={[{
+    <Table title={(d) => `部门列表 (${d.length}项)`} rowKey='id' bordered columns={[{
       title: '名称',
       render(value, record, index) {
         return <Typography.Text italic={toArray(record.tag).includes('default')}>{record.name}</Typography.Text>
@@ -53,7 +77,7 @@ export default function DepartmentManage() {
       pagination={{ hideOnSinglePage: true }} />
     <DetailDrawer
       onClose={clearOp}
-      obj={op === 'detail' ? obj : undefined} />
+      items={items} />
     <NameModal
       onCancel={clearOp}
       onConfirm={async (newName) => {
@@ -75,35 +99,6 @@ export default function DepartmentManage() {
       }}
       name={op === 'delete' ? obj?.name : undefined} />
   </Flex >);
-}
-
-function DetailDrawer({ obj, onClose }: { obj: Department | undefined; onClose: () => void; }) {
-  let items = undefined;
-  if (obj)
-    items = [{
-      label: 'ID',
-      children: obj.id,
-      span: 1
-    }, {
-      label: '创建时间',
-      children: new Date(obj.createdAt * 1000).stringify(),
-      span: 1
-    }, {
-      label: '标签',
-      children: toArray(obj.tag).join(', ') || '无',
-      span: 1
-    }, {
-      label: '名称',
-      children: obj.name,
-      span: 3
-    }, {
-      label: '归属组织',
-      children: getOrg(obj.parent).name,
-      span: 3
-    }];
-  return <Drawer size='large' title='部门详情' placement='right' closable open={Boolean(items)} onClose={onClose}>
-    <Descriptions column={3} bordered items={items} />
-  </Drawer>;
 }
 
 function NameModal({ name, onConfirm, onCancel, newItem: newItem }: { name: string | undefined, onConfirm: (newName: string) => Promise<void>, onCancel: () => void, newItem: boolean }) {

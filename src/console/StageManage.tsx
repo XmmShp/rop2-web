@@ -4,7 +4,7 @@ import { stages } from '../mockData';
 import { taskLabel } from '../api/models/task';
 
 export default function StageManage() {
-  return (<Flex style={{ padding: '.4em 1em' }} vertical gap='small'>
+  return (<Flex vertical gap='small'>
     <Typography.Text>
       组织可以定义多个<Typography.Text strong>阶段</Typography.Text>。
       <br />
@@ -16,7 +16,7 @@ export default function StageManage() {
       <Button icon={<PlusOutlined />} type='primary'
         onClick={undefined}>新增</Button>
     </Flex>
-    <Table title={(d) => `阶段列表 (${d.length}项)`} rowKey='name' bordered columns={[{
+    <Table title={(d) => `阶段列表 (${d.length}项)`} rowKey='id' bordered columns={[{
       title: '名称',
       dataIndex: 'label'
     }, {

@@ -31,7 +31,7 @@ export default function ConsoleLayout({ routes }: { routes: GetProp<typeof Menu,
         items={mapRecur(routes as any, 'children', (o) => without(o as any, ['lazy', 'path'])) as any} />
     </Layout.Sider>
 
-    <Layout.Content>
+    <Layout.Content className='main'>
       <Flex className='title-bar' align='center' justify='space-between'>
         <span className='title'>求是潮纳新开放系统V2</span>
         <Link className='current-activity' to='/'>正在进行的纳新名称</Link>
@@ -42,7 +42,9 @@ export default function ConsoleLayout({ routes }: { routes: GetProp<typeof Menu,
           </Flex>
         </Dropdown>
       </Flex>
-      <Outlet />
+      <div className='content'>
+        <Outlet />
+      </div>
     </Layout.Content>
   </Layout>);
 }

@@ -1,29 +1,40 @@
-.title-bar {
-  padding: 1em 2em;
-  background-color: var(--ant-layout-light-sider-bg);
-  box-shadow: 0 1px 6px color-mix(in srgb, var(--ant-color-text) 15%, transparent);
+.main {
+  max-height: 100vh;
+  overflow: auto;
 
-  .title {
-    font-size: 1.2em;
-  }
+  .title-bar {
+    position: sticky;
+    top: 0;
+    padding: 1em 2em;
+    background-color: var(--ant-layout-light-sider-bg);
+    box-shadow: 0 1px 6px color-mix(in srgb, var(--ant-color-text) 15%, transparent);
 
-  .current-activity {
-    flex: 0 1.5 auto;
-  }
-
-  .user-area {
-    max-width: 12em;
-    cursor: pointer;
-
-    .avatar {
-      flex: 0 0 auto;
-      margin-right: .35em;
+    .title {
+      font-size: 1.2em;
     }
 
-    .username {
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      overflow: hidden;
+    .current-activity {
+      flex: 0 1.5 auto;
     }
+
+    .user-area {
+      max-width: 12em;
+      cursor: pointer;
+
+      .avatar {
+        flex: 0 0 auto;
+        margin-right: .35em;
+      }
+
+      .username {
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+    }
+  }
+
+  .content {
+    padding: .4em 1em;
   }
 }
