@@ -5,8 +5,8 @@ import { useState } from 'react';
 import { Department } from '../../api/models/org';
 import { delay, toArray } from '../../utils';
 import { msg } from '../../App';
-import LoadableModal from '../../LoadableModal';
-import { DetailDrawer } from '../DetailDrawer';
+import LoadableModal from '../shared/LoadableModal';
+import { DetailDrawer } from '../shared/DetailDrawer';
 import { getOrg } from '../../store';
 
 export default function DepartmentManage() {

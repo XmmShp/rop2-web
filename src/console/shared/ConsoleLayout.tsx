@@ -1,6 +1,6 @@
 import { Avatar, Dropdown, Flex, GetProp, Layout, Menu, Typography } from 'antd';
 import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { mapRecur, singleMatch, without } from '../utils';
+import { mapRecur, singleMatch, without } from '../../utils';
 import { useState } from 'react';
 import './ConsoleLayout.scss';
 

@@ -5,9 +5,9 @@ import { DashboardOutlined, ApartmentOutlined, FormOutlined, AuditOutlined } fro
 import { mapRecur, useDarkMode } from './utils';
 import { MessageInstance } from 'antd/es/message/interface';
 
-function getLoader(path: string, props: object = {}): LazyRouteFunction<RouteObject> {
+function getConsoleLoader(scope: string, file: string, props: object = {}): LazyRouteFunction<RouteObject> {
   return async () => {
-    const { default: Component } = await import(path);
+    const { default: Component } = await import(`./console/${scope}/${file}.tsx`);
     return { element: <Component {...props} /> };
   }
 }
@@ -26,15 +26,15 @@ export const consoleRoutes = mapRecur([
     children: [{
       label: '部门',
       path: 'department',
-      lazy: getLoader('./console/org/DepartmentManage')
+      lazy: getConsoleLoader('org', 'DepartmentManage')
     }, {
       label: '阶段',
       path: 'stage',
-      lazy: getLoader('./console/org/StageManage')
+      lazy: getConsoleLoader('org', 'StageManage')
     }, {
       label: '管理员',
       path: 'admin',
-      lazy: getLoader('./console/org/AdminManage')
+      lazy: getConsoleLoader('org', 'AdminManage')
     }]
   }, {
     label: '表单管理',
@@ -44,7 +44,7 @@ export const consoleRoutes = mapRecur([
     children: [{
       label: '概览',
       path: 'overview',
-      lazy: getLoader('./console/form/FormOverview')
+      lazy: getConsoleLoader('form', 'FormOverview')
     }, {
       label: '编辑表单',
       path: 'edit',
@@ -78,7 +78,7 @@ const router = createBrowserRouter([{
     }, {
       path: 'console',
       children: consoleRoutes,
-      lazy: getLoader('./console/ConsoleLayout', { routes: consoleRoutes })
+      lazy: getConsoleLoader('shared', 'ConsoleLayout', { routes: consoleRoutes })
     }
   ]
 }]);
