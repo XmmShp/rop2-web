@@ -1,7 +1,7 @@
 import { type Member } from "./org";
 import { Id, Timestamp } from "./shared";
 
-type QuestionType = 'name' | 'gender' | 'zjuid' | 'choice-department' | 'text' | 'choice';
+type QuestionType = 'name' | 'gender' | 'zjuid' | 'phone' | 'choice-department' | 'text' | 'choice';
 interface Question {
   id: Id;
   type: QuestionType;
@@ -11,7 +11,8 @@ interface Question {
 interface NameQuestion extends Question { type: 'name' }
 interface GenderQuestion extends Question { type: 'gender' }
 interface ZJUIdQuestion extends Question { type: 'zjuid' }
-interface ChoiceDepartmentQuestion {
+interface PhoneQuestion extends Question { type: 'phone' }
+interface ChoiceDepartmentQuestion extends Question {
   type: 'choice-department';
   optional?: false;
   /**最多选择项数，为空则可全选 */
@@ -21,14 +22,14 @@ interface ChoiceDepartmentQuestion {
     reveal?: Id;
   }[];
 }
-type BuiltinQuestion = NameQuestion | GenderQuestion | ZJUIdQuestion | ChoiceDepartmentQuestion;
+type BuiltinQuestion = NameQuestion | GenderQuestion | ZJUIdQuestion | PhoneQuestion | ChoiceDepartmentQuestion;
 interface CustomQuestion extends Question {
   title: string;
   desc?: string;
 }
 interface TextQuestion extends CustomQuestion {
   type: 'text';
-  maxLine: number;
+  maxLine?: number;
   minLength?: number;
   maxLength?: number;
   validate?: string;
@@ -62,7 +63,7 @@ export interface Form {
   stage: Id;
 }
 
-interface QuestionGroup {
+export interface QuestionGroup {
   id: Id;
   label: string;
   children: ValidQuestion[];

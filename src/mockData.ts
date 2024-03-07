@@ -70,19 +70,43 @@ export const forms: Form[] = [{
   belongTo: org.id,
   createAt: now(),
   stage: stages[1].id,
+  id: newId(),
   children: [{
     id: entryGroupId,
     label: '基本信息',
-    children: []
+    children: [{
+      id: newId(),
+      type: 'name',
+    }, {
+      id: newId(),
+      type: 'zjuid',
+    }, {
+      id: newId(),
+      type: 'gender',
+    }, {
+      id: newId(),
+      type: 'phone',
+    }]
   }, {
     id: newId(),
     label: '部门A命题',
-    children: []
+    children: [{
+      id: newId(),
+      type: 'text',
+      title: '论述题AAAA',
+    }, {
+      id: newId(),
+      type: 'text',
+      title: '论述题AAAA',
+    }, {
+      id: newId(),
+      type: 'text',
+      title: '论述题AAAA',
+    }]
   }],
   name: '求是潮2024春季纳新',
   desc: '欢迎您参加求是潮2024春季纳新。\n请您准确填写以下信息，以便我们整理信息进行面试。',
   entry: entryGroupId,
-  id: newId(),
   startAt: now() - 60 * 30,
   endAt: now() + 60 * 30
 }];
