@@ -52,7 +52,7 @@ export interface Form {
   belongTo: Id;
   id: Id;
   name: string;
-  desc?: string
+  desc: string
   children: QuestionGroup[];
   /**首个问题组 */
   entry: Id;

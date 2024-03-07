@@ -1,5 +1,5 @@
 import { EditOutlined } from '@ant-design/icons';
-import { Button, Flex, theme } from 'antd';
+import { Button, Flex } from 'antd';
 import { ForwardedRef, ReactNode, forwardRef, useState } from 'react';
 
 function _QuestionEditor({ question, editor, onConfirm }: {
@@ -9,8 +9,8 @@ function _QuestionEditor({ question, editor, onConfirm }: {
 }, ref: ForwardedRef<HTMLDivElement>) {
   const [editing, setEditing] = useState(false);
   return <Flex align={editing ? 'flex-end' : 'center'} gap='small' vertical={editing} ref={ref}>
-    {editing ?
-      <>
+    {editing
+      ? <>
         {editor}
         <Flex gap='small' justify='flex-end'>
           <Button
@@ -25,10 +25,10 @@ function _QuestionEditor({ question, editor, onConfirm }: {
             确定
           </Button>
         </Flex>
-
       </>
       : <>
-        <Button icon={<EditOutlined />} type='dashed'
+        <Button style={{ flex: '0 0 auto' }}
+          icon={<EditOutlined />} type='dashed'
           onClick={() => setEditing(true)} />
         {question}
       </>}
