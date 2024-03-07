@@ -8,7 +8,7 @@ function _QuestionEditor({ question, editor, onConfirm }: {
   onConfirm?: () => unknown
 }, ref: ForwardedRef<HTMLDivElement>) {
   const [editing, setEditing] = useState(false);
-  return <Flex align={editing ? 'flex-end' : 'center'} gap='small' vertical={editing} ref={ref}>
+  return <Flex align={editing ? undefined : 'center'} gap='small' vertical={editing} ref={ref}>
     {editing
       ? <>
         {editor}

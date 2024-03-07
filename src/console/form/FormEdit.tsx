@@ -7,6 +7,7 @@ import { QuestionGroup } from '../../api/models/form';
 import { QuestionEditor } from './QuestionEditor';
 import { ArrowRightOutlined, LoginOutlined } from '@ant-design/icons';
 import { Id } from '../../api/models/shared';
+import FormQuestion from '../../shared/FormQuestion';
 
 export default function FormEdit() {
   const formId = useForm();
@@ -125,7 +126,12 @@ function GroupCard({ group, isEntry, groups, onEdit }: {
         </Typography.Text>
       </Flex>),
       children: (<Flex vertical gap={'large'}>
-        {group.children.map((ques) => (<Input className='question' key={ques.id}></Input>))}
+        {group.children.map((ques) => (
+          <QuestionEditor key={ques.id}
+            question={<FormQuestion readonly
+              question={ques} />}
+            editor={<Flex>Developing</Flex>} />
+        ))}
         <Flex wrap='wrap' align='center' gap='small'>
           <Tooltip title={<>
             指定须填写的下一个问题组。

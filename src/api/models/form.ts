@@ -46,7 +46,7 @@ interface ChoiceQuestion extends CustomQuestion {
   }[];
 }
 
-type ValidQuestion = BuiltinQuestion | TextQuestion | ChoiceQuestion;
+export type ValidQuestion = BuiltinQuestion | TextQuestion | ChoiceQuestion;
 
 export interface Form {
   belongTo: Id;
