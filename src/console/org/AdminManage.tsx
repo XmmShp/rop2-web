@@ -10,7 +10,9 @@ export default function AdminManage() {
   const [showValue, setShowValue] = useState(fullValue);
   return (<Flex vertical gap='small'>
     <Typography.Text>
-      组织和部门都可以拥有多个<Typography.Text strong>管理员</Typography.Text>。
+      每个部门可以拥有多个<Typography.Text strong>管理员</Typography.Text>。
+      <br />
+      管理员在<Typography.Text strong>默认部门</Typography.Text>的权限将被视为在所有部门下的权限。
     </Typography.Text>
     <Flex wrap='wrap'>
       <Button icon={<PlusOutlined />} type='primary'
