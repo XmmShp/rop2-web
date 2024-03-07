@@ -16,7 +16,7 @@ export default function FormOverview() {
   const [forms, setForms] = useState(refreshData);
   const [filtered, setFiltered] = useState(forms);
   function getHref(formId: Id, op: 'edit' | 'inspect'): string {
-    return `/console/${op === 'edit' ? 'form/edit' : 'inspect/answer'}?org=${orgId}&form=${formId}${op === 'edit' ? `#group-${getForm(formId).entry}` : ''}`;
+    return `/console/${op === 'edit' ? 'form/edit' : 'inspect/answer'}?org=${orgId}&form=${formId}`;
   }
   return (<Flex vertical gap='small'>
     <Typography.Text>
@@ -45,6 +45,9 @@ export default function FormOverview() {
       render(value, record, index) {
         return (<Space size={0}>
           <Button size='small' type='link'
+            onClick={() => {
+              localStorage.setItem('defaultForm', record.id.toString());
+            }}
             href={getHref(record.id, 'edit')}>编辑</Button>
           <Button size='small' type='link'
             href={getHref(record.id, 'inspect')}>选拔</Button>

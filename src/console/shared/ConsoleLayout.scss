@@ -1,9 +1,11 @@
 .main {
   max-height: 100vh;
-  overflow: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 
   .title-bar {
-    position: sticky;
+    flex: 0 0 auto;
     top: 0;
     z-index: 20;
     padding: 1em 1.6em;
@@ -36,6 +38,8 @@
   }
 
   .content {
+    flex: 1 1 auto;
     padding: .4em 1em;
+    overflow: auto;
   }
 }

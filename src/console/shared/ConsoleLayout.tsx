@@ -8,6 +8,7 @@ export default function ConsoleLayout({ routes }: { routes: GetProp<typeof Menu,
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const subFunc = singleMatch(pathname, /^\/console\/(\w+(\/\w+)*)(?!\/)\/?\??/);
+  const [collapsed, setCollapsed] = useState(window.innerWidth < 768);
   const [openKeys, setOpenKeys] = useState<string[]>(() => {
     const matched = singleMatch(subFunc ?? '', /^(\w+)/);
     if (!matched) return [];
@@ -19,13 +20,16 @@ export default function ConsoleLayout({ routes }: { routes: GetProp<typeof Menu,
       maxHeight: 'calc(100vh - 48px)',
       overflow: 'hidden auto',
       userSelect: 'none'
-    }} collapsible defaultCollapsed={false}
+    }}
+      collapsible
+      collapsed={collapsed}
       onCollapse={(col) => {
         if (!col) setOpenKeys([singleMatch(subFunc ?? '', /^(\w+)/)!]);
+        setCollapsed(col);
       }}
     >
       <Menu selectedKeys={[subFunc]} mode="inline"
-        openKeys={openKeys}
+        openKeys={collapsed ? undefined : openKeys}
         onOpenChange={(keys) => setOpenKeys(keys)}
         onClick={(info) => navigate(info.key)}
         items={mapRecur(routes as any, 'children', (o) => without(o as any, ['lazy', 'path'])) as any} />
