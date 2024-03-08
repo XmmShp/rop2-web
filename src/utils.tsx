@@ -104,3 +104,7 @@ export function useForm(): Id {
   const [params] = useSearchParams();
   return num(params.get('form'), localStorage.getItem('defaultForm'));
 }
+
+export function getUser(): string {
+  return localStorage.getItem('userNickname') ?? '';
+}

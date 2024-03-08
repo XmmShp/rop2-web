@@ -53,7 +53,7 @@ export function QuestionEditor({ question, onChange, groups, thisGroup }:
           let reveal = question.choices[dep.id];
           if (reveal === undefined) reveal = -2;
           else if (reveal === null) reveal = -1;
-          return (<Flex gap='small' align='center'>
+          return (<Flex key={dep.id} gap='small' align='center'>
             {dep.name}
             <Select popupMatchSelectWidth={false} value={reveal} options={[{
               label: '隐藏',

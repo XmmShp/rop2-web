@@ -1,6 +1,6 @@
 import { Avatar, Dropdown, Flex, GetProp, Layout, Menu } from 'antd';
 import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { mapRecur, singleMatch, without } from '../../utils';
+import { getUser, mapRecur, singleMatch, without } from '../../utils';
 import { useState } from 'react';
 import './ConsoleLayout.scss';
 
@@ -38,8 +38,8 @@ export default function ConsoleLayout({ routes }: { routes: GetProp<typeof Menu,
         <Link className='current-activity' to='/'>正在进行的纳新名称</Link>
         <Dropdown trigger={['click']} menu={{ items: [{ label: '退出', }].map((v, i) => { return { ...v, key: i } }) }}>
           <Flex className='user-area' align='center' >
-            <Avatar className='avatar'>test</Avatar>
-            <span className='username'>测试用户 </span>
+            <Avatar className='avatar'>{getUser()}</Avatar>
+            <span className='username'>{getUser()}</span>
           </Flex>
         </Dropdown>
       </Flex>

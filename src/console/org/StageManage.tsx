@@ -49,9 +49,7 @@ export default function StageManage() {
           <Button size='small' type='link'
             onClick={notImplement}>详情</Button>
           <Button size='small' type='link'
-            onClick={notImplement}>管理流程</Button>
-          <Button size='small' type='link'
-            onClick={notImplement}>重命名</Button>
+            onClick={notImplement}>管理</Button>
           <Button size='small' danger type='link'
             onClick={notImplement}>删除</Button>
         </Space>);
