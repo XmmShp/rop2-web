@@ -18,6 +18,8 @@
     position: relative;
 
     .form {
+      display: flex;
+      flex-direction: column;
       margin: 1.8em 2em;
       background: var(--ant-color-bg-container);
       padding: 4em 5em 6em;
@@ -35,6 +37,10 @@
 
       .group {
         margin: 1.2em 0 0;
+
+        .choice-type {
+          min-width: 6em;
+        }
       }
     }
   }

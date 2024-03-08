@@ -1,13 +1,12 @@
 import { RefObject, createRef, useMemo, useRef, useState } from 'react';
 import { useForm } from '../../utils';
 import { getForm } from '../../store';
-import { Collapse, Flex, Input, Select, Tabs, Tooltip, Typography } from 'antd';
+import { Collapse, Flex, Form, Select, Tabs, Tooltip, Typography } from 'antd';
 import './FormEdit.scss';
 import { QuestionGroup } from '../../api/models/form';
-import { QuestionEditor } from './QuestionEditor';
+import { DescEditor, PreviewWithEditor } from './PreviewWithEditor';
 import { ArrowRightOutlined, LoginOutlined } from '@ant-design/icons';
 import { Id } from '../../api/models/shared';
-import FormQuestion from '../../shared/FormQuestion';
 
 export default function FormEdit() {
   const formId = useForm();
@@ -19,7 +18,6 @@ export default function FormEdit() {
   const [curGroup, setCurGroup] = useState<QuestionGroup | null>(null);
 
   const editingTitle = useRef(form.name);//由于antd的可编辑文本特性，此处使用useRef而非useState
-  const [editingDesc, setEditingDesc] = useState(form.desc);
   return (
     <Flex className='editor'>
       <Flex className='anchor'>
@@ -52,7 +50,7 @@ export default function FormEdit() {
           const curG = groups.findLast(g => g.ref.current!.offsetTop <= scrollTop) ?? null;
           setCurGroup(curG);
         }}>
-        <Flex className='form' vertical>
+        <Form className='form'>
           <Typography.Title editable={{
             onChange(v) { editingTitle.current = v; },
             onEnd() {
@@ -60,20 +58,10 @@ export default function FormEdit() {
               setForm({ ...form, name: editingTitle.current });
             }
           }} className='title'>{form.name}</Typography.Title>
-          <QuestionEditor
-            question={
-              <Typography.Text className='desc'>
-                {form.desc ?? ''}
-              </Typography.Text>
-            }
-            editor={<Input.TextArea
-              autoSize={{ minRows: 3, maxRows: 5 }}
-              value={editingDesc}
-              onChange={(ev) => { setEditingDesc(ev.target.value) }} />}
-            onConfirm={() => {
-              //TODO request API
-              setForm({ ...form, desc: editingDesc });
-            }} />
+          <DescEditor desc={form.desc} onConfirm={(newDesc) => {
+            //TODO request API
+            setForm({ ...form, desc: newDesc });
+          }} />
 
           {groups.map((group, index) => <GroupCard key={group.id}
             isEntry={form.entry === group.id} group={group} groups={groups}
@@ -81,7 +69,7 @@ export default function FormEdit() {
               //TODO request API
               setForm({ ...form, children: form.children.with(index, newObj) });
             }} />)}
-        </Flex>
+        </Form>
       </Flex>
     </Flex >);
 }
@@ -94,10 +82,6 @@ function GroupCard({ group, isEntry, groups, onEdit }: {
 }) {
   const labelRef = useRef(group.label);
   const [questions, setQuestions] = useState(group.children);
-  const [nextGroup, setNextGroup] = useState<Id | undefined>(group.next);
-  function saveChange() {
-    onEdit({ ...group, label: labelRef.current, children: questions, next: nextGroup });
-  }
   return (<Collapse
     className='group'
     ref={group.ref}
@@ -120,17 +104,22 @@ function GroupCard({ group, isEntry, groups, onEdit }: {
         </Tooltip>) : <></>}
         <Typography.Text style={{ flex: '1 0 auto' }} editable={{
           onChange(v) { labelRef.current = v },
-          onEnd() { saveChange() }
+          onEnd() {
+            onEdit({ ...group, label: labelRef.current });
+          }
         }}>
           {group.label}
         </Typography.Text>
       </Flex>),
       children: (<Flex vertical gap={'large'}>
-        {group.children.map((ques) => (
-          <QuestionEditor key={ques.id}
-            question={<FormQuestion readonly
-              question={ques} />}
-            editor={<Flex>Developing</Flex>} />
+        {group.children.map((ques, index) => (
+          <PreviewWithEditor key={ques.id}
+            question={ques}
+            onConfirm={(newObj) => {
+              //TODO request API
+              // setQuestions(questions.with(index, newObj));
+              onEdit({ ...group, children: questions.with(index, newObj) });
+            }} />
         ))}
         <Flex wrap='wrap' align='center' gap='small'>
           <Tooltip title={<>
@@ -143,10 +132,9 @@ function GroupCard({ group, isEntry, groups, onEdit }: {
               下一问题组
             </Flex>
           </Tooltip>
-          <Select value={nextGroup ?? -1} popupMatchSelectWidth={false} style={{ minWidth: '6em' }}
+          <Select value={group.next ?? -1} popupMatchSelectWidth={false} style={{ minWidth: '6em' }}
             onSelect={(v) => {
-              setNextGroup(v);
-              saveChange();
+              onEdit({ ...group, next: v === -1 ? undefined : v });
             }}
             options={[
               { label: '无', value: -1 },

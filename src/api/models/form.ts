@@ -12,7 +12,7 @@ interface NameQuestion extends Question { type: 'name' }
 interface GenderQuestion extends Question { type: 'gender' }
 interface ZJUIdQuestion extends Question { type: 'zjuid' }
 interface PhoneQuestion extends Question { type: 'phone' }
-interface ChoiceDepartmentQuestion extends Question {
+export interface ChoiceDepartmentQuestion extends Question {
   type: 'choice-department';
   optional?: false;
   /**最多选择项数，为空则可全选 */
