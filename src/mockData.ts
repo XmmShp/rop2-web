@@ -89,7 +89,17 @@ export const forms: Form[] = [{
     }, {
       id: newId(),
       type: 'choice-department',
-      choices: {}
+      maxSelection: 3,
+      choices: {
+        // [departs[0].id]: null,默认部门不能作为志愿
+        [departs[1].id]: null,
+        [departs[2].id]: null,
+        [departs[3].id]: null,
+        [departs[4].id]: null,
+        [departs[5].id]: null,
+        [departs[6].id]: null,
+        [departs[7].id]: null,
+      }
     }]
   }, {
     id: newId(),

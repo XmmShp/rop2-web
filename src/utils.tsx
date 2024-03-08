@@ -108,3 +108,7 @@ export function useForm(): Id {
 export function getUser(): string {
   return localStorage.getItem('userNickname') ?? '';
 }
+
+export function containsTag(tags: string[] | string | undefined, target: string) {
+  return toArray(tags).includes(target);
+}

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { ChoiceDepartmentQuestion, QuestionGroup, ValidQuestion } from '../../api/models/form';
 import FormQuestion from '../../shared/FormQuestion';
 import { getOrg } from '../../store';
-import { useOrg } from '../../utils';
+import { containsTag, useOrg } from '../../utils';
 import { Id } from '../../api/models/shared';
 
 export function QuestionEditor({ question, onChange, groups, thisGroup }:
@@ -47,6 +47,7 @@ export function QuestionEditor({ question, onChange, groups, thisGroup }:
     {question.type === 'choice-department' &&
       <Flex wrap='wrap' gap='large'>
         {getOrg(org).children.map((dep) => {
+          if (containsTag(dep.tag, 'default')) return <></>//默认部门恒不显示
           //对于某一部门，如choices对象上不存在该键(undefined)，则隐藏该部门(不可选择)
           //如为null，表示可选择，不揭示任何问题组
           //否则，为揭示的问题组id

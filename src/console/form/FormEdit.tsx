@@ -6,7 +6,6 @@ import './FormEdit.scss';
 import { QuestionGroup } from '../../api/models/form';
 import { DescEditor, PreviewWithEditor } from './PreviewWithEditor';
 import { ArrowRightOutlined, LoginOutlined } from '@ant-design/icons';
-import { Id } from '../../api/models/shared';
 
 export default function FormEdit() {
   const formId = useForm();
