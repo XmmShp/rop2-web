@@ -1,8 +1,22 @@
 import { FundViewOutlined, HourglassOutlined, TeamOutlined } from '@ant-design/icons';
-import { Card, Flex, Statistic } from 'antd';
+import { Card, Flex, Statistic, Typography } from 'antd';
+import './Dash.scss';
 
 export default function Dash() {
+  const hour = new Date().getHours();
+  let greeting;
+  if (hour <= 5 || hour >= 22) greeting = '夜深了';
+  else if (hour <= 7) greeting = '早上好';
+  else if (hour <= 11) greeting = '上午好';
+  else if (hour <= 13) greeting = '中文好';
+  else if (hour <= 18) greeting = '下午好';
+  else greeting = '晚上好';
   return (<Flex vertical gap='small'>
+    <Card>
+      <Typography.Text className='welcome'>{greeting}，test</Typography.Text>
+      <br />
+      <Typography.Text className='origin'>测试组织 / 测试部门</Typography.Text>
+    </Card>
     <Card>
       <Flex vertical gap='small'>
         <Flex wrap='wrap' gap='large'>
@@ -17,35 +31,46 @@ export default function Dash() {
         </Flex>
       </Flex>
     </Card>
-    <Card>
-      <Flex vertical gap='small'>
-        <Flex wrap='wrap' gap='large'>
-          <Statistic title='阶段' value={'一面'} />
-          <Statistic title='人次' value={167}
-            prefix={<TeamOutlined />} />
-          <Statistic title='待定人次' value={12} />
+    <Flex wrap='wrap' gap='small'>
+      <Card>
+        <Flex vertical gap='small'>
+          <Flex wrap='wrap' gap='large'>
+            <Statistic title='阶段' value={'已填表'} />
+            <Statistic title='人次' value={167}
+              prefix={<TeamOutlined />} />
+            <Statistic title='待定人次' value={0} />
+          </Flex>
+          <Flex wrap='wrap' gap='large'>
+            <Statistic title='已完成面试 / 面试总场数' value={'0 / 0'} prefix={<FundViewOutlined />} />
+          </Flex>
         </Flex>
-        <Flex wrap='wrap' gap='large'>
-          <Statistic title='总面试场数' value={34}
-            prefix={<FundViewOutlined />} />
-          <Statistic title='已完成面试' value={30} />
+      </Card>
+      <Card>
+        <Flex vertical gap='small'>
+          <Flex wrap='wrap' gap='large'>
+            <Statistic title='阶段' value={'一面'} />
+            <Statistic title='人次' value={167}
+              prefix={<TeamOutlined />} />
+            <Statistic title='待定人次' value={12} />
+          </Flex>
+          <Flex wrap='wrap' gap='large'>
+            <Statistic title='已完成面试 / 面试总场数' value={'30 / 34'} prefix={<FundViewOutlined />} />
+          </Flex>
         </Flex>
-      </Flex>
-    </Card>
-    <Card>
-      <Flex vertical gap='small'>
-        <Flex wrap='wrap' gap='large'>
-          <Statistic title='阶段' value={'二面'} />
-          <Statistic title='人次' value={89}
-            prefix={<TeamOutlined />} />
-          <Statistic title='待定人次' value={89} />
+      </Card>
+      <Card>
+        <Flex vertical gap='small'>
+          <Flex wrap='wrap' gap='large'>
+            <Statistic title='阶段' value={'二面'} />
+            <Statistic title='人次' value={89}
+              prefix={<TeamOutlined />} />
+            <Statistic title='待定人次' value={89} />
+          </Flex>
+          <Flex wrap='wrap' gap='large'>
+            <Statistic title='已完成面试 / 面试总场数' value={'0 / 12'} prefix={<FundViewOutlined />} />
+          </Flex>
         </Flex>
-        <Flex wrap='wrap' gap='large'>
-          <Statistic title='总面试场数' value={16}
-            prefix={<FundViewOutlined />} />
-          <Statistic title='已完成面试' value={0} />
-        </Flex>
-      </Flex>
-    </Card>
+      </Card>
+    </Flex>
   </Flex>);
 }
