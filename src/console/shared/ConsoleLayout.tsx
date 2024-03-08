@@ -1,4 +1,4 @@
-import { Avatar, Dropdown, Flex, GetProp, Layout, Menu, Typography } from 'antd';
+import { Avatar, Dropdown, Flex, GetProp, Layout, Menu } from 'antd';
 import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { mapRecur, singleMatch, without } from '../../utils';
 import { useState } from 'react';
@@ -15,12 +15,8 @@ export default function ConsoleLayout({ routes }: { routes: GetProp<typeof Menu,
     return [matched];
   });
   if (!subFunc) return <Navigate to='dash' />;
-  return (<Layout style={{ minHeight: '100vh' }}>
-    <Layout.Sider theme='light' style={{
-      maxHeight: 'calc(100vh - 48px)',
-      overflow: 'hidden auto',
-      userSelect: 'none'
-    }}
+  return (<Layout className='layout'>
+    <Layout.Sider theme='light' className='sider'
       collapsible
       collapsed={collapsed}
       onCollapse={(col) => {
@@ -28,7 +24,8 @@ export default function ConsoleLayout({ routes }: { routes: GetProp<typeof Menu,
         setCollapsed(col);
       }}
     >
-      <Menu selectedKeys={[subFunc]} mode="inline"
+      <Menu className='menu'
+        selectedKeys={[subFunc]} mode="inline"
         openKeys={collapsed ? undefined : openKeys}
         onOpenChange={(keys) => setOpenKeys(keys)}
         onClick={(info) => navigate(info.key)}
