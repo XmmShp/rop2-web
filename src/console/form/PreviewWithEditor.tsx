@@ -1,11 +1,15 @@
 import { EditOutlined } from '@ant-design/icons';
 import { Button, Flex, Input, Select, Typography } from 'antd';
-import { ForwardedRef, MutableRefObject, ReactNode, forwardRef, useState } from 'react';
-import { ChoiceDepartmentQuestion, ValidQuestion } from '../../api/models/form';
+import { useState } from 'react';
+import { ChoiceDepartmentQuestion, QuestionGroup, ValidQuestion } from '../../api/models/form';
 import FormQuestion from '../../shared/FormQuestion';
+import { getOrg } from '../../store';
+import { useOrg } from '../../utils';
+import { Id } from '../../api/models/shared';
 
-export function QuestionEditor({ question, onChange }:
-  { question: ValidQuestion, onChange: (newObj: ValidQuestion) => void }) {
+export function QuestionEditor({ question, onChange, groups, thisGroup }:
+  { question: ValidQuestion, onChange: (newObj: ValidQuestion) => void, groups: QuestionGroup[], thisGroup: Id }) {
+  const org = useOrg();
   return (<Flex vertical gap='small'>
     <Flex align='center' gap='small'>
       问题类型
@@ -17,7 +21,7 @@ export function QuestionEditor({ question, onChange }:
         onChange={(v) => {
           const newObj = { ...question, type: v };
           if (newObj.type === 'choice-department')
-            (newObj as ChoiceDepartmentQuestion).choices = [];
+            (newObj as ChoiceDepartmentQuestion).choices ??= {};
           onChange(newObj as any);//TODO support other types
         }}
         options={[{
@@ -40,6 +44,34 @@ export function QuestionEditor({ question, onChange }:
           value: ValidQuestion['type'];
         }[]} />
     </Flex>
+    {question.type === 'choice-department' &&
+      <Flex wrap='wrap' gap='large'>
+        {getOrg(org).children.map((dep) => {
+          //对于某一部门，如choices对象上不存在该键(undefined)，则隐藏该部门(不可选择)
+          //如为null，表示可选择，不揭示任何问题组
+          //否则，为揭示的问题组id
+          let reveal = question.choices[dep.id];
+          if (reveal === undefined) reveal = -2;
+          else if (reveal === null) reveal = -1;
+          return (<Flex gap='small' align='center'>
+            {dep.name}
+            <Select popupMatchSelectWidth={false} value={reveal} options={[{
+              label: '隐藏',
+              value: -2
+            }, {
+              label: '不揭示',
+              value: -1
+            }, ...groups.map(g => { return { value: g.id, label: g.label, disabled: g.id === thisGroup } })]}
+              onChange={(v) => {
+                let newValue;
+                if (v === -2) newValue = undefined;
+                else if (v === -1) newValue = null;
+                else newValue = v;
+                onChange({ ...question, choices: { ...question.choices, [dep.id]: v } });
+              }} />
+          </Flex>);
+        })}
+      </Flex>}
   </Flex>);
 }
 
@@ -78,16 +110,18 @@ export function DescEditor({ desc, onConfirm }: { desc: string, onConfirm: (newD
   </Flex>
 }
 
-export function PreviewWithEditor({ question, onConfirm }: {
-  question: ValidQuestion,
-  onConfirm: (newObj: ValidQuestion) => void
+export function PreviewWithEditor({ question, onConfirm, groups, thisGroup }: {
+  question: ValidQuestion;
+  onConfirm: (newObj: ValidQuestion) => void;
+  groups: QuestionGroup[];
+  thisGroup: Id;
 }) {
   const [editing, setEditing] = useState<ValidQuestion | undefined>(undefined);
   const isEditing = typeof editing === 'object';
   return <Flex align={isEditing ? undefined : 'center'} gap='small' vertical={isEditing} >
     {isEditing
       ? <>
-        <QuestionEditor question={editing} onChange={(newObj) => setEditing(newObj)} />
+        <QuestionEditor thisGroup={thisGroup} groups={groups} question={editing} onChange={(newObj) => setEditing(newObj)} />
         <Flex gap='small' justify='flex-end'>
           <Button
             onClick={() => setEditing(undefined)}>

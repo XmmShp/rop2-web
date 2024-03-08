@@ -18,9 +18,9 @@ export interface ChoiceDepartmentQuestion extends Question {
   /**最多选择项数，为空则可全选 */
   maxSelection?: number;
   choices: {
-    department: Id;
-    reveal?: Id;
-  }[];
+    //选择对应id揭示的问题组
+    [departmentId: Id]: Id | null | undefined;
+  };
 }
 type BuiltinQuestion = NameQuestion | GenderQuestion | ZJUIdQuestion | PhoneQuestion | ChoiceDepartmentQuestion;
 interface CustomQuestion extends Question {

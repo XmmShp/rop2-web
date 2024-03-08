@@ -115,6 +115,8 @@ function GroupCard({ group, isEntry, groups, onEdit }: {
         {group.children.map((ques, index) => (
           <PreviewWithEditor key={ques.id}
             question={ques}
+            groups={groups}
+            thisGroup={group.id}
             onConfirm={(newObj) => {
               //TODO request API
               // setQuestions(questions.with(index, newObj));

@@ -86,6 +86,10 @@ export const forms: Form[] = [{
     }, {
       id: newId(),
       type: 'phone',
+    }, {
+      id: newId(),
+      type: 'choice-department',
+      choices: {}
     }]
   }, {
     id: newId(),
