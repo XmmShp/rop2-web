@@ -1,11 +1,7 @@
-import { useLayoutEffect, useState } from "react";
-import { msg } from "./App";
-import { useSearchParams } from "react-router-dom";
-import { Id } from "./api/models/shared";
-
-export type Mutable<T> = {
-  -readonly [k in keyof T]: T[k] extends Record<keyof any, any> ? Mutable<T[k]> : T[k];
-}
+import { useLayoutEffect, useState } from 'react';
+import { msg } from './App';
+import { useSearchParams } from 'react-router-dom';
+import { Id } from './api/models/shared';
 
 export function mapRecur<
   K extends string,

@@ -14,10 +14,10 @@ function getConsoleLoader(scope: string, file: string, props: object = {}): Lazy
 export const consoleRoutes = mapRecur([
   {
     label: '仪表盘',
-    title: '仪表盘',
+    title: '仪表盘',//折叠状态下悬浮显示提示文本
     path: 'dash',
     icon: <DashboardOutlined />,
-    element: <div>仪表盘</div>
+    lazy: getConsoleLoader('dash', 'Dash')
   }, {
     label: '组织管理',
     path: 'org',
