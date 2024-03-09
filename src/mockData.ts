@@ -104,15 +104,32 @@ export const forms: Form[] = [{
     children: [{
       id: newId(),
       type: 'text',
-      title: '论述题AAAA',
+      title: '文本题1，max 5 lines',
+      maxLine: 5
     }, {
       id: newId(),
       type: 'text',
-      title: '论述题AAAA',
+      desc: '题目描述',
+      title: '文本题2',
     }, {
       id: newId(),
-      type: 'text',
-      title: '论述题AAAA',
+      type: 'choice',
+      title: '选择题',
+      desc: '题目描述',
+      choices: {
+        '选项A': null,
+        '选项B': null
+      }
+    }, {
+      id: newId(),
+      type: 'choice',
+      title: '单选题',
+      desc: '',
+      maxSelection: 1,
+      choices: {
+        '选项A': null,
+        '选项B': null
+      }
     }]
   }],
   name: '求是潮2024春季纳新',

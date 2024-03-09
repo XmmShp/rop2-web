@@ -35,8 +35,6 @@ interface TextQuestion extends CustomQuestion {
 }
 interface ChoiceQuestion extends CustomQuestion {
   type: 'choice';
-  /**最少选择项数，默认为1；如果`optional`为`true`，则可选择0项。 */
-  minSelection?: number;
   /**最多选择项数，为空则可全选 */
   maxSelection?: number;
   choices: {

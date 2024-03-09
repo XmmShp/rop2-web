@@ -6,4 +6,9 @@
     display: none;
     appearance: none;
   }
+
+  .desc {
+    color: var(--ant-color-text-secondary);
+    font-size: calc(.9 * var(--ant-font-size));
+  }
 }
