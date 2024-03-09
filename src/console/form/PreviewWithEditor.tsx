@@ -1,16 +1,16 @@
 import { EditOutlined } from '@ant-design/icons';
-import { Button, Flex, Input, Select, Typography } from 'antd';
-import { useState } from 'react';
-import { ChoiceDepartmentQuestion, QuestionGroup, ValidQuestion } from '../../api/models/form';
+import { Button, Checkbox, Flex, Input, InputNumber, Select, Typography } from 'antd';
+import { Fragment, useState } from 'react';
+import { CustomQuestion, QuestionGroup, ValidQuestion } from '../../api/models/form';
 import FormQuestion from '../../shared/FormQuestion';
 import { getOrg } from '../../store';
 import { containsTag, useOrg } from '../../utils';
 import { Id } from '../../api/models/shared';
 
-export function QuestionEditor({ question, onChange, groups, thisGroup }:
+function QuestionEditor({ question, onChange, groups, thisGroup }:
   { question: ValidQuestion, onChange: (newObj: ValidQuestion) => void, groups: QuestionGroup[], thisGroup: Id }) {
   const org = useOrg();
-  return (<Flex vertical gap='small'>
+  return (<Flex vertical className='editing' gap='small'>
     <Flex align='center' gap='small'>
       问题类型
       <Select
@@ -20,9 +20,10 @@ export function QuestionEditor({ question, onChange, groups, thisGroup }:
         defaultValue={question.type}
         onChange={(v) => {
           const newObj = { ...question, type: v };
-          if (newObj.type === 'choice-department')
-            (newObj as ChoiceDepartmentQuestion).choices ??= {};
-          onChange(newObj as any);//TODO support other types
+          (newObj as any).choices ??= {};
+          (newObj as any).title ??= '问题标题';
+          onChange(newObj as any);
+          //把部分属性置为非空。需要后端根据问题类型获取需要的属性
         }}
         options={[{
           label: '姓名',
@@ -36,40 +37,68 @@ export function QuestionEditor({ question, onChange, groups, thisGroup }:
         }, {
           label: '部门志愿选择',
           value: 'choice-department'
+        }, {
+          label: '文本题',
+          value: 'text'
+        }, {
+          label: '选择题',
+          value: 'choice'
         }] satisfies {
           label: string;
           value: ValidQuestion['type'];
         }[]} />
     </Flex>
-    {question.type === 'choice-department' &&
-      <Flex wrap='wrap' gap='large'>
-        {getOrg(org).children.map((dep) => {
-          if (containsTag(dep.tag, 'default')) return <></>//默认部门恒不显示
-          //对于某一部门，如choices对象上不存在该键(undefined)，则隐藏该部门(不可选择)
-          //如为null，表示可选择，不揭示任何问题组
-          //否则，为揭示的问题组id
-          let reveal = question.choices[dep.id];
-          if (reveal === undefined) reveal = -2;
-          else if (reveal === null) reveal = -1;
-          return (<Flex key={dep.id} gap='small' align='center'>
-            {dep.name}
-            <Select popupMatchSelectWidth={false} value={reveal} options={[{
-              label: '隐藏',
-              value: -2
-            }, {
-              label: '不揭示',
-              value: -1
-            }, ...groups.map(g => { return { value: g.id, label: g.label, disabled: g.id === thisGroup } })]}
-              onChange={(v) => {
-                let newValue;
-                if (v === -2) newValue = undefined;
-                else if (v === -1) newValue = null;
-                else newValue = v;
-                onChange({ ...question, choices: { ...question.choices, [dep.id]: v } });
-              }} />
+    {(() => {
+      switch (question.type) {
+        case 'name':
+        case 'zjuid':
+        case 'phone':
+          return <></>;//内置题目，没有可编辑属性
+        case 'choice-department':
+          return (<Flex wrap='wrap' gap='large'>
+            {getOrg(org).children.map((dep) => {
+              if (containsTag(dep.tag, 'default')) return <Fragment key={dep.id}></Fragment>;//默认部门恒不显示
+              //对于某一部门，如choices对象上不存在该键(undefined)，则隐藏该部门(不可选择)
+              //如为null，表示可选择，不揭示任何问题组
+              //否则，为揭示的问题组id
+              let reveal = question.choices[dep.id];
+              if (reveal === undefined) reveal = -2;
+              else if (reveal === null) reveal = -1;
+              return (<Flex key={dep.id} gap='small' align='center'>
+                {dep.name}
+                <Select popupMatchSelectWidth={false} value={reveal} options={[{
+                  label: '隐藏',
+                  value: -2
+                }, {
+                  label: '不揭示',
+                  value: -1
+                }, ...groups.map(g => { return { value: g.id, label: g.label, disabled: g.id === thisGroup } })]}
+                  onChange={(v) => {
+                    let newValue;
+                    if (v === -2) newValue = undefined;
+                    else if (v === -1) newValue = null;
+                    else newValue = v;
+                    onChange({ ...question, choices: { ...question.choices, [dep.id]: v } });
+                  }} />
+              </Flex>);
+            })}
           </Flex>);
-        })}
-      </Flex>}
+        case 'text':
+          return (<>
+            <CustomQuestionCommonEditor question={question} onChange={onChange} />
+            <Flex align='center' gap='small'>
+              <span className='prompt'>最大扩容行数</span>
+              <InputNumber maxLength={1} min={1} max={8} value={question.maxLine ?? 1} onChange={(v) => onChange({ ...question, maxLine: v ?? 1 })} />
+            </Flex>
+          </>);
+        case 'choice':
+          return (<>
+            <CustomQuestionCommonEditor question={question} onChange={onChange} />
+          </>);
+        default:
+          return <>此问题类型暂不支持编辑 {JSON.stringify(question)}</>;
+      }
+    })()}
   </Flex>);
 }
 
@@ -141,4 +170,24 @@ export function PreviewWithEditor({ question, onConfirm, groups, thisGroup }: {
         <FormQuestion question={question} />
       </>}
   </Flex>
+}
+
+export function CustomQuestionCommonEditor({ question, onChange }:
+  { question: ValidQuestion & CustomQuestion, onChange: (newObj: ValidQuestion & CustomQuestion) => void }) {
+  return (<>
+    <Flex align='center' gap='small'>
+      <span className='prompt'>问题标题</span>
+      <Input value={question.title}
+        onChange={({ target: { value } }) => onChange({ ...question, title: value })} />
+    </Flex>
+    <Flex align='center' gap='small'>
+      <span className='prompt'>问题描述</span>
+      <Input value={question.desc}
+        onChange={({ target: { value } }) => onChange({ ...question, desc: value })} />
+    </Flex>
+    <Flex align='center' gap='small'>
+      <span className='prompt'>此题必填</span>
+      <Checkbox checked={!question.optional} onChange={({ target: { checked } }) => onChange({ ...question, optional: checked ? undefined : true } as any)} />
+    </Flex>
+  </>);
 }

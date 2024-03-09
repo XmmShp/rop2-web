@@ -22,16 +22,14 @@ export interface ChoiceDepartmentQuestion extends Question {
   };
 }
 type BuiltinQuestion = NameQuestion | ZJUIdQuestion | PhoneQuestion | ChoiceDepartmentQuestion;
-interface CustomQuestion extends Question {
+export interface CustomQuestion extends Question {
   title: string;
   desc?: string;
 }
 interface TextQuestion extends CustomQuestion {
   type: 'text';
+  /**答题时输入框最多拓展到的行数，为空默认为1 */
   maxLine?: number;
-  minLength?: number;
-  maxLength?: number;
-  validate?: string;
 }
 interface ChoiceQuestion extends CustomQuestion {
   type: 'choice';

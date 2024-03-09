@@ -35,14 +35,16 @@ export default function FormQuestion({ question }
             const maxCount = question.maxSelection ?? entries.length;
             return (<>
               <Typography.Text>
-                选择部门志愿 (最多 {maxCount} 项)
+                选择部门志愿
               </Typography.Text>
-              <Select mode='multiple' options={entries.map(([id, reveal]) => {
-                return {
-                  value: id,
-                  label: getDepartment(Number(id)).name
-                };
-              })} maxCount={maxCount} />
+              <Select placeholder={`最多选择 ${maxCount} 项`}
+                mode='multiple'
+                options={entries.map(([id, reveal]) => {
+                  return {
+                    value: id,
+                    label: getDepartment(Number(id)).name
+                  };
+                })} maxCount={maxCount} />
             </>);
           }
         case 'text':
@@ -69,6 +71,7 @@ export default function FormQuestion({ question }
             const options = Object.entries(question.choices);
             //注意：maxSelection为空表示可以全选
             const maxCount = question.maxSelection ?? options.length;
+            const allowMultiple = maxCount > 1;
             return (<>
               <Flex vertical>
                 <Typography.Text>
@@ -78,8 +81,9 @@ export default function FormQuestion({ question }
                   {question.desc ?? ''}
                 </Typography.Text>
               </Flex>
-              <Select mode={maxCount > 1 ? 'multiple' : undefined}
-                maxCount={question.maxSelection}
+              <Select placeholder={allowMultiple ? `最多选择 ${maxCount} 项` : '选择 1 项'}
+                mode={allowMultiple ? 'multiple' : undefined}
+                maxCount={allowMultiple ? maxCount : undefined}
                 options={options.map(([label, reveal]) => {
                   //TODO 揭示题目组逻辑
                   return { label, value: label };
@@ -87,9 +91,8 @@ export default function FormQuestion({ question }
             </>);
           }
         default:
-          return (<>Not supported yet: {JSON.stringify(question)}</>);
+          return (<>此问题暂时无法显示 {JSON.stringify(question)}</>);
       }
     })()}
   </Flex>);
-
 }
