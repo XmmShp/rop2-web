@@ -22,17 +22,6 @@ export default function FormQuestion({ question }
             </Typography.Text>
             <Input minLength={6} maxLength={10} inputMode='numeric' type='number' required={!question.optional} />
           </>);
-        case 'gender':
-          return (<>
-            <Typography.Text>
-              您的性别
-            </Typography.Text>
-            <Radio.Group>
-              <Radio value={0}>男</Radio>
-              <Radio value={1}>女</Radio>
-              <Radio value={101}>保密</Radio>
-            </Radio.Group>
-          </>);
         case 'phone':
           return (<>
             <Typography.Text>

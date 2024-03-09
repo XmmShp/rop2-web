@@ -31,9 +31,6 @@ export function QuestionEditor({ question, onChange, groups, thisGroup }:
           label: '学号',
           value: 'zjuid'
         }, {
-          label: '性别',
-          value: 'gender'
-        }, {
           label: '手机号',
           value: 'phone'
         }, {

@@ -9,7 +9,7 @@ export default function Dash() {
   if (hour <= 5 || hour >= 22) greeting = '夜深了';
   else if (hour <= 7) greeting = '早上好';
   else if (hour <= 11) greeting = '上午好';
-  else if (hour <= 13) greeting = '中文好';
+  else if (hour <= 13) greeting = '中午好';
   else if (hour <= 18) greeting = '下午好';
   else greeting = '晚上好';
   return (<Flex vertical gap='small'>
