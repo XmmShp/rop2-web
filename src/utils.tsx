@@ -54,16 +54,18 @@ Object.defineProperty(Number.prototype, 'pad', {
     const fixed = this.toFixed(floatMaxLength);
     if (!minLength) return fixed;
     else return fixed.padStart(minLength, '0');
-  }
-} satisfies ThisType<number>);
+  },
+  configurable: true,
+} satisfies ThisType<number> & PropertyDescriptor);
 Object.defineProperty(Date.prototype, 'stringify', {
   value(withTime = false, useDot = false) {
     const sep = useDot ? ['.', '.', ''] : ['年', '月', '日'];
     let result = `${this.getFullYear()}${sep[0]}${this.getMonth() + 1}${sep[1]}${this.getDate()}${sep[2]}`;
     if (withTime) result += ` ${this.getHours().pad(2, 0)}:${this.getMinutes().pad(2, 0)}:${this.getSeconds().pad(2, 0)}`;
     return result;
-  }
-} satisfies ThisType<Date>);
+  },
+  configurable: true,
+} satisfies ThisType<Date> & PropertyDescriptor);
 
 /**仅限测试，返回一个指定延时后兑现的Promise */
 export function delay(ms: number): Promise<void> {
@@ -111,4 +113,14 @@ export function getUser(): string {
 
 export function containsTag(tags: string[] | string | undefined, target: string) {
   return toArray(tags).includes(target);
+}
+
+export function newUniqueLabel(labels: string[]): string {
+  let usedCount = 0;
+  let result = `选项${labels.length + 1}`;
+  while (labels.includes(result)) {
+    usedCount++;
+    result = `选项${labels.length + 1}(${usedCount})`;
+  }
+  return result;
 }

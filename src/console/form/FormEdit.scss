@@ -50,5 +50,19 @@
     .prompt {
       flex: 0 0 auto;
     }
+
+    .choice-card {
+      padding: .05em .2em;
+      border-radius: calc(0.75 * var(--ant-border-radius-lg));
+      border: var(--ant-line-width) var(--ant-line-type) var(--ant-color-border);
+
+      .group-select {
+        min-width: 4.5em;
+      }
+    }
+  }
+
+  .group-select {
+    min-width: 6em;
   }
 }

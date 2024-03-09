@@ -1,11 +1,13 @@
-import { EditOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Flex, Input, InputNumber, Select, Typography } from 'antd';
+import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Checkbox, Flex, Input, InputNumber, Select, Tooltip, Typography } from 'antd';
 import { Fragment, useState } from 'react';
-import { CustomQuestion, QuestionGroup, ValidQuestion } from '../../api/models/form';
+import { ChoiceQuestion, CustomQuestion, QuestionGroup, ValidQuestion } from '../../api/models/form';
 import FormQuestion from '../../shared/FormQuestion';
 import { getOrg } from '../../store';
-import { containsTag, useOrg } from '../../utils';
+import { containsTag, newUniqueLabel, useOrg } from '../../utils';
 import { Id } from '../../api/models/shared';
+import { msg } from '../../App';
+import QuestionGroupSelect from './QuestionGroupSelect';
 
 function QuestionEditor({ question, onChange, groups, thisGroup }:
   { question: ValidQuestion, onChange: (newObj: ValidQuestion) => void, groups: QuestionGroup[], thisGroup: Id }) {
@@ -55,7 +57,7 @@ function QuestionEditor({ question, onChange, groups, thisGroup }:
         case 'phone':
           return <></>;//内置题目，没有可编辑属性
         case 'choice-department':
-          return (<Flex wrap='wrap' gap='large'>
+          return (<Flex wrap='wrap' gap='middle'>
             {getOrg(org).children.map((dep) => {
               if (containsTag(dep.tag, 'default')) return <Fragment key={dep.id}></Fragment>;//默认部门恒不显示
               //对于某一部门，如choices对象上不存在该键(undefined)，则隐藏该部门(不可选择)
@@ -66,20 +68,11 @@ function QuestionEditor({ question, onChange, groups, thisGroup }:
               else if (reveal === null) reveal = -1;
               return (<Flex key={dep.id} gap='small' align='center'>
                 {dep.name}
-                <Select popupMatchSelectWidth={false} value={reveal} options={[{
-                  label: '隐藏',
-                  value: -2
-                }, {
-                  label: '不揭示',
-                  value: -1
-                }, ...groups.map(g => { return { value: g.id, label: g.label, disabled: g.id === thisGroup } })]}
-                  onChange={(v) => {
-                    let newValue;
-                    if (v === -2) newValue = undefined;
-                    else if (v === -1) newValue = null;
-                    else newValue = v;
-                    onChange({ ...question, choices: { ...question.choices, [dep.id]: v } });
-                  }} />
+                <QuestionGroupSelect groups={groups} thisGroup={thisGroup}
+                  value={reveal}
+                  allowHide
+                  onChange={(v) =>
+                    onChange({ ...question, choices: { ...question.choices, [dep.id]: v } })} />
               </Flex>);
             })}
           </Flex>);
@@ -94,6 +87,7 @@ function QuestionEditor({ question, onChange, groups, thisGroup }:
         case 'choice':
           return (<>
             <CustomQuestionCommonEditor question={question} onChange={onChange} />
+            <ChoiceQuestionEditor groups={groups} thisGroup={thisGroup} question={question} onChange={onChange} />
           </>);
         default:
           return <>此问题类型暂不支持编辑 {JSON.stringify(question)}</>;
@@ -188,6 +182,52 @@ export function CustomQuestionCommonEditor({ question, onChange }:
     <Flex align='center' gap='small'>
       <span className='prompt'>此题必填</span>
       <Checkbox checked={!question.optional} onChange={({ target: { checked } }) => onChange({ ...question, optional: checked ? undefined : true } as any)} />
+    </Flex>
+  </>);
+}
+
+export function ChoiceQuestionEditor({ question, onChange, groups, thisGroup }:
+  { question: ChoiceQuestion, onChange: (newObj: ChoiceQuestion) => void, groups: QuestionGroup[], thisGroup: Id }) {
+  const choices = question.choices;
+  const entries = Object.entries(choices).filter(([, reveal]) => reveal !== undefined);
+  return (<>
+    <Flex align='center' gap='small'>
+      <span className='prompt'>最多选择项数</span>
+      <InputNumber maxLength={2} min={1} max={entries.length} value={question.maxSelection ?? entries.length} onChange={(v) => onChange({ ...question, maxSelection: v ?? 1 })} />
+    </Flex>
+    <Flex wrap='wrap' align='center' gap='small'>
+      <Button size='small'
+        onClick={() => onChange({ ...question, choices: Object.assign(choices, { [newUniqueLabel(entries.map(([label]) => label))]: null }) })}>
+        <PlusOutlined />
+        添加选项
+      </Button>
+    </Flex>
+    <Flex wrap='wrap' align='center' gap='small'>
+      {entries.map(([label, reveal]) => {
+        const editingValue = { value: '' };
+        return (<Flex align='center' key={label}
+          className='choice-card'>
+          <Typography.Text
+            editable={{
+              onChange(v) { editingValue.value = v },
+              onEnd() {
+                if (entries.some(([oLabel]) => oLabel === editingValue.value))
+                  msg.error('选项名重复');
+                else onChange({ ...question, choices: Object.assign(choices, { [label]: undefined }, { [editingValue.value]: reveal }) });
+              }
+            }}>{label}</Typography.Text>
+          <Button type='link' size='small' onClick={() => {
+            if (entries.length <= 1)
+              msg.error('至少保留1个选项');
+            else
+              onChange({ ...question, choices: Object.assign(choices, { [label]: undefined }) });
+          }}><DeleteOutlined /></Button>
+          <QuestionGroupSelect groups={groups} thisGroup={thisGroup} value={reveal}
+            title='选中此选项后揭示的题目组'
+            size='small'
+            onChange={(v) => onChange({ ...question, choices: Object.assign(choices, { [label]: v }) })} />
+        </Flex>);
+      })}
     </Flex>
   </>);
 }

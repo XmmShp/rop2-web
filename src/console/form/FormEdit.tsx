@@ -6,6 +6,7 @@ import './FormEdit.scss';
 import { QuestionGroup } from '../../api/models/form';
 import { DescEditor, PreviewWithEditor } from './PreviewWithEditor';
 import { ArrowRightOutlined, LoginOutlined } from '@ant-design/icons';
+import QuestionGroupSelect from './QuestionGroupSelect';
 
 export default function FormEdit() {
   const formId = useForm();
@@ -101,7 +102,7 @@ function GroupCard({ group, isEntry, groups, onEdit }: {
           </>}>
           <LoginOutlined />
         </Tooltip>) : <></>}
-        <Typography.Text style={{ flex: '1 0 auto' }} editable={{
+        <Typography.Text editable={{
           onChange(v) { labelRef.current = v },
           onEnd() {
             onEdit({ ...group, label: labelRef.current });
@@ -133,20 +134,13 @@ function GroupCard({ group, isEntry, groups, onEdit }: {
               下一问题组
             </Flex>
           </Tooltip>
-          <Select value={group.next ?? -1} popupMatchSelectWidth={false} style={{ minWidth: '6em' }}
-            onSelect={(v) => {
-              onEdit({ ...group, next: v === -1 ? undefined : v });
-            }}
-            options={[
-              { label: '无', value: -1 },
-              ...groups.map(g => {
-                return {
-                  label: g.label,
-                  disabled: g.id === group.id,
-                  value: g.id
-                };
-              })
-            ]} />
+          <QuestionGroupSelect
+            value={group.next ?? null}
+            groups={groups}
+            thisGroup={group.id}
+            onChange={(newGroup) => {
+              onEdit({ ...group, next: newGroup ?? undefined })
+            }} />
         </Flex>
       </Flex>)
     }]} />);

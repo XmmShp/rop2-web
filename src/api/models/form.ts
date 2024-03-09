@@ -8,9 +8,9 @@ interface Question {
   /**是否可选，为空默认必填 */
   optional?: boolean;
 }
-interface NameQuestion extends Question { type: 'name' }
-interface ZJUIdQuestion extends Question { type: 'zjuid' }
-interface PhoneQuestion extends Question { type: 'phone' }
+export interface NameQuestion extends Question { type: 'name' }
+export interface ZJUIdQuestion extends Question { type: 'zjuid' }
+export interface PhoneQuestion extends Question { type: 'phone' }
 export interface ChoiceDepartmentQuestion extends Question {
   type: 'choice-department';
   optional?: false;
@@ -21,17 +21,17 @@ export interface ChoiceDepartmentQuestion extends Question {
     [departmentId: Id]: Id | null | undefined;
   };
 }
-type BuiltinQuestion = NameQuestion | ZJUIdQuestion | PhoneQuestion | ChoiceDepartmentQuestion;
+export type BuiltinQuestion = NameQuestion | ZJUIdQuestion | PhoneQuestion | ChoiceDepartmentQuestion;
 export interface CustomQuestion extends Question {
   title: string;
   desc?: string;
 }
-interface TextQuestion extends CustomQuestion {
+export interface TextQuestion extends CustomQuestion {
   type: 'text';
   /**答题时输入框最多拓展到的行数，为空默认为1 */
   maxLine?: number;
 }
-interface ChoiceQuestion extends CustomQuestion {
+export interface ChoiceQuestion extends CustomQuestion {
   type: 'choice';
   /**最多选择项数，为空则可全选 */
   maxSelection?: number;
