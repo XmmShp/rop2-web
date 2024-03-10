@@ -6,23 +6,23 @@ export interface Org {
   createdAt: Timestamp;
 }
 
-type DepartmentTag = 'default';
+type DepartTag = 'default';
 
 /**表示{@link Org}下设的部门。 */
-export interface Department {
+export interface Depart {
   id: Id;
   /**从属{@link Org}的id */
   parent: Id;
   name: string;
   createdAt: Timestamp;
-  tag?: DepartmentTag | DepartmentTag[];
+  tag?: DepartTag | DepartTag[];
 }
 
-/**表示用户对某一{@link Department}的候选或成员等关系。 */
+/**表示用户对某一{@link Depart}的候选或成员等关系。 */
 export interface Member {
   id: Id;
   zjuid: ZJUId;
-  /**关联{@link Department}的id */
+  /**关联{@link Depart}的id */
   of: Id;
   /**来源表单的id */
   origin: Id;

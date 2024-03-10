@@ -48,8 +48,8 @@ export const consoleRoutes = mapRecur([
     element: <Outlet />,
     children: [{
       label: '部门',
-      path: 'department',
-      lazy: getConsoleLoader('org', 'DepartmentManage')
+      path: 'depart',
+      lazy: getConsoleLoader('org', 'DepartManage')
     }, {
       label: '阶段',
       path: 'stage',

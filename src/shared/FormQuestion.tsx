@@ -1,7 +1,7 @@
 import { Flex, Input, Select, Typography } from 'antd';
 import { ValidQuestion } from '../api/models/form';
 import './FormQuestion.scss';
-import { getDepartment } from '../store';
+import { getDepart } from '../store';
 
 export default function FormQuestion({ question }
   : { question: ValidQuestion }) {
@@ -29,7 +29,7 @@ export default function FormQuestion({ question }
             </Typography.Text>
             <Input minLength={11} maxLength={11} inputMode='numeric' type='number' required={!question.optional} />
           </>);
-        case 'choice-department':
+        case 'choice-depart':
           {
             const entries = Object.entries(question.choices).filter(([, reveal]) => reveal !== undefined);
             const maxCount = question.maxSelection ?? entries.length;
@@ -42,7 +42,7 @@ export default function FormQuestion({ question }
                 options={entries.map(([id, reveal]) => {
                   return {
                     value: id,
-                    label: getDepartment(Number(id)).name
+                    label: getDepart(Number(id)).name
                   };
                 })} maxCount={maxCount} />
             </>);

@@ -1,7 +1,7 @@
 import { type Member } from "./org";
 import { Id, Timestamp } from "./shared";
 
-type QuestionType = 'name' | 'zjuid' | 'phone' | 'choice-department' | 'text' | 'choice';
+type QuestionType = 'name' | 'zjuid' | 'phone' | 'choice-depart' | 'text' | 'choice';
 interface Question {
   id: Id;
   type: QuestionType;
@@ -11,17 +11,17 @@ interface Question {
 export interface NameQuestion extends Question { type: 'name' }
 export interface ZJUIdQuestion extends Question { type: 'zjuid' }
 export interface PhoneQuestion extends Question { type: 'phone' }
-export interface ChoiceDepartmentQuestion extends Question {
-  type: 'choice-department';
+export interface ChoiceDepartQuestion extends Question {
+  type: 'choice-depart';
   optional?: false;
   /**最多选择项数，为空则可全选 */
   maxSelection?: number;
   choices: {
     //选择对应id揭示的问题组
-    [departmentId: Id]: Id | null | undefined;
+    [departId: Id]: Id | null | undefined;
   };
 }
-export type BuiltinQuestion = NameQuestion | ZJUIdQuestion | PhoneQuestion | ChoiceDepartmentQuestion;
+export type BuiltinQuestion = NameQuestion | ZJUIdQuestion | PhoneQuestion | ChoiceDepartQuestion;
 export interface CustomQuestion extends Question {
   title: string;
   desc?: string;

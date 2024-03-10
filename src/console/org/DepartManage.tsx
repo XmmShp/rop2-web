@@ -1,14 +1,14 @@
 import { Button, Flex, Input, Space, Table, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useState } from 'react';
-import { Department } from '../../api/models/org';
+import { Depart } from '../../api/models/org';
 import { delay, toArray, useOrg } from '../../utils';
 import { msg } from '../../App';
 import LoadableModal from '../shared/LoadableModal';
 import { DetailDrawer } from '../shared/DetailDrawer';
 import { getOrg } from '../../store';
 
-export default function DepartmentManage() {
+export default function DepartManage() {
   const orgId = useOrg();
   function refreshData(setState = false) {
     const result = getOrg(orgId).children;
@@ -19,7 +19,7 @@ export default function DepartmentManage() {
   const [op, setOp] = useState<undefined
     | 'detail' | 'rename' | 'delete' | 'new'>(undefined);
   function clearOp() { setOp(undefined) }
-  const [obj, setObj] = useState<undefined | Department>(undefined);
+  const [obj, setObj] = useState<undefined | Depart>(undefined);
   let items = undefined;
   if (op === 'detail' && obj)
     items = [{

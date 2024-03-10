@@ -1,7 +1,7 @@
 import { Id, Timestamp } from "./shared";
 
 export interface Interview {
-  /**归属`Department`的id */
+  /**归属`Depart`的id */
   belongTo: Id;
   label: string;
   stage: Id;

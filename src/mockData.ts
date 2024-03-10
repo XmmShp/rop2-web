@@ -1,5 +1,5 @@
 import { Form } from "./api/models/form";
-import { Department, Org } from "./api/models/org";
+import { Depart, Org } from "./api/models/org";
 import { Timestamp } from "./api/models/shared";
 import { Stage } from "./api/models/stage";
 import { setKnown } from "./store";
@@ -10,7 +10,7 @@ export function now(): Timestamp { return Math.floor(Date.now() / 1000); }
 
 export const org: Org = { createdAt: now(), id: newId(), name: '测试组织' };
 
-export const departs: Department[] = [{
+export const departs: Depart[] = [{
   name: '默认部门',
   id: newId(),
   parent: org.id,
@@ -85,7 +85,7 @@ export const forms: Form[] = [{
       type: 'phone',
     }, {
       id: newId(),
-      type: 'choice-department',
+      type: 'choice-depart',
       maxSelection: 3,
       choices: {
         // [departs[0].id]: null,默认部门不能作为志愿
@@ -139,4 +139,4 @@ export const forms: Form[] = [{
   endAt: now() + 60 * 30
 }];
 
-setKnown({ org: [org], department: departs, stage: stages, form: forms })
+setKnown({ org: [org], depart: departs, stage: stages, form: forms })

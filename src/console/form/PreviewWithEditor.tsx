@@ -38,7 +38,7 @@ function QuestionEditor({ question, onChange, groups, thisGroup }:
           value: 'phone'
         }, {
           label: '部门志愿选择',
-          value: 'choice-department'
+          value: 'choice-depart'
         }, {
           label: '文本题',
           value: 'text'
@@ -56,7 +56,7 @@ function QuestionEditor({ question, onChange, groups, thisGroup }:
         case 'zjuid':
         case 'phone':
           return <></>;//内置题目，没有可编辑属性
-        case 'choice-department':
+        case 'choice-depart':
           return (<Flex wrap='wrap' gap='middle'>
             {getOrg(org).children.map((dep) => {
               if (containsTag(dep.tag, 'default')) return <Fragment key={dep.id}></Fragment>;//默认部门恒不显示

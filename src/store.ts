@@ -1,10 +1,10 @@
 import { Form } from "./api/models/form";
-import { Department, Org } from "./api/models/org";
+import { Depart, Org } from "./api/models/org";
 import { Id } from "./api/models/shared";
 import { Stage } from "./api/models/stage";
 
 type Resource = {
-  children: Department[];
+  children: Depart[];
   stages: Stage[];
   forms: Form[];
 };
@@ -14,9 +14,9 @@ export function getOrg(id: Id): Org & Resource {
   if (result) return result;
   throw new Error('Unimplemented yet');
 }
-const departmentMap = new Map<Id, Department>();
-export function getDepartment(id: Id): Department {
-  const result = departmentMap.get(id);
+const departMap = new Map<Id, Depart>();
+export function getDepart(id: Id): Depart {
+  const result = departMap.get(id);
   if (result) return result;
   throw new Error('Unimplemented yet');
 }
@@ -34,17 +34,17 @@ export function getForm(id: Id): Form {
 }
 export function setKnown(data: Partial<{
   org: Org[],
-  department: Department[],
+  depart: Depart[],
   stage: Stage[],
   form: Form[]
 }>) {
-  const { org, department, stage, form } = data;
+  const { org, depart, stage, form } = data;
   if (org)
     org.forEach(v => orgMap.set(v.id, { ...v, children: [], stages: [], forms: [] }));
-  if (department)
-    department.forEach(v => {
+  if (depart)
+    depart.forEach(v => {
       getOrg(v.parent).children.push(v);
-      departmentMap.set(v.id, v);
+      departMap.set(v.id, v);
     });
   if (stage)
     stage.forEach(v => {
