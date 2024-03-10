@@ -1,12 +1,13 @@
 import { RefObject, createRef, useMemo, useRef, useState } from 'react';
-import { useForm } from '../../utils';
+import { delay, useForm } from '../../utils';
 import { getForm } from '../../store';
-import { Collapse, Flex, Form, Select, Tabs, Tooltip, Typography } from 'antd';
+import { Collapse, Flex, Form, Tabs, Tooltip, Typography } from 'antd';
 import './FormEdit.scss';
 import { QuestionGroup } from '../../api/models/form';
 import { DescEditor, PreviewWithEditor } from './PreviewWithEditor';
 import { ArrowRightOutlined, LoginOutlined } from '@ant-design/icons';
 import QuestionGroupSelect from './QuestionGroupSelect';
+import { msg } from '../../App';
 
 export default function FormEdit() {
   const formId = useForm();
@@ -53,21 +54,28 @@ export default function FormEdit() {
         <Form className='form'>
           <Typography.Title editable={{
             onChange(v) { editingTitle.current = v; },
-            onEnd() {
-              //TODO request API
+            async onEnd() {
               setForm({ ...form, name: editingTitle.current });
+
+              //TODO request API
+              await delay(200);
+              msg.success('标题已保存');
             }
           }} className='title'>{form.name}</Typography.Title>
-          <DescEditor desc={form.desc} onConfirm={(newDesc) => {
-            //TODO request API
+          <DescEditor desc={form.desc} onConfirm={async (newDesc) => {
             setForm({ ...form, desc: newDesc });
+
+            //TODO request API
+            await delay(200);
           }} />
 
           {groups.map((group, index) => <GroupCard key={group.id}
             isEntry={form.entry === group.id} group={group} groups={groups}
-            onEdit={(newObj) => {
-              //TODO request API
+            onEdit={async (newObj) => {
               setForm({ ...form, children: form.children.with(index, newObj) });
+
+              //TODO request API
+              await delay(150);
             }} />)}
         </Form>
       </Flex>
@@ -78,10 +86,10 @@ function GroupCard({ group, isEntry, groups, onEdit }: {
   group: QuestionGroup & { ref: RefObject<HTMLDivElement> };
   groups: QuestionGroup[];
   isEntry: boolean;
-  onEdit: (newObj: QuestionGroup) => void
+  onEdit: (newObj: QuestionGroup) => Promise<void>
 }) {
   const labelRef = useRef(group.label);
-  const [questions, setQuestions] = useState(group.children);
+  const questions = group.children;
   return (<Collapse
     className='group'
     ref={group.ref}
@@ -104,8 +112,9 @@ function GroupCard({ group, isEntry, groups, onEdit }: {
         </Tooltip>) : <></>}
         <Typography.Text editable={{
           onChange(v) { labelRef.current = v },
-          onEnd() {
-            onEdit({ ...group, label: labelRef.current });
+          async onEnd() {
+            await onEdit({ ...group, label: labelRef.current });
+            msg.success('问题组标签已保存');
           }
         }}>
           {group.label}
@@ -117,10 +126,10 @@ function GroupCard({ group, isEntry, groups, onEdit }: {
             question={ques}
             groups={groups}
             thisGroup={group.id}
-            onConfirm={(newObj) => {
+            onConfirm={async (newObj) => {
               //TODO request API
               // setQuestions(questions.with(index, newObj));
-              onEdit({ ...group, children: questions.with(index, newObj) });
+              await onEdit({ ...group, children: questions.with(index, newObj) });
             }} />
         ))}
         <Flex wrap='wrap' align='center' gap='small'>

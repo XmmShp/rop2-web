@@ -1,7 +1,7 @@
 import React from 'react';
 import { LazyRouteFunction, Navigate, Outlet, RouteObject, RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { ConfigProvider, message, theme } from 'antd';
-import { DashboardOutlined, ApartmentOutlined, FormOutlined, AuditOutlined } from '@ant-design/icons';
+import { DashboardOutlined, ApartmentOutlined, FormOutlined, AuditOutlined, BarsOutlined, IdcardOutlined, FundViewOutlined } from '@ant-design/icons';
 import { mapRecur, useDarkMode } from './utils';
 import { MessageInstance } from 'antd/es/message/interface';
 
@@ -11,13 +11,36 @@ function getConsoleLoader(scope: string, file: string, props: object = {}): Lazy
     return { element: <Component {...props} /> };
   }
 }
+//注：有label的会显示在侧边菜单中，否则仅有路由
 export const consoleRoutes = mapRecur([
   {
     label: '仪表盘',
-    title: '仪表盘',//折叠状态下悬浮显示提示文本
     path: 'dash',
     icon: <DashboardOutlined />,
     lazy: getConsoleLoader('dash', 'Dash')
+  }, {
+    label: '答卷分析',
+    path: 'result',
+    icon: <BarsOutlined />,
+    element: <></>,
+  }, {
+    label: '面试管理',
+    path: 'interview',
+    icon: <FundViewOutlined />,
+    element: <></>,
+  }, {
+    label: '表单管理',
+    path: 'form',
+    icon: <FormOutlined />,
+    lazy: getConsoleLoader('form', 'FormOverview')
+  }, {
+    path: 'form/edit',
+    lazy: getConsoleLoader('form', 'FormEdit')
+  }, {
+    label: '用户管理',
+    path: 'user',
+    icon: <IdcardOutlined />,
+    lazy: getConsoleLoader('org', 'AdminManage')
   }, {
     label: '组织管理',
     path: 'org',
@@ -31,43 +54,10 @@ export const consoleRoutes = mapRecur([
       label: '阶段',
       path: 'stage',
       lazy: getConsoleLoader('org', 'StageManage')
-    }, {
-      label: '管理员',
-      path: 'admin',
-      lazy: getConsoleLoader('org', 'AdminManage')
     }]
-  }, {
-    label: '表单管理',
-    path: 'form',
-    icon: <FormOutlined />,
-    element: <Outlet />,
-    children: [{
-      label: '概览',
-      path: 'overview',
-      lazy: getConsoleLoader('form', 'FormOverview')
-    }, {
-      label: '编辑表单',
-      path: 'edit',
-      lazy: getConsoleLoader('form', 'FormEdit')
-    }]
-  }, {
-    label: '选拔',
-    path: 'inspect',
-    icon: <AuditOutlined />,
-    element: <Outlet />,
-    children: [
-      {
-        label: '答卷查看',
-        path: 'answer',
-        element: <></>,
-      }, {
-        label: '面试管理',
-        path: 'interview',
-        element: <></>,
-      }
-    ]
   }
-], 'children', (v, stack) => { return { ...v, key: [...stack.map(v => v.path), v.path].join('/') } });
+], 'children', (v, stack) => { return { ...v, key: [...stack.map(v => v.path), v.path].join('/') } })
+  .map(v => { return { ...v, title: v.label } });
 const router = createBrowserRouter([{
   path: '/',
   errorElement: <>Oops, an error occurred<br />Check devtools for more info</>,
@@ -78,7 +68,7 @@ const router = createBrowserRouter([{
     }, {
       path: 'console',
       children: consoleRoutes,
-      lazy: getConsoleLoader('shared', 'ConsoleLayout', { routes: consoleRoutes })
+      lazy: getConsoleLoader('shared', 'ConsoleLayout', { routes: consoleRoutes.filter(v => 'label' in v) })
     }
   ]
 }]);

@@ -75,7 +75,7 @@ export function delay(ms: number): Promise<void> {
 /**如果`arg`为`undefined`或`null`，返回空数组；
  * 
  * 否则，返回`arg`或`[arg]`(取决于`arg`是否为数组)。 */
-export function toArray<T>(arg: T | T[]): T[] {
+export function toArray<T extends NonNullable<any>>(arg: undefined | null | T | T[]): T[] {
   if (arg === null || arg === undefined) return []
   if (Array.isArray(arg)) return arg;
   return [arg];

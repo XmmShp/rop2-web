@@ -96,7 +96,7 @@ function QuestionEditor({ question, onChange, groups, thisGroup }:
   </Flex>);
 }
 
-export function DescEditor({ desc, onConfirm }: { desc: string, onConfirm: (newDesc: string) => void }) {
+export function DescEditor({ desc, onConfirm }: { desc: string, onConfirm: (newDesc: string) => Promise<void> }) {
   const [editing, setEditing] = useState<string | undefined>(undefined);
   const isEditing = typeof editing === 'string';
   return <Flex align={isEditing ? undefined : 'center'} gap='small' vertical={isEditing} >
@@ -112,11 +112,11 @@ export function DescEditor({ desc, onConfirm }: { desc: string, onConfirm: (newD
             取消
           </Button>
           <Button type='primary'
-            onClick={() => {
-              onConfirm(editing);
+            onClick={async () => {
               setEditing(undefined);
+              onConfirm(editing).then(() => { msg.success('简介已保存') });
             }}>
-            确定
+            保存
           </Button>
         </Flex>
       </>
@@ -133,7 +133,7 @@ export function DescEditor({ desc, onConfirm }: { desc: string, onConfirm: (newD
 
 export function PreviewWithEditor({ question, onConfirm, groups, thisGroup }: {
   question: ValidQuestion;
-  onConfirm: (newObj: ValidQuestion) => void;
+  onConfirm: (newObj: ValidQuestion) => Promise<void>;
   groups: QuestionGroup[];
   thisGroup: Id;
 }) {
@@ -149,11 +149,12 @@ export function PreviewWithEditor({ question, onConfirm, groups, thisGroup }: {
             取消
           </Button>
           <Button type='primary'
-            onClick={() => {
-              onConfirm(editing);
+            onClick={async () => {
               setEditing(undefined);
+              await onConfirm(editing);
+              msg.success('问题已保存');
             }}>
-            确定
+            保存
           </Button>
         </Flex>
       </>

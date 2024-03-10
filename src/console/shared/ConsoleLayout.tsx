@@ -1,35 +1,32 @@
 import { Avatar, Dropdown, Flex, GetProp, Layout, Menu } from 'antd';
 import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { getUser, mapRecur, singleMatch, without } from '../../utils';
+import { getUser, mapRecur, singleMatch, toArray, without } from '../../utils';
 import { useState } from 'react';
 import './ConsoleLayout.scss';
 
 export default function ConsoleLayout({ routes }: { routes: GetProp<typeof Menu, 'items'> }) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const subFunc = singleMatch(pathname, /^\/console\/(\w+(\/\w+)*)(?!\/)\/?\??/);
+  const sub = singleMatch(pathname, /^\/console\/(\w+(\/\w+)*)(?!\/)\/?\??/);
   const [collapsed, setCollapsed] = useState(window.innerWidth < 768);
-  const [openKeys, setOpenKeys] = useState<string[]>(() => {
-    const matched = singleMatch(subFunc ?? '', /^(\w+)/);
-    if (!matched) return [];
-    return [matched];
-  });
-  if (!subFunc) return <Navigate to='dash' />;
+  const topSub = toArray(singleMatch(sub ?? '', /^(\w+)/));
+  const [openKeys, setOpenKeys] = useState<string[]>(topSub);
+  if (!sub) return <Navigate to='dash' />;
   return (<Layout className='layout'>
     <Layout.Sider theme='light' className='sider'
       collapsible
       collapsed={collapsed}
       onCollapse={(col) => {
-        if (!col) setOpenKeys([singleMatch(subFunc ?? '', /^(\w+)/)!]);
+        if (!col) setOpenKeys([singleMatch(sub ?? '', /^(\w+)/)!]);
         setCollapsed(col);
       }}
     >
       <Menu className='menu'
-        selectedKeys={[subFunc]} mode="inline"
+        selectedKeys={[sub, ...topSub]} mode="inline"
         openKeys={collapsed ? undefined : openKeys}
         onOpenChange={(keys) => setOpenKeys(keys)}
         onClick={(info) => navigate(info.key)}
-        items={mapRecur(routes as any, 'children', (o) => without(o as any, ['lazy', 'path'])) as any} />
+        items={mapRecur(routes as any, 'children', (o) => without(o as any, ['lazy', 'path', 'element'])) as any} />
     </Layout.Sider>
 
     <Layout.Content className='main'>
