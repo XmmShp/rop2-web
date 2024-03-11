@@ -8,14 +8,13 @@ let id = 0;
 export function newId() { return id++; }
 export function now(): Timestamp { return Math.floor(Date.now() / 1000); }
 
-export const org: Org = { createdAt: now(), id: newId(), name: '测试组织' };
+export const org: Org = { createdAt: now(), id: newId(), name: '测试组织', defaultDepart: -1 };
 
 export const departs: Depart[] = [{
   name: '默认部门',
   id: newId(),
   parent: org.id,
-  createdAt: now(),
-  tag: 'default'
+  createdAt: now()
 }, ...[
   '部门A',
   '部门B',
@@ -64,6 +63,7 @@ stages.forEach((v, i) => {
     v.next = stages[i + 1].id;
   }
 });
+org.defaultDepart = departs[0].id;
 
 const entryGroupId = newId();
 export const forms: Form[] = [{

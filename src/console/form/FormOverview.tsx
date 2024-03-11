@@ -15,8 +15,8 @@ export default function FormOverview() {
   }
   const [forms, setForms] = useState(refreshData);
   const [filtered, setFiltered] = useState(forms);
-  function getHref(formId: Id, op: 'edit' | 'inspect'): string {
-    return `/console/${op === 'edit' ? 'form/edit' : 'inspect/answer'}?org=${orgId}&form=${formId}`;
+  function getHref(formId: Id, op: 'edit' | 'result'): string {
+    return `/console/${op === 'edit' ? 'form/edit' : 'result'}?org=${orgId}&form=${formId}`;
   }
   return (<Flex vertical gap='small'>
     <Typography.Text>
@@ -50,7 +50,7 @@ export default function FormOverview() {
             }}
             href={getHref(record.id, 'edit')}>编辑</Button>
           <Button size='small' type='link'
-            href={getHref(record.id, 'inspect')}>选拔</Button>
+            href={getHref(record.id, 'result')}>选拔</Button>
         </Space>);
       }
     }]} dataSource={filtered} pagination={{

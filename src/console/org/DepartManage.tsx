@@ -11,11 +11,15 @@ import { getOrg } from '../../store';
 export default function DepartManage() {
   const orgId = useOrg();
   function refreshData(setState = false) {
-    const result = getOrg(orgId).children;
-    if (setState) setDeparts(result);
+    const result = getOrg(orgId);
+    if (setState) {
+      setOrg(result);
+      setDeparts(result.children);
+    }
     return result;
   }
-  const [departs, setDeparts] = useState(refreshData);
+  const [org, setOrg] = useState(() => refreshData(false));
+  const [departs, setDeparts] = useState(org.children);
   const [op, setOp] = useState<undefined
     | 'detail' | 'rename' | 'delete' | 'new'>(undefined);
   function clearOp() { setOp(undefined) }
@@ -29,18 +33,14 @@ export default function DepartManage() {
     }, {
       label: '创建时间',
       children: new Date(obj.createdAt * 1000).stringify(),
-      span: 1
-    }, {
-      label: '标签',
-      children: toArray(obj.tag).join(', ') || '无',
-      span: 1
+      span: 2
     }, {
       label: '名称',
       children: obj.name,
       span: 3
     }, {
       label: '归属组织',
-      children: getOrg(obj.parent).name,
+      children: org.name,
       span: 3
     }];
   return (<Flex vertical gap='small'>
@@ -57,7 +57,7 @@ export default function DepartManage() {
       columns={[{
         title: '名称',
         render(value, record, index) {
-          return <Typography.Text italic={toArray(record.tag).includes('default')}>{record.name}</Typography.Text>
+          return <Typography.Text italic={org.defaultDepart === record.id}>{record.name}</Typography.Text>
         },
       }, {
         title: '操作',
@@ -73,7 +73,7 @@ export default function DepartManage() {
                 setObj(record);
                 setOp('rename');
               }}>重命名</Button>
-            <Button disabled={record.tag === 'default'} size='small' danger type='link'
+            <Button size='small' danger type='link'
               onClick={() => {
                 setObj(record);
                 setOp('delete');
@@ -98,7 +98,7 @@ export default function DepartManage() {
         else { }
         await delay(2000);
         clearOp();
-        refreshData();
+        refreshData(true);
       }}
       name={op === 'rename' ? obj?.name : undefined}
       newItem={op === 'new'}
@@ -109,7 +109,7 @@ export default function DepartManage() {
         //TODO 删除部门
         await delay(2000);
         clearOp();
-        refreshData();
+        refreshData(true);
       }}
       name={op === 'delete' ? obj?.name : undefined} />
   </Flex >);

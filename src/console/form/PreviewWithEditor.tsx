@@ -1,10 +1,10 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Flex, Input, InputNumber, Select, Tooltip, Typography } from 'antd';
+import { Button, Checkbox, Flex, Input, InputNumber, Select, Typography } from 'antd';
 import { Fragment, useState } from 'react';
 import { ChoiceQuestion, CustomQuestion, QuestionGroup, ValidQuestion } from '../../api/models/form';
 import FormQuestion from '../../shared/FormQuestion';
 import { getOrg } from '../../store';
-import { containsTag, newUniqueLabel, useOrg } from '../../utils';
+import { newUniqueLabel, useOrg } from '../../utils';
 import { Id } from '../../api/models/shared';
 import { msg } from '../../App';
 import QuestionGroupSelect from './QuestionGroupSelect';
@@ -57,9 +57,10 @@ function QuestionEditor({ question, onChange, groups, thisGroup }:
         case 'phone':
           return <></>;//内置题目，没有可编辑属性
         case 'choice-depart':
+          const orgInstance = getOrg(org);
           return (<Flex wrap='wrap' gap='middle'>
-            {getOrg(org).children.map((dep) => {
-              if (containsTag(dep.tag, 'default')) return <Fragment key={dep.id}></Fragment>;//默认部门恒不显示
+            {orgInstance.children.map((dep) => {
+              if (orgInstance.defaultDepart === dep.id) return <Fragment key={dep.id}></Fragment>;//默认部门恒不显示
               //对于某一部门，如choices对象上不存在该键(undefined)，则隐藏该部门(不可选择)
               //如为null，表示可选择，不揭示任何问题组
               //否则，为揭示的问题组id

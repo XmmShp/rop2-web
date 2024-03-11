@@ -4,9 +4,8 @@ export interface Org {
   id: Id;
   name: string;
   createdAt: Timestamp;
+  defaultDepart: Id;
 }
-
-type DepartTag = 'default';
 
 /**表示{@link Org}下设的部门。 */
 export interface Depart {
@@ -15,7 +14,6 @@ export interface Depart {
   parent: Id;
   name: string;
   createdAt: Timestamp;
-  tag?: DepartTag | DepartTag[];
 }
 
 /**表示用户对某一{@link Depart}的候选或成员等关系。 */

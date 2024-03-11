@@ -111,10 +111,6 @@ export function getUser(): string {
   return localStorage.getItem('userNickname') ?? '';
 }
 
-export function containsTag(tags: string[] | string | undefined, target: string) {
-  return toArray(tags).includes(target);
-}
-
 export function newUniqueLabel(labels: string[]): string {
   let usedCount = 0;
   let result = `选项${labels.length + 1}`;
