@@ -1,6 +1,6 @@
 .question {
   flex-wrap: wrap;
-  flex: 1 1 auto;
+  width: 100%;
 
   input[type="number"]::-webkit-inner-spin-button {
     display: none;
@@ -10,5 +10,9 @@
   .desc {
     color: var(--ant-color-text-secondary);
     font-size: calc(.9 * var(--ant-font-size));
+  }
+
+  .select {
+    min-width: 10em;
   }
 }

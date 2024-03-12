@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Flex, Input, InputNumber, Select, Typography } from 'antd';
+import { Button, Checkbox, Flex, Grid, Input, InputNumber, Select, Typography } from 'antd';
 import { Fragment, useState } from 'react';
 import { ChoiceQuestion, CustomQuestion, QuestionGroup, ValidQuestion } from '../../api/models/form';
 import FormQuestion from '../../shared/FormQuestion';
@@ -132,17 +132,19 @@ export function DescEditor({ desc, onConfirm }: { desc: string, onConfirm: (newD
   </Flex>
 }
 
-export function PreviewWithEditor({ question, onConfirm, groups, thisGroup }: {
+export function PreviewWithEditor({ question, onConfirm, onDelete, groups, thisGroup }: {
   question: ValidQuestion;
   onConfirm: (newObj: ValidQuestion) => Promise<void>;
+  onDelete: () => Promise<void>;
   groups: QuestionGroup[];
   thisGroup: Id;
 }) {
   const [editing, setEditing] = useState<ValidQuestion | undefined>(undefined);
   const isEditing = typeof editing === 'object';
-  return <Flex align={isEditing ? undefined : 'center'} gap='small' vertical={isEditing} >
+  const { lg = false } = Grid.useBreakpoint();
+  return <>
     {isEditing
-      ? <>
+      ? <Flex vertical gap='small'>
         <QuestionEditor thisGroup={thisGroup} groups={groups} question={editing} onChange={(newObj) => setEditing(newObj)} />
         <Flex gap='small' justify='flex-end'>
           <Button
@@ -158,14 +160,22 @@ export function PreviewWithEditor({ question, onConfirm, groups, thisGroup }: {
             保存
           </Button>
         </Flex>
-      </>
-      : <>
-        <Button style={{ flex: '0 0 auto' }}
-          icon={<EditOutlined />} type='dashed'
-          onClick={() => setEditing(question)} />
+      </Flex>
+      : <Flex className='pre-editor' vertical={!lg} align='center' gap='small'>
+        <Flex className='ops' vertical={lg}>
+          <Button size='small'
+            icon={<EditOutlined />} type='dashed'
+            onClick={() => setEditing(question)} />
+          <Button size='small'
+            icon={<DeleteOutlined />} type='dashed'
+            onClick={async () => {
+              await onDelete();
+              msg.success('问题已删除');
+            }} />
+        </Flex>
         <FormQuestion question={question} />
-      </>}
-  </Flex>
+      </Flex>}
+  </>
 }
 
 export function CustomQuestionCommonEditor({ question, onChange }:

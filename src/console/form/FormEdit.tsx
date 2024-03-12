@@ -1,13 +1,14 @@
 import { RefObject, createRef, useMemo, useRef, useState } from 'react';
 import { delay, useForm } from '../../utils';
 import { getForm } from '../../store';
-import { Collapse, Flex, Form, Tabs, Tooltip, Typography } from 'antd';
+import { Button, Collapse, Flex, Form, Grid, Tabs, Tooltip, Typography } from 'antd';
 import './FormEdit.scss';
 import { QuestionGroup } from '../../api/models/form';
 import { DescEditor, PreviewWithEditor } from './PreviewWithEditor';
-import { ArrowRightOutlined, LoginOutlined } from '@ant-design/icons';
+import { ArrowRightOutlined, LoginOutlined, PlusOutlined } from '@ant-design/icons';
 import QuestionGroupSelect from './QuestionGroupSelect';
 import { msg } from '../../App';
+import { newId } from '../../mockData';
 
 export default function FormEdit() {
   const formId = useForm();
@@ -18,10 +19,12 @@ export default function FormEdit() {
   }), [form]);
   const [curGroup, setCurGroup] = useState<QuestionGroup | null>(null);
 
+  const { lg = false } = Grid.useBreakpoint();
+
   const editingTitle = useRef(form.name);//由于antd的可编辑文本特性，此处使用useRef而非useState
   return (
     <Flex className='editor'>
-      <Flex className='anchor'>
+      <Flex className={'anchor' + (lg ? '' : ' hidden')}>
         <Tabs tabPosition='left'
           activeKey={curGroup?.id?.toString() ?? 'header'}
           items={[{
@@ -126,13 +129,13 @@ function GroupCard({ group, isEntry, groups, onEdit }: {
             question={ques}
             groups={groups}
             thisGroup={group.id}
-            onConfirm={async (newObj) => {
-              //TODO request API
-              // setQuestions(questions.with(index, newObj));
-              await onEdit({ ...group, children: questions.with(index, newObj) });
-            }} />
+            onConfirm={async (newObj) => await onEdit({ ...group, children: questions.with(index, newObj) })}
+            onDelete={async () => await onEdit({ ...group, children: questions.toSpliced(index, 1) })}
+          />
         ))}
         <Flex wrap='wrap' align='center' gap='small'>
+          <Button type='primary' icon={<PlusOutlined />}
+            onClick={async () => await onEdit({ ...group, children: [...questions, { type: 'text', title: '新问题', id: newId()/**TODO 正确生成唯一id */ }] })}>新增问题</Button>
           <Tooltip title={<>
             指定须填写的下一个问题组。
             <br />

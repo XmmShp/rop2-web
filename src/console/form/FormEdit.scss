@@ -2,6 +2,10 @@
   max-height: 100%;
 
   .anchor {
+    &.hidden {
+      display: none;
+    }
+
     flex: 0 2 0;
 
     .tab {
@@ -42,6 +46,17 @@
           min-width: 6em;
         }
       }
+    }
+  }
+
+  .pre-editor {
+    .ops {
+      opacity: 0;
+      transition: all .2s;
+    }
+
+    &:hover .ops {
+      opacity: 1;
     }
   }
 

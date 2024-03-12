@@ -81,7 +81,7 @@ export default function FormQuestion({ question }
                   {question.desc ?? ''}
                 </Typography.Text>
               </Flex>
-              <Select placeholder={allowMultiple ? `最多选择 ${maxCount} 项` : '选择 1 项'}
+              <Select className='select' placeholder={allowMultiple ? `最多选择 ${maxCount} 项` : '选择 1 项'}
                 mode={allowMultiple ? 'multiple' : undefined}
                 maxCount={allowMultiple ? maxCount : undefined}
                 options={options.map(([label, reveal]) => {
