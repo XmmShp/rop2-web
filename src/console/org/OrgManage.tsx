@@ -43,7 +43,7 @@ function DepartManage() {
             content: (<Flex vertical gap='small'><Typography.Text>
               输入新部门的名称:
             </Typography.Text>
-              <TempInput vref={vref} showCount maxLength={16} /></Flex>),
+              <TempInput vref={vref} showCount maxLength={20} /></Flex>),
             async onConfirm() {
               //TODO
               await delay(500);
@@ -91,7 +91,7 @@ function DepartManage() {
                   content: (<Flex vertical gap='small'><Typography.Text>
                     为<Typography.Text underline strong>{record.name}</Typography.Text>指定新名称(须在组织内唯一):
                   </Typography.Text>
-                    <TempInput vref={vref} showCount maxLength={16} /></Flex>),
+                    <TempInput vref={vref} showCount maxLength={20} /></Flex>),
                   async onConfirm() {
                     //TODO
                     await delay(500);
@@ -147,7 +147,7 @@ function StageManage() {
             content: (<Flex vertical gap='small'><Typography.Text>
               输入新阶段的名称:
             </Typography.Text>
-              <TempInput vref={vref} showCount maxLength={16} /></Flex>),
+              <TempInput vref={vref} showCount maxLength={20} /></Flex>),
             async onConfirm() {
               //TODO
               await delay(500);

@@ -6,8 +6,8 @@ import FormQuestion from '../../shared/FormQuestion';
 import { getOrg } from '../../store';
 import { newUniqueLabel, useOrg } from '../../utils';
 import { Id } from '../../api/models/shared';
-import { msg } from '../../App';
 import QuestionGroupSelect from './QuestionGroupSelect';
+import { message } from '../../App';
 
 function QuestionEditor({ question, onChange, groups, thisGroup }:
   { question: ValidQuestion, onChange: (newObj: ValidQuestion) => void, groups: QuestionGroup[], thisGroup: Id }) {
@@ -115,7 +115,7 @@ export function DescEditor({ desc, onConfirm }: { desc: string, onConfirm: (newD
           <Button type='primary'
             onClick={async () => {
               setEditing(undefined);
-              onConfirm(editing).then(() => { msg.success('简介已保存') });
+              onConfirm(editing).then(() => { message.success('简介已保存') });
             }}>
             保存
           </Button>
@@ -155,7 +155,7 @@ export function PreviewWithEditor({ question, onConfirm, onDelete, groups, thisG
             onClick={async () => {
               setEditing(undefined);
               await onConfirm(editing);
-              msg.success('问题已保存');
+              message.success('问题已保存');
             }}>
             保存
           </Button>
@@ -170,7 +170,7 @@ export function PreviewWithEditor({ question, onConfirm, onDelete, groups, thisG
             icon={<DeleteOutlined />} type='dashed'
             onClick={async () => {
               await onDelete();
-              msg.success('问题已删除');
+              message.success('问题已删除');
             }} />
         </Flex>
         <FormQuestion question={question} />
@@ -224,13 +224,13 @@ export function ChoiceQuestionEditor({ question, onChange, groups, thisGroup }:
               onChange(v) { editingValue.value = v },
               onEnd() {
                 if (entries.some(([oLabel]) => oLabel === editingValue.value))
-                  msg.error('选项名重复');
+                  message.error('选项名重复');
                 else onChange({ ...question, choices: Object.assign(choices, { [label]: undefined }, { [editingValue.value]: reveal }) });
               }
             }}>{label}</Typography.Text>
           <Button type='link' size='small' onClick={() => {
             if (entries.length <= 1)
-              msg.error('至少保留1个选项');
+              message.error('至少保留1个选项');
             else
               onChange({ ...question, choices: Object.assign(choices, { [label]: undefined }) });
           }}><DeleteOutlined /></Button>

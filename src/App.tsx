@@ -1,5 +1,5 @@
 import React, { ReactNode, useState } from 'react';
-import { LazyRouteFunction, Navigate, RouteObject, RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { LazyRouteFunction, Navigate, RouteObject, RouterProvider, createBrowserRouter, useRouteError } from 'react-router-dom';
 import { ConfigProvider, theme, App as AntdApp } from 'antd';
 import { DashboardOutlined, ApartmentOutlined, FormOutlined, BarsOutlined, IdcardOutlined, FundViewOutlined } from '@ant-design/icons';
 import { mapRecur, useDarkMode } from './utils';
@@ -49,9 +49,14 @@ export const consoleRoutes = mapRecur([
   }
 ], 'children', (v, stack) => { return { ...v, key: [...stack.map(v => v.path), v.path].join('/') } })
   .map(v => { return { ...v, title: v.label } });
+
+function ErrorElement() {
+  console.error(useRouteError());
+  return <>Oops, an error occurred<br />Check devtools for more info</>;
+}
 const router = createBrowserRouter([{
   path: '/',
-  errorElement: <>Oops, an error occurred<br />Check devtools for more info</>,
+  errorElement: <ErrorElement />,
   children: [
     {
       index: true,
