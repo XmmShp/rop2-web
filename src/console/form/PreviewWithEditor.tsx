@@ -22,7 +22,14 @@ function QuestionEditor({ question, onChange, groups, thisGroup }:
         defaultValue={question.type}
         onChange={(v) => {
           const newObj = { ...question, type: v };
-          (newObj as any).choices ??= {};
+          if (newObj.type === 'choice') {
+            (newObj as any).choices ??= { '选项1': null, '选项2': null, '选项3': null };
+            (newObj as any).maxSelection = 3;
+          }
+          else if (newObj.type === 'choice-depart') {
+            (newObj as any).choices ??= {};
+            (newObj as any).maxSelection = getOrg(org).children.length;
+          }
           (newObj as any).title ??= '问题标题';
           onChange(newObj as any);
           //把部分属性置为非空。需要后端根据问题类型获取需要的属性
@@ -58,25 +65,31 @@ function QuestionEditor({ question, onChange, groups, thisGroup }:
           return <></>;//内置题目，没有可编辑属性
         case 'choice-depart':
           const orgInstance = getOrg(org);
-          return (<Flex wrap='wrap' gap='middle'>
-            {orgInstance.children.map((dep) => {
-              if (orgInstance.defaultDepart === dep.id) return <Fragment key={dep.id}></Fragment>;//默认部门恒不显示
-              //对于某一部门，如choices对象上不存在该键(undefined)，则隐藏该部门(不可选择)
-              //如为null，表示可选择，不揭示任何问题组
-              //否则，为揭示的问题组id
-              let reveal = question.choices[dep.id];
-              if (reveal === undefined) reveal = -2;
-              else if (reveal === null) reveal = -1;
-              return (<Flex key={dep.id} gap='small' align='center'>
-                {dep.name}
-                <QuestionGroupSelect groups={groups} thisGroup={thisGroup}
-                  value={reveal}
-                  allowHide
-                  onChange={(v) =>
-                    onChange({ ...question, choices: { ...question.choices, [dep.id]: v } })} />
-              </Flex>);
-            })}
-          </Flex>);
+          return (<>
+            <Flex wrap='wrap' gap='middle'>
+              {orgInstance.children.map((dep) => {
+                if (orgInstance.defaultDepart === dep.id) return <Fragment key={dep.id}></Fragment>;//默认部门恒不显示
+                //对于某一部门，如choices对象上不存在该键(undefined)，则隐藏该部门(不可选择)
+                //如为null，表示可选择，不揭示任何问题组
+                //否则，为揭示的问题组id
+                let reveal = question.choices[dep.id];
+                if (reveal === undefined) reveal = -2;
+                else if (reveal === null) reveal = -1;
+                return (<Flex key={dep.id} gap='small' align='center'>
+                  {dep.name}
+                  <QuestionGroupSelect groups={groups} thisGroup={thisGroup}
+                    value={reveal}
+                    allowHide
+                    onChange={(v) =>
+                      onChange({ ...question, choices: { ...question.choices, [dep.id]: v } })} />
+                </Flex>);
+              })}
+            </Flex>
+            <Flex align='center' gap='small'>
+              <span className='prompt'>最多选择项数</span>
+              <InputNumber maxLength={2} min={1} max={getOrg(org).children.length} value={question.maxSelection} onChange={(v) => onChange({ ...question, maxSelection: v ?? 1 })} />
+            </Flex>
+          </>);
         case 'text':
           return (<>
             <CustomQuestionCommonEditor question={question} onChange={onChange} />
@@ -209,7 +222,10 @@ export function ChoiceQuestionEditor({ question, onChange, groups, thisGroup }:
     </Flex>
     <Flex wrap='wrap' align='center' gap='small'>
       <Button size='small'
-        onClick={() => onChange({ ...question, choices: Object.assign(choices, { [newUniqueLabel(entries.map(([label]) => label))]: null }) })}>
+        onClick={() => onChange({
+          ...question,
+          choices: Object.assign(choices, { [newUniqueLabel(entries.map(([label]) => label), '选项')]: null })
+        })}>
         <PlusOutlined />
         添加选项
       </Button>

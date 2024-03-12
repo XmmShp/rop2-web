@@ -106,12 +106,12 @@ export function getUser(): string {
   return localStorage.getItem('userNickname') ?? '';
 }
 
-export function newUniqueLabel(labels: string[]): string {
+export function newUniqueLabel(labels: string[], prefix: string): string {
   let usedCount = 0;
-  let result = `选项${labels.length + 1}`;
+  let result = `${prefix}${labels.length + 1}`;
   while (labels.includes(result)) {
     usedCount++;
-    result = `选项${labels.length + 1}(${usedCount})`;
+    result = `${prefix}${labels.length + 1}(${usedCount})`;
   }
   return result;
 }

@@ -14,8 +14,8 @@ export interface PhoneQuestion extends Question { type: 'phone' }
 export interface ChoiceDepartQuestion extends Question {
   type: 'choice-depart';
   optional?: false;
-  /**最多选择项数，为空则可全选 */
-  maxSelection?: number;
+  /**最多选择项数 */
+  maxSelection: number;
   choices: {
     //选择对应id揭示的问题组
     [departId: Id]: Id | null | undefined;

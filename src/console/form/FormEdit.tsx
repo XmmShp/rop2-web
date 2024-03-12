@@ -1,5 +1,5 @@
 import { RefObject, createRef, useMemo, useRef, useState } from 'react';
-import { delay, useForm } from '../../utils';
+import { delay, newUniqueLabel, useForm } from '../../utils';
 import { getForm } from '../../store';
 import { App, Button, Collapse, Flex, Form, Grid, Tabs, Tooltip, Typography } from 'antd';
 import './FormEdit.scss';
@@ -47,13 +47,13 @@ export default function FormEdit() {
             }
           }} />
       </Flex>
-      <Flex className='page' vertical
-        ref={pageRef} onScroll={(ev) => {
+      <Flex className='page' vertical ref={pageRef}
+        onScroll={(ev) => {
           const scrollTop = pageRef.current!.scrollTop;
           const curG = groups.findLast(g => g.ref.current!.offsetTop <= scrollTop) ?? null;
           setCurGroup(curG);
         }}>
-        <Form className='form'>
+        <Flex className='form' vertical gap='small'>
           <Typography.Title editable={{
             onChange(v) { editingTitle.current = v; },
             async onEnd() {
@@ -79,7 +79,22 @@ export default function FormEdit() {
               //TODO request API
               await delay(150);
             }} />)}
-        </Form>
+
+          <Button type='default' icon={<PlusOutlined />}
+            onClick={() => {
+              let maxGroupId = 0;
+              groups.forEach(({ id }) => {
+                if (id > maxGroupId) maxGroupId = id;
+              })
+              const newGroup: QuestionGroup = {
+                id: maxGroupId + 1,
+                children: [],
+                label: newUniqueLabel(groups.map(gr => gr.label), '问题组')
+              };
+              //TODO request API
+              setForm({ ...form, children: [...groups, newGroup] });
+            }}>新增题目组</Button>
+        </Flex>
       </Flex>
     </Flex >);
 }
