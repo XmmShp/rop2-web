@@ -1,5 +1,4 @@
 import { useLayoutEffect, useState } from 'react';
-import { msg } from './App';
 import { useSearchParams } from 'react-router-dom';
 import { Id } from './api/models/shared';
 
@@ -79,10 +78,6 @@ export function toArray<T extends NonNullable<any>>(arg: undefined | null | T | 
   if (arg === null || arg === undefined) return []
   if (Array.isArray(arg)) return arg;
   return [arg];
-}
-
-export function notImplement() {
-  msg.error('此功能还在开发中哦');
 }
 
 export function num(...from: (string | undefined | null | number)[]): number {

@@ -1,6 +1,6 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { Flex, Typography, Button, Table, Space } from 'antd';
-import { notImplement, useOrg } from '../../utils';
+import { useOrg } from '../../utils';
 import { useState } from 'react';
 import Search from '../shared/Search';
 import { getOrg } from '../../store';
@@ -24,7 +24,7 @@ export default function FormOverview() {
     </Typography.Text>
     <Flex wrap='wrap'>
       <Button icon={<PlusOutlined />} type='primary'
-        onClick={notImplement}>新增</Button>
+      >新增</Button>
     </Flex>
     <Search onChange={({ target: { value: search } }) => setFiltered(forms.filter(v => v.name.includes(search)))} />
     <Table title={(d) => `表单列表 (${d.length}项)`} rowKey='id' bordered columns={[{

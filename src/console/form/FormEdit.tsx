@@ -1,14 +1,12 @@
 import { RefObject, createRef, useMemo, useRef, useState } from 'react';
 import { delay, useForm } from '../../utils';
 import { getForm } from '../../store';
-import { Button, Collapse, Flex, Form, Grid, Tabs, Tooltip, Typography } from 'antd';
+import { App, Button, Collapse, Flex, Form, Grid, Tabs, Tooltip, Typography } from 'antd';
 import './FormEdit.scss';
 import { QuestionGroup } from '../../api/models/form';
 import { DescEditor, PreviewWithEditor } from './PreviewWithEditor';
 import { ArrowRightOutlined, LoginOutlined, PlusOutlined } from '@ant-design/icons';
 import QuestionGroupSelect from './QuestionGroupSelect';
-import { msg } from '../../App';
-import { newId } from '../../mockData';
 
 export default function FormEdit() {
   const formId = useForm();
@@ -20,6 +18,7 @@ export default function FormEdit() {
   const [curGroup, setCurGroup] = useState<QuestionGroup | null>(null);
 
   const { lg = false } = Grid.useBreakpoint();
+  const { message: msg } = App.useApp();
 
   const editingTitle = useRef(form.name);//由于antd的可编辑文本特性，此处使用useRef而非useState
   return (
@@ -117,7 +116,6 @@ function GroupCard({ group, isEntry, groups, onEdit }: {
           onChange(v) { labelRef.current = v },
           async onEnd() {
             await onEdit({ ...group, label: labelRef.current });
-            msg.success('问题组标签已保存');
           }
         }}>
           {group.label}
@@ -135,7 +133,14 @@ function GroupCard({ group, isEntry, groups, onEdit }: {
         ))}
         <Flex wrap='wrap' align='center' gap='small'>
           <Button type='primary' icon={<PlusOutlined />}
-            onClick={async () => await onEdit({ ...group, children: [...questions, { type: 'text', title: '新问题', id: newId()/**TODO 正确生成唯一id */ }] })}>新增问题</Button>
+            onClick={async () => {
+              let maxId = 0;
+              groups.forEach(gr =>
+                gr.children.forEach(({ id }) => {
+                  if (id > maxId) maxId = id;
+                }));
+              await onEdit({ ...group, children: [...questions, { type: 'text', title: '新问题', id: maxId + 1 }] });
+            }}>新增问题</Button>
           <Tooltip title={<>
             指定须填写的下一个问题组。
             <br />

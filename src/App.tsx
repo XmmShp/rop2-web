@@ -1,9 +1,9 @@
-import React from 'react';
-import { LazyRouteFunction, Navigate, Outlet, RouteObject, RouterProvider, createBrowserRouter } from 'react-router-dom';
-import { ConfigProvider, message, theme } from 'antd';
-import { DashboardOutlined, ApartmentOutlined, FormOutlined, AuditOutlined, BarsOutlined, IdcardOutlined, FundViewOutlined } from '@ant-design/icons';
+import React, { ReactNode, useState } from 'react';
+import { LazyRouteFunction, Navigate, RouteObject, RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { ConfigProvider, theme, App as AntdApp } from 'antd';
+import { DashboardOutlined, ApartmentOutlined, FormOutlined, BarsOutlined, IdcardOutlined, FundViewOutlined } from '@ant-design/icons';
 import { mapRecur, useDarkMode } from './utils';
-import { MessageInstance } from 'antd/es/message/interface';
+import { useAppProps } from 'antd/es/app/context';
 
 function getConsoleLoader(scope: string, file: string, props: object = {}): LazyRouteFunction<RouteObject> {
   return async () => {
@@ -45,16 +45,7 @@ export const consoleRoutes = mapRecur([
     label: '组织管理',
     path: 'org',
     icon: <ApartmentOutlined />,
-    element: <Outlet />,
-    children: [{
-      label: '部门',
-      path: 'depart',
-      lazy: getConsoleLoader('org', 'DepartManage')
-    }, {
-      label: '阶段',
-      path: 'stage',
-      lazy: getConsoleLoader('org', 'StageManage')
-    }]
+    lazy: getConsoleLoader('org', 'OrgManage')
   }
 ], 'children', (v, stack) => { return { ...v, key: [...stack.map(v => v.path), v.path].join('/') } })
   .map(v => { return { ...v, title: v.label } });
@@ -73,18 +64,29 @@ const router = createBrowserRouter([{
   ]
 }]);
 
-export let msg: MessageInstance;
-export default function App() {
+export let setAppTempNode: React.Dispatch<React.SetStateAction<React.ReactNode>>;
+export default function MyApp() {
   const isDark = useDarkMode();
-  const [messageApi, contextHolder] = message.useMessage();
-  msg = messageApi;
+  const [tempNode, setTempNode] = useState<ReactNode>(<></>);
+  setAppTempNode = setTempNode;
   return (<React.StrictMode>
     <ConfigProvider theme={{
       algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
       cssVar: true,
       hashed: false
     }}>
-      {contextHolder}
-      <RouterProvider router={router} /></ConfigProvider>
+      <AntdApp>
+        <AppContextUser />
+        <RouterProvider router={router} />
+        {tempNode}
+      </AntdApp>
+    </ConfigProvider>
   </React.StrictMode>);
+}
+
+export let message: useAppProps['message'], notification: useAppProps['notification'], modal: useAppProps['modal'];
+/**此FC用于读取Context并使用antd的hook */
+function AppContextUser() {
+  ({ message, notification, modal } = AntdApp.useApp());
+  return (<></>);
 }
