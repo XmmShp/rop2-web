@@ -40,7 +40,7 @@ export const consoleRoutes = mapRecur([
     label: '用户管理',
     path: 'user',
     icon: <IdcardOutlined />,
-    lazy: getConsoleLoader('org', 'AdminManage')
+    lazy: getConsoleLoader('org', 'UserManage')
   }, {
     label: '组织管理',
     path: 'org',
