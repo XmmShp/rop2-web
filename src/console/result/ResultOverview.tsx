@@ -1,4 +1,4 @@
-import { Card, Checkbox, Flex, Segmented } from 'antd';
+import { Card, Checkbox, Flex, Segmented, Table } from 'antd';
 import { useMemo } from 'react';
 import { useForm, useOrg, useStoredState } from '../../utils';
 import { getOrg } from '../../store';
@@ -50,6 +50,8 @@ export default function ResultOverview() {
             value: stage.id
           };
         })} />
+
+      <Table bordered title={(d) => `候选人列表 (共 ${d.length} 项)`} />
     </Flex>
   </Card>);
 }

@@ -65,7 +65,7 @@ export interface QuestionGroup {
 }
 
 /**表示表单答卷。姓名、zjuid等属性在储存时不做特殊处理，提交时由后端生成{@link Member}关系 */
-interface Answer {
+export interface Answer {
   id: Id;
   /**来源{@link Form}的id */
   of: Id;
