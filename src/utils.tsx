@@ -134,3 +134,18 @@ export function moveElement<T>(array: T[], prevIndex: number, delta: number) {
   newArray[newIndex] = element;
   return newArray;
 }
+
+export function useStoredState<T>(initer: T | (() => T), storeKey: string) {
+  const [value, setValue] = useState(() => {
+    const storedValue = localStorage.getItem(storeKey);
+    if (storedValue) return JSON.parse(storedValue) as T;
+    else {
+      if (initer instanceof Function) return initer();
+      else return initer;
+    }
+  });
+  return [value, (newValue: T) => {
+    setValue(newValue);
+    localStorage.setItem(storeKey, JSON.stringify(newValue));
+  }] as const;
+}

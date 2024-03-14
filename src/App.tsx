@@ -19,10 +19,10 @@ export const consoleRoutes = mapRecur([
     icon: <DashboardOutlined />,
     lazy: getConsoleLoader('dash', 'Dash')
   }, {
-    label: '答卷分析',
+    label: '结果分析',
     path: 'result',
     icon: <BarsOutlined />,
-    element: <></>,
+    lazy: getConsoleLoader('result', 'ResultOverview')
   }, {
     label: '面试管理',
     path: 'interview',
