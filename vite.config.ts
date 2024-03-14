@@ -10,13 +10,19 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: true
-  }, build: {
+  },
+  build: {
+    chunkSizeWarningLimit: 1024,
     rollupOptions: {
       output: {
+        hashCharacters: 'base64',
+        assetFileNames: 'assets/[name]-[hash:4][extname]',
+        chunkFileNames: '[name]-[hash:6].js',
         manualChunks: {
-          react: ['react-dom']
+          react: ['react-router-dom', 'react-dom', 'react'],
+          antd: ['antd', '@ant-design/icons'],
         }
       }
     }
-  }
+  },
 });

@@ -149,3 +149,6 @@ export function useStoredState<T>(initer: T | (() => T), storeKey: string) {
     localStorage.setItem(storeKey, JSON.stringify(newValue));
   }] as const;
 }
+
+/**保证以/结尾的basename。`import.meta.env.BASE_URL`在编译时会被vite静态替换。 */
+export const basename: `${string}/` = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/` as any;

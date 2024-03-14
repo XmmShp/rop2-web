@@ -4,9 +4,9 @@ import { delay, useOrg } from '../../utils';
 import { useState } from 'react';
 import Search from '../shared/Search';
 import { getOrg } from '../../store';
-import { Id } from '../../api/models/shared';
 import { showModal } from '../../shared/LightComponent';
 import { message } from '../../App';
+import { useNavigate } from 'react-router-dom';
 
 export default function FormOverview() {
   const orgId = useOrg();
@@ -17,9 +17,7 @@ export default function FormOverview() {
   }
   const [forms, setForms] = useState(refreshData);
   const [filtered, setFiltered] = useState(forms);
-  function getHref(formId: Id, op: 'edit' | 'result'): string {
-    return `/console/${op === 'edit' ? 'form/edit' : 'result'}?org=${orgId}&form=${formId}`;
-  }
+  const navigate = useNavigate();
   return (<Card>
     <Flex vertical gap='small'>
       <Typography.Text>
@@ -50,10 +48,13 @@ export default function FormOverview() {
             <Button size='small' type='link'
               onClick={() => {
                 localStorage.setItem('defaultForm', record.id.toString());
-              }}
-              href={getHref(record.id, 'edit')}>编辑</Button>
+                navigate('/console/form/edit');
+              }} >编辑</Button>
             <Button size='small' type='link'
-              href={getHref(record.id, 'result')}>选拔</Button>
+              onClick={() => {
+                localStorage.setItem('defaultForm', record.id.toString());
+                navigate('/console/result');
+              }} >选拔</Button>
             <Button size='small' type='link'>复制</Button>
             <Button size='small' danger type='link'
               onClick={() => showModal({

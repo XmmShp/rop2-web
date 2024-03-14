@@ -10,4 +10,4 @@ localStorage.setItem('defaultOrg', org.id.toString());
 localStorage.setItem('defaultForm', forms[0].id.toString());
 localStorage.setItem('userNickname', 'test');
 
-ReactDOM.createRoot(document.getElementById('root') as HTMLDivElement).render(<MyApp />)
+ReactDOM.createRoot(document.getElementById('root') as HTMLDivElement).render(<React.StrictMode><MyApp /></React.StrictMode>)

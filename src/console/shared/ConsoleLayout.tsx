@@ -5,9 +5,9 @@ import { useState } from 'react';
 import './ConsoleLayout.scss';
 
 export default function ConsoleLayout({ routes }: { routes: GetProp<typeof Menu, 'items'> }) {
-  const { pathname } = useLocation();
+  const { pathname } = useLocation();//react-router会自动去除basename部分
   const navigate = useNavigate();
-  const sub = singleMatch(pathname, /^\/console\/(\w+(\/\w+)*)(?!\/)\/?\??/);
+  const sub = singleMatch(pathname, /^\/console\/(\w+(\/\w+)*)(?!\/)\/?/);
   const [collapsed, setCollapsed] = useState(window.innerWidth < 768);
   const topSub = toArray(singleMatch(sub ?? '', /^(\w+)/));
   const [openKeys, setOpenKeys] = useState<string[]>(topSub);
