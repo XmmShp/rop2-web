@@ -45,6 +45,11 @@ function DepartManage() {
             </Typography.Text>
               <TempInput vref={vref} showCount maxLength={20} /></Flex>),
             async onConfirm() {
+              const newName = vref.value.trim();
+              if (!newName) {
+                message.error('名称不能为空');
+                return;
+              }
               //TODO
               await delay(500);
               message.success("新建成功");
@@ -93,6 +98,11 @@ function DepartManage() {
                   </Typography.Text>
                     <TempInput vref={vref} showCount maxLength={20} /></Flex>),
                   async onConfirm() {
+                    const newName = vref.value.trim();
+                    if (!newName) {
+                      message.error('名称不能为空');
+                      return;
+                    }
                     //TODO
                     await delay(500);
                     message.success("重命名成功");
@@ -149,6 +159,11 @@ function StageManage() {
             </Typography.Text>
               <TempInput vref={vref} showCount maxLength={20} /></Flex>),
             async onConfirm() {
+              const newName = vref.value.trim();
+              if (!newName) {
+                message.error('名称不能为空');
+                return;
+              }
               //TODO
               await delay(500);
               message.success("新建成功");

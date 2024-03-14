@@ -115,3 +115,22 @@ export function newUniqueLabel(labels: string[], prefix: string): string {
   }
   return result;
 }
+
+/**将数组内某个元素前后移指定位置，返回新数组，不改变原数组 */
+export function moveElement<T>(array: T[], prevIndex: number, delta: number) {
+  const newArray = [...array];
+  if (!delta) return newArray;
+  const length = newArray.length;
+  const element = newArray[prevIndex];
+  let newIndex;
+  const tryIndex = prevIndex + delta;
+  if (delta > 0) {
+    newIndex = Math.min(tryIndex, length - 1);
+    newArray.copyWithin(prevIndex, prevIndex + 1, newIndex + 1);
+  } else {
+    newIndex = Math.max(tryIndex, 0);
+    newArray.copyWithin(newIndex + 1, newIndex, prevIndex);
+  }
+  newArray[newIndex] = element;
+  return newArray;
+}

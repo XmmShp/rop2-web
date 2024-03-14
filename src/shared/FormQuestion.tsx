@@ -32,7 +32,7 @@ export default function FormQuestion({ question }
         case 'choice-depart':
           {
             const entries = Object.entries(question.choices).filter(([, reveal]) => reveal !== undefined);
-            const maxCount = question.maxSelection ?? entries.length;
+            const maxCount = Math.min(question.maxSelection, entries.length);
             return (<>
               <Typography.Text>
                 选择部门志愿
@@ -70,7 +70,7 @@ export default function FormQuestion({ question }
           {
             const options = Object.entries(question.choices).filter(([, reveal]) => reveal !== undefined);
             //注意：maxSelection为空表示可以全选
-            const maxCount = question.maxSelection ?? options.length;
+            const maxCount = Math.min(question.maxSelection ?? options.length, options.length);
             const allowMultiple = maxCount > 1;
             return (<>
               <Flex vertical>

@@ -1,6 +1,6 @@
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { ArrowDownOutlined, ArrowUpOutlined, DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Checkbox, Flex, Grid, Input, InputNumber, Select, Typography } from 'antd';
-import { Fragment, useState } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import { ChoiceQuestion, CustomQuestion, QuestionGroup, ValidQuestion } from '../../api/models/form';
 import FormQuestion from '../../shared/FormQuestion';
 import { getOrg } from '../../store';
@@ -28,7 +28,7 @@ function QuestionEditor({ question, onChange, groups, thisGroup }:
           }
           else if (newObj.type === 'choice-depart') {
             (newObj as any).choices ??= {};
-            (newObj as any).maxSelection = getOrg(org).children.length;
+            (newObj as any).maxSelection = 3;
           }
           (newObj as any).title ??= '问题标题';
           onChange(newObj as any);
@@ -66,6 +66,10 @@ function QuestionEditor({ question, onChange, groups, thisGroup }:
         case 'choice-depart':
           const orgInstance = getOrg(org);
           return (<>
+            <Flex align='center' gap='small'>
+              <span className='prompt'>最多选择项数</span>
+              <InputNumber maxLength={2} min={1} max={getOrg(org).children.length} value={question.maxSelection} onChange={(v) => onChange({ ...question, maxSelection: v ?? 1 })} />
+            </Flex>
             <Flex wrap='wrap' gap='middle'>
               {orgInstance.children.map((dep) => {
                 if (orgInstance.defaultDepart === dep.id) return <Fragment key={dep.id}></Fragment>;//默认部门恒不显示
@@ -84,10 +88,6 @@ function QuestionEditor({ question, onChange, groups, thisGroup }:
                       onChange({ ...question, choices: { ...question.choices, [dep.id]: v } })} />
                 </Flex>);
               })}
-            </Flex>
-            <Flex align='center' gap='small'>
-              <span className='prompt'>最多选择项数</span>
-              <InputNumber maxLength={2} min={1} max={getOrg(org).children.length} value={question.maxSelection} onChange={(v) => onChange({ ...question, maxSelection: v ?? 1 })} />
             </Flex>
           </>);
         case 'text':
@@ -145,16 +145,21 @@ export function DescEditor({ desc, onConfirm }: { desc: string, onConfirm: (newD
   </Flex>
 }
 
-export function PreviewWithEditor({ question, onConfirm, onDelete, groups, thisGroup }: {
+export function PreviewWithEditor({ question, onConfirm, onDelete, groups, thisGroup, onMove }: {
   question: ValidQuestion;
   onConfirm: (newObj: ValidQuestion) => Promise<void>;
   onDelete: () => Promise<void>;
   groups: QuestionGroup[];
   thisGroup: Id;
+  onMove: (delta: number) => Promise<void>;
 }) {
   const [editing, setEditing] = useState<ValidQuestion | undefined>(undefined);
   const isEditing = typeof editing === 'object';
   const { lg = false } = Grid.useBreakpoint();
+  const group = useMemo(() => groups.find(g => g.id === thisGroup)!, [groups, thisGroup]);
+  const quesIndex = group.children.indexOf(question);
+  const isFirst = quesIndex == 0;
+  const isLast = quesIndex == group.children.length - 1;
   return <>
     {isEditing
       ? <Flex vertical gap='small'>
@@ -185,6 +190,12 @@ export function PreviewWithEditor({ question, onConfirm, onDelete, groups, thisG
               await onDelete();
               message.success('问题已删除');
             }} />
+          {!isFirst ? <Button size='small'
+            icon={<ArrowUpOutlined />} type='dashed'
+            onClick={() => onMove(-1)} /> : <></>}
+          {!isLast ? <Button size='small'
+            icon={<ArrowDownOutlined />} type='dashed'
+            onClick={() => onMove(1)} /> : <></>}
         </Flex>
         <FormQuestion question={question} />
       </Flex>}

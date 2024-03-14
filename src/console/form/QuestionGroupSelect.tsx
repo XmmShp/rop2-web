@@ -34,10 +34,10 @@ export default function QuestionGroupSelect({ groups, thisGroup, value, onChange
   ];
   if (allowHide)
     options.unshift({ label: '隐藏', value: -2 });
-  if (value === null)
-    value = -1;
-  else if (value === undefined)
+  if (value === undefined)
     value = -2;
+  else if (value === null || !groups.some((gr: QuestionGroup) => gr.id === value))
+    value = -1;
   return (<Select title={title}
     size={size} value={value}
     className='group-select'

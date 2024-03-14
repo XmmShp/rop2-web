@@ -18,7 +18,11 @@ function StateDisabledContextProvider({ receiver, children }: { receiver: (sette
   </DisabledContextProvider>);
 }
 
-/**显示对话框，无需useState，当onConfirm未resolve时，将显示加载UI */
+/**显示对话框，无需useState。  
+ * 当onConfirm未resolve时，将显示加载UI，并禁用按钮等组件。
+ * 
+ * 返回一个Promise，在点击确定且onConfirm兑现后，兑现为true；点击取消时兑现为false。
+ */
 export function showModal({ content, onConfirm, okButtonProps, ...otherProps }: ModalFuncProps & { onConfirm: () => Promise<void> }): Promise<boolean> {
   return new Promise((rs) => {
     let setter: (disabled: boolean) => void;

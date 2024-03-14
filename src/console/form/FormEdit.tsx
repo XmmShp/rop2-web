@@ -1,31 +1,31 @@
-import { RefObject, createRef, useMemo, useRef, useState } from 'react';
-import { delay, newUniqueLabel, useForm } from '../../utils';
+import { createRef, forwardRef, useMemo, useRef, useState } from 'react';
+import { delay, moveElement, newUniqueLabel, useForm } from '../../utils';
 import { getForm } from '../../store';
-import { App, Button, Collapse, Flex, Form, Grid, Tabs, Tooltip, Typography } from 'antd';
+import { Button, Collapse, Flex, Grid, Tabs, Tooltip, Typography } from 'antd';
 import './FormEdit.scss';
 import { QuestionGroup } from '../../api/models/form';
 import { DescEditor, PreviewWithEditor } from './PreviewWithEditor';
-import { ArrowRightOutlined, LoginOutlined, PlusOutlined } from '@ant-design/icons';
+import { ArrowRightOutlined, DeleteOutlined, LoginOutlined, PlusOutlined } from '@ant-design/icons';
 import QuestionGroupSelect from './QuestionGroupSelect';
+import { message } from '../../App';
+import { showModal } from '../../shared/LightComponent';
 
 export default function FormEdit() {
   const formId = useForm();
   const [form, setForm] = useState(() => getForm(formId));
   const pageRef = useRef<HTMLDivElement>(null);
-  const groups: (QuestionGroup & { ref: RefObject<HTMLDivElement> })[] = useMemo(() => form.children.map(g => {
-    return { ...g, ref: createRef() };
-  }), [form]);
-  const [curGroup, setCurGroup] = useState<QuestionGroup | null>(null);
+  const groups = form.children;
+  const [curGroupIndex, setCurGroupIndex] = useState(-1);
+  const refs = useMemo(() => groups.map(() => createRef<HTMLDivElement>()), [groups]);
 
   const { lg = false } = Grid.useBreakpoint();
-  const { message: msg } = App.useApp();
 
   const editingTitle = useRef(form.name);//由于antd的可编辑文本特性，此处使用useRef而非useState
   return (
     <Flex className='editor'>
       <Flex className={'anchor' + (lg ? '' : ' hidden')}>
         <Tabs tabPosition='left'
-          activeKey={curGroup?.id?.toString() ?? 'header'}
+          activeKey={groups[curGroupIndex]?.id?.toString() ?? 'header'}
           items={[{
             key: 'header',
             label: <div className='tab header'>表单抬头</div>
@@ -38,20 +38,20 @@ export default function FormEdit() {
           onTabClick={(key) => {
             if (key === 'header') {
               pageRef.current?.scrollTo({ top: 0 });
-              setCurGroup(null);
+              setCurGroupIndex(-1);
             }
             else {
-              const group = groups.find(g => g.id.toString() === key)!;
-              group.ref.current!.scrollIntoView();
-              setCurGroup(group);
+              const groupIndex = groups.findIndex(g => g.id.toString() === key)!;
+              refs[groupIndex].current!.scrollIntoView();
+              setCurGroupIndex(groupIndex);
             }
           }} />
       </Flex>
       <Flex className='page' vertical ref={pageRef}
         onScroll={(ev) => {
           const scrollTop = pageRef.current!.scrollTop;
-          const curG = groups.findLast(g => g.ref.current!.offsetTop <= scrollTop) ?? null;
-          setCurGroup(curG);
+          const curG = refs.findLastIndex(r => r.current!.offsetTop <= scrollTop) ?? -1;
+          setCurGroupIndex(curG);
         }}>
         <Flex className='form' vertical gap='small'>
           <Typography.Title editable={{
@@ -61,7 +61,7 @@ export default function FormEdit() {
 
               //TODO request API
               await delay(200);
-              msg.success('标题已保存');
+              message.success('标题已保存');
             }
           }} className='title'>{form.name}</Typography.Title>
           <DescEditor desc={form.desc} onConfirm={async (newDesc) => {
@@ -72,13 +72,30 @@ export default function FormEdit() {
           }} />
 
           {groups.map((group, index) => <GroupCard key={group.id}
+            ref={refs[index]}
             isEntry={form.entry === group.id} group={group} groups={groups}
             onEdit={async (newObj) => {
-              setForm({ ...form, children: form.children.with(index, newObj) });
+              setForm({ ...form, children: groups.with(index, newObj) });
 
               //TODO request API
               await delay(150);
-            }} />)}
+            }}
+            onDelete={async () => await showModal({
+              title: '删除问题组',
+              content: <Typography.Text>
+                您确定要删除问题组
+                <Typography.Text strong>{group.label}</Typography.Text>
+                吗？
+                <br />
+                删除问题组将删除其包含的所有题目(共 {group.children.length} 题)。
+              </Typography.Text>,
+              async onConfirm() {
+                setForm({ ...form, children: groups.toSpliced(index, 1) });
+
+                //TODO request API
+                await delay(150);
+              }
+            })} />)}
 
           <Button type='default' icon={<PlusOutlined />}
             onClick={() => {
@@ -99,17 +116,20 @@ export default function FormEdit() {
     </Flex >);
 }
 
-function GroupCard({ group, isEntry, groups, onEdit }: {
-  group: QuestionGroup & { ref: RefObject<HTMLDivElement> };
-  groups: QuestionGroup[];
-  isEntry: boolean;
-  onEdit: (newObj: QuestionGroup) => Promise<void>
-}) {
+const GroupCard = forwardRef<HTMLDivElement,
+  {
+    group: QuestionGroup;
+    groups: QuestionGroup[];
+    isEntry: boolean;
+    onEdit: (newObj: QuestionGroup) => Promise<void>;
+    onDelete: () => Promise<boolean>;
+  }
+>(function ({ group, isEntry, groups, onEdit, onDelete }, ref) {
   const labelRef = useRef(group.label);
   const questions = group.children;
   return (<Collapse
     className='group'
-    ref={group.ref}
+    ref={ref}
     defaultActiveKey='default'
     collapsible='icon'
     items={[{
@@ -135,15 +155,21 @@ function GroupCard({ group, isEntry, groups, onEdit }: {
         }}>
           {group.label}
         </Typography.Text>
+        <Button disabled={isEntry} type='link' size='small' icon={<DeleteOutlined />}
+          onClick={async () => {
+            if (await onDelete())
+              message.success('删除题目组成功');
+          }} />
       </Flex>),
       children: (<Flex vertical gap={'large'}>
-        {group.children.map((ques, index) => (
+        {questions.map((ques, index) => (
           <PreviewWithEditor key={ques.id}
             question={ques}
             groups={groups}
             thisGroup={group.id}
             onConfirm={async (newObj) => await onEdit({ ...group, children: questions.with(index, newObj) })}
             onDelete={async () => await onEdit({ ...group, children: questions.toSpliced(index, 1) })}
+            onMove={async (delta) => await onEdit({ ...group, children: moveElement(questions, index, delta) })}
           />
         ))}
         <Flex wrap='wrap' align='center' gap='small'>
@@ -176,4 +202,4 @@ function GroupCard({ group, isEntry, groups, onEdit }: {
         </Flex>
       </Flex>)
     }]} />);
-}
+});
