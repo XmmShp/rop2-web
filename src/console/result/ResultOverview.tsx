@@ -18,8 +18,8 @@ export default function ResultOverview() {
   const [filterDeparts, setFilterDeparts] = useStoredState<Id[]>(() => {
     if (departs.length === 1) return [departs[0].id];
     else return [];
-  }, 'result:filterDeparts');
-  const [filterStage, setFilterStage] = useStoredState<Id>(org.stages[0].id, 'result:filterStage');
+  }, 'result/filterDeparts');
+  const [filterStage, setFilterStage] = useStoredState<Id>(org.stages[0].id, 'result/filterStage');
   return (<Card>
     <Flex vertical gap='middle'>
       {departs.length > 1

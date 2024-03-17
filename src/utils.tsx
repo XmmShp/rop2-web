@@ -1,6 +1,7 @@
 import { useLayoutEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Id } from './api/models/shared';
+import { getStore, setStore } from './store';
 
 export function mapRecur<
   K extends string,
@@ -90,20 +91,20 @@ export function num(...from: (string | undefined | null | number)[]): number {
   return 0;
 }
 
-/**React Hook，根据url或localStorage返回正在管理的组织 */
+/**React Hook，根据url或getStore返回正在管理的组织 */
 export function useOrg(): Id {
   const [params] = useSearchParams();
-  return num(params.get('org'), localStorage.getItem('defaultOrg'));
+  return num(params.get('org'), getStore('at'));
 }
 
-/**React Hook，根据url或localStorage返回正在管理的表单 */
+/**React Hook，根据url或getStore返回正在管理的表单 */
 export function useForm(): Id {
   const [params] = useSearchParams();
-  return num(params.get('form'), localStorage.getItem('defaultForm'));
+  return num(params.get('form'), getStore('form'));
 }
 
 export function getUser(): string {
-  return localStorage.getItem('userNickname') ?? '';
+  return getStore('nickname') ?? '';
 }
 
 export function newUniqueLabel(labels: string[], prefix: string): string {
@@ -137,7 +138,7 @@ export function moveElement<T>(array: T[], prevIndex: number, delta: number) {
 
 export function useStoredState<T>(initer: T | (() => T), storeKey: string) {
   const [value, setValue] = useState(() => {
-    const storedValue = localStorage.getItem(storeKey);
+    const storedValue = getStore(storeKey);
     if (storedValue) return JSON.parse(storedValue) as T;
     else {
       if (initer instanceof Function) return initer();
@@ -146,7 +147,7 @@ export function useStoredState<T>(initer: T | (() => T), storeKey: string) {
   });
   return [value, (newValue: T) => {
     setValue(newValue);
-    localStorage.setItem(storeKey, JSON.stringify(newValue));
+    setStore(storeKey, JSON.stringify(newValue));
   }] as const;
 }
 

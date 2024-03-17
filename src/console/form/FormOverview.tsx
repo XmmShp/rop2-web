@@ -3,7 +3,7 @@ import { Flex, Typography, Button, Table, Space, Card } from 'antd';
 import { delay, useOrg } from '../../utils';
 import { useState } from 'react';
 import Search from '../shared/Search';
-import { getOrg } from '../../store';
+import { getOrg, setStore } from '../../store';
 import { showModal } from '../../shared/LightComponent';
 import { message } from '../../App';
 import { useNavigate } from 'react-router-dom';
@@ -47,12 +47,12 @@ export default function FormOverview() {
           return (<Space size={0}>
             <Button size='small' type='link'
               onClick={() => {
-                localStorage.setItem('defaultForm', record.id.toString());
+                setStore('form', record.id.toString());
                 navigate('/console/form/edit');
               }} >编辑</Button>
             <Button size='small' type='link'
               onClick={() => {
-                localStorage.setItem('defaultForm', record.id.toString());
+                setStore('form', record.id.toString());
                 navigate('/console/result');
               }} >结果</Button>
             <Button size='small' type='link'>复制</Button>

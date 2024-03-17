@@ -1,10 +1,9 @@
 import { Form } from "./api/models/form";
 import { Depart, Org } from "./api/models/org";
 import { Stage } from "./api/models/stage";
-import { setKnown } from "./store";
 
 let id = 0;
-export function newId() { return id++; }
+function newId() { return id++; }
 export function now(): Date { return new Date(); }
 
 export const org: Org = { createdAt: now(), id: newId(), name: '测试组织', defaultDepart: -1 };
@@ -137,5 +136,3 @@ export const forms: Form[] = [{
   startAt: now(),
   endAt: now()
 }];
-
-setKnown({ org: [org], depart: departs, stage: stages, form: forms })
