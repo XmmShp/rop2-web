@@ -16,8 +16,8 @@ export interface Depart {
   createdAt: Date;
 }
 
-/**表示用户对某一{@link Depart}的候选或成员等关系。 */
-export interface Member {
+/**表示某一{@link Depart}下的候选人。 */
+export interface Candidate {
   id: Id;
   zjuid: ZJUId;
   /**关联{@link Depart}的id */
@@ -28,6 +28,6 @@ export interface Member {
   taskResult: (null | Id)[];
   /**用户进入此阶段的时间 */
   enterAt: Date;
-  /**下一{@link Member}关系的id，不为空表示已进入其它阶段，不在此阶段中显示 */
+  /**下一{@link Candidate}关系的id，不为空表示已进入其它阶段，不在此阶段中显示 */
   next?: Id;
 }

@@ -1,4 +1,4 @@
-import { type Member } from "./org";
+import { type Candidate } from "./org";
 import { Id } from "./shared";
 
 type QuestionType = 'name' | 'zjuid' | 'phone' | 'choice-depart' | 'text' | 'choice';
@@ -53,7 +53,7 @@ export interface Form {
   createAt: Date;
   startAt: Date | null;
   endAt: Date | null;
-  /**提交后生成的{@link Member.stage} */
+  /**提交后生成的{@link Candidate.stage} */
   stage: Id;
 }
 
@@ -64,7 +64,7 @@ export interface QuestionGroup {
   next?: Id;
 }
 
-/**表示表单答卷。姓名、zjuid等属性在储存时不做特殊处理，提交时由后端生成{@link Member}关系 */
+/**表示表单答卷。姓名、zjuid等属性在储存时不做特殊处理，提交时由后端生成{@link Candidate}关系 */
 export interface Answer {
   id: Id;
   /**来源{@link Form}的id */
