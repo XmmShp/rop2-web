@@ -6,7 +6,7 @@ export interface Stage {
   /**定义/管理此阶段的{@link Org}的id */
   owner: Id;
   id: Id;
-  label: string;
+  name: string;
   tasks: Task[];
   /**理想情况下完成{@link tasks}后进入的下一阶段。 */
   next?: Id;

@@ -28,31 +28,31 @@ export const departs: Depart[] = [{
 
 export const stages: Stage[] = [{
   id: newId(),
-  label: '已拒绝',
+  name: '已拒绝',
   owner: org.id,
   createAt: now(),
   tasks: [],
 }, {
   id: newId(),
-  label: '已填表',
+  name: '已填表',
   owner: org.id,
   createAt: now(),
   tasks: ['review'],
 }, {
   id: newId(),
-  label: '一面',
+  name: '一面',
   owner: org.id,
   createAt: now(),
   tasks: ['choose-interview', 'review'],
 }, {
   id: newId(),
-  label: '二面',
+  name: '二面',
   owner: org.id,
   createAt: now(),
   tasks: ['choose-interview', 'review'],
 }, {
   id: newId(),
-  label: '录取',
+  name: '录取',
   owner: org.id,
   createAt: now(),
   tasks: []
@@ -66,9 +66,9 @@ org.defaultDepart = departs[0].id;
 
 const entryGroupId = newId();
 export const forms: Form[] = [{
-  belongTo: org.id,
+  owner: org.id,
   createAt: now(),
-  stage: stages[1].id,
+  enter: stages[1].id,
   id: newId(),
   children: [{
     id: entryGroupId,

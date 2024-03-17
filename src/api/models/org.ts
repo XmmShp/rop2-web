@@ -23,11 +23,11 @@ export interface Candidate {
   /**关联{@link Depart}的id */
   of: Id;
   /**来源表单的id */
-  origin: Id;
+  form: Id;
   stage: Id;
   taskResult: (null | Id)[];
   /**用户进入此阶段的时间 */
-  enterAt: Date;
+  createAt: Date;
   /**下一{@link Candidate}关系的id，不为空表示已进入其它阶段，不在此阶段中显示 */
-  next?: Id;
+  gone?: Id;
 }

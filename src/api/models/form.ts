@@ -43,7 +43,7 @@ export interface ChoiceQuestion extends CustomQuestion {
 export type ValidQuestion = BuiltinQuestion | TextQuestion | ChoiceQuestion;
 
 export interface Form {
-  belongTo: Id;
+  owner: Id;
   id: Id;
   name: string;
   desc: string
@@ -54,7 +54,7 @@ export interface Form {
   startAt: Date | null;
   endAt: Date | null;
   /**提交后生成的{@link Candidate.stage} */
-  stage: Id;
+  enter: Id;
 }
 
 export interface QuestionGroup {

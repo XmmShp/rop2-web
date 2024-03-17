@@ -56,7 +56,7 @@ export function setKnown(data: Partial<{
     });
   if (form)
     form.forEach(v => {
-      getOrg(v.belongTo).forms.push(v);
+      getOrg(v.owner).forms.push(v);
       formMap.set(v.id, v);
     });
 }

@@ -46,7 +46,7 @@ export default function ResultOverview() {
         onChange={setFilterStage}
         options={org.stages.map((stage) => {
           return {
-            label: stage.label,
+            label: stage.name,
             value: stage.id
           };
         })} />

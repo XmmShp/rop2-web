@@ -177,7 +177,7 @@ function StageManage() {
       </Flex>
       <Table title={(d) => `阶段列表 (${d.length}项)`} rowKey='id' bordered columns={[{
         title: '名称',
-        dataIndex: 'label'
+        dataIndex: 'name'
       }, {
         title: '流程',
         render(value, record, index) {
@@ -189,7 +189,7 @@ function StageManage() {
       }, {
         title: '下一阶段',
         render(value, record, index) {
-          if (record.next) return getStage(record.next).label;
+          if (record.next) return getStage(record.next).name;
           return '无';
         }
       }, {
@@ -202,7 +202,7 @@ function StageManage() {
               onClick={() => showModal({
                 title: '删除阶段',
                 content: (<Flex vertical gap='small'><Typography.Text>
-                  您确定要删除<Typography.Text underline strong>{record.label}</Typography.Text>吗？
+                  您确定要删除<Typography.Text underline strong>{record.name}</Typography.Text>吗？
                   <br />
                   删除阶段也将删除所有该阶段的候选人信息。
                 </Typography.Text></Flex>),
