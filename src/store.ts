@@ -2,6 +2,7 @@ import { Form } from "./api/models/form";
 import { Depart, Org } from "./api/models/org";
 import { Id } from "./api/models/shared";
 import { Stage } from "./api/models/stage";
+import { forms } from "./mockData";
 
 type Resource = {
   children: Depart[];
@@ -30,6 +31,8 @@ const formMap = new Map<Id, Form>();
 export function getForm(id: Id): Form {
   const result = formMap.get(id);
   if (result) return result;
+  //TODO fetch
+  return forms[0];
   throw new Error('Unimplemented yet');
 }
 export function setKnown(data: Partial<{

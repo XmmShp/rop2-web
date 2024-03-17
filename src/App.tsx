@@ -64,6 +64,13 @@ const router = createBrowserRouter([{
       path: 'console',
       children: consoleRoutes,
       lazy: getConsoleLoader('ConsoleLayout', { routes: consoleRoutes.filter(v => 'label' in v) })
+    },
+    {
+      path: 'apply/:id',
+      async lazy() {
+        const { default: Component } = await import('./apply/ApplyForm.tsx');
+        return { element: <Component /> }
+      }
     }
   ]
 }], {

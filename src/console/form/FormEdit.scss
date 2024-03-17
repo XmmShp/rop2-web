@@ -20,6 +20,7 @@
     overflow: hidden auto;
     flex: 1 1 auto;
     position: relative;
+    white-space: pre-wrap;
 
     .form {
       margin: 1.8em 2em;
@@ -28,13 +29,6 @@
 
       .title {
         text-align: center;
-        font-weight: bold;
-        font-size: calc(var(--ant-font-size) * 1.75);
-        margin: 0 0 1.8rem 0;
-      }
-
-      .desc {
-        white-space: pre-wrap;
       }
 
       .group {

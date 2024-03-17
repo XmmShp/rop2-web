@@ -138,7 +138,7 @@ export function DescEditor({ desc, onConfirm }: { desc: string, onConfirm: (newD
         <Button style={{ flex: '0 0 auto' }}
           icon={<EditOutlined />} type='dashed'
           onClick={() => setEditing(desc)} />
-        <Typography.Text className='desc'>
+        <Typography.Text>
           {desc}
         </Typography.Text>
       </>}

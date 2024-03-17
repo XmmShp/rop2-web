@@ -53,8 +53,8 @@ export default function FormEdit() {
           const curG = refs.findLastIndex(r => r.current!.offsetTop <= scrollTop) ?? -1;
           setCurGroupIndex(curG);
         }}>
-        <Flex className='form' vertical gap='small'>
-          <Typography.Title editable={{
+        <Flex className='form' vertical gap='middle'>
+          <Typography.Title level={3} editable={{
             onChange(v) { editingTitle.current = v; },
             async onEnd() {
               setForm({ ...form, name: editingTitle.current });
@@ -161,7 +161,7 @@ const GroupCard = forwardRef<HTMLDivElement,
               message.success('删除题目组成功');
           }} />
       </Flex>),
-      children: (<Flex vertical gap={'large'}>
+      children: (<Flex vertical gap='small'>
         {questions.map((ques, index) => (
           <PreviewWithEditor key={ques.id}
             question={ques}
