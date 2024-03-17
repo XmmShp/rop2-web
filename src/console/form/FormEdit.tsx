@@ -1,7 +1,7 @@
 import { createRef, forwardRef, useMemo, useRef, useState } from 'react';
 import { delay, moveElement, newUniqueLabel, useForm } from '../../utils';
 import { getForm } from '../../store';
-import { Button, Collapse, Flex, Grid, Tabs, Tooltip, Typography } from 'antd';
+import { Button, Collapse, DatePicker, Flex, Grid, Tabs, Tooltip, Typography } from 'antd';
 import './FormEdit.scss';
 import { QuestionGroup } from '../../api/models/form';
 import { DescEditor, PreviewWithEditor } from './PreviewWithEditor';
@@ -9,6 +9,7 @@ import { ArrowRightOutlined, DeleteOutlined, LoginOutlined, PlusOutlined } from 
 import QuestionGroupSelect from './QuestionGroupSelect';
 import { message } from '../../App';
 import { showModal } from '../../shared/LightComponent';
+import dayjs from 'dayjs';
 
 export default function FormEdit() {
   const formId = useForm();
@@ -48,12 +49,30 @@ export default function FormEdit() {
           }} />
       </Flex>
       <Flex className='page' vertical ref={pageRef}
-        onScroll={(ev) => {
+        onScroll={() => {
           const scrollTop = pageRef.current!.scrollTop;
           const curG = refs.findLastIndex(r => r.current!.offsetTop <= scrollTop) ?? -1;
           setCurGroupIndex(curG);
         }}>
         <Flex className='form' vertical gap='middle'>
+          <Tooltip title={<>
+            可随时修改开放时间和表单内容。
+            <br />
+            编辑表单内容会对已提交的答卷产生不确定的影响。
+          </>}>
+            <Flex vertical>
+              <Typography.Text>设置开放时间</Typography.Text>
+              <DatePicker.RangePicker showTime
+                defaultValue={[form.startAt && dayjs(form.startAt), form.endAt && dayjs(form.endAt)]}
+                allowEmpty={[true, false]}
+                placeholder={['即刻起(默认)', '']}
+                minDate={dayjs(new Date()).add(-3, 'day')}
+                maxDate={dayjs(new Date()).add(3, 'month')}
+                onChange={([start, end]) => {
+                  //start可为null，end为dayjs，可用toJSON()
+                }} />
+            </Flex>
+          </Tooltip>
           <Typography.Title level={3} editable={{
             onChange(v) { editingTitle.current = v; },
             async onEnd() {

@@ -1,11 +1,10 @@
-import { Id, Timestamp } from "./shared";
+import { Id } from './shared';
 
 export interface Interview {
   /**归属`Depart`的id */
   belongTo: Id;
   label: string;
   stage: Id;
-  startAt: Timestamp;
-  endAt: Timestamp;
+  startAt: Date;
   capacity?: number;
 }

@@ -34,12 +34,12 @@ export default function FormOverview() {
       }, {
         title: '创建时间',
         render(value, record, index) {
-          return new Date(record.createAt * 1000).stringify(true, true);
+          return record.createAt.stringify(true, true);
         },
       }, {
         title: '开放时间',
         render(value, record, index) {
-          return new Date(record.startAt * 1000).stringify(true, true) + ' ~ ' + new Date(record.endAt * 1000).stringify(true, true);
+          return record.createAt.stringify(true, true) + ' ~ ' + record.createAt.stringify(true, true);
         },
       }, {
         title: '操作',
@@ -54,7 +54,7 @@ export default function FormOverview() {
               onClick={() => {
                 localStorage.setItem('defaultForm', record.id.toString());
                 navigate('/console/result');
-              }} >选拔</Button>
+              }} >结果</Button>
             <Button size='small' type='link'>复制</Button>
             <Button size='small' danger type='link'
               onClick={() => showModal({

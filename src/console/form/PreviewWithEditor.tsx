@@ -77,8 +77,6 @@ function QuestionEditor({ question, onChange, groups, thisGroup }:
                 //如为null，表示可选择，不揭示任何问题组
                 //否则，为揭示的问题组id
                 let reveal = question.choices[dep.id];
-                if (reveal === undefined) reveal = -2;
-                else if (reveal === null) reveal = -1;
                 return (<Flex key={dep.id} gap='small' align='center'>
                   {dep.name}
                   <QuestionGroupSelect groups={groups} thisGroup={thisGroup}

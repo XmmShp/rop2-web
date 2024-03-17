@@ -1,9 +1,9 @@
-import { Id, Timestamp, ZJUId } from "./shared";
+import { Id, ZJUId } from "./shared";
 
 export interface Org {
   id: Id;
   name: string;
-  createdAt: Timestamp;
+  createdAt: Date;
   defaultDepart: Id;
 }
 
@@ -13,7 +13,7 @@ export interface Depart {
   /**从属{@link Org}的id */
   parent: Id;
   name: string;
-  createdAt: Timestamp;
+  createdAt: Date;
 }
 
 /**表示用户对某一{@link Depart}的候选或成员等关系。 */
@@ -27,7 +27,7 @@ export interface Member {
   stage: Id;
   taskResult: (null | Id)[];
   /**用户进入此阶段的时间 */
-  enterAt: Timestamp;
+  enterAt: Date;
   /**下一{@link Member}关系的id，不为空表示已进入其它阶段，不在此阶段中显示 */
   next?: Id;
 }

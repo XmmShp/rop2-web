@@ -1,5 +1,5 @@
 import { type Member } from "./org";
-import { Id, Timestamp } from "./shared";
+import { Id } from "./shared";
 
 type QuestionType = 'name' | 'zjuid' | 'phone' | 'choice-depart' | 'text' | 'choice';
 interface Question {
@@ -50,9 +50,9 @@ export interface Form {
   children: QuestionGroup[];
   /**首个问题组 */
   entry: Id;
-  createAt: Timestamp;
-  startAt: Timestamp;
-  endAt: Timestamp;
+  createAt: Date;
+  startAt: Date | null;
+  endAt: Date | null;
   /**提交后生成的{@link Member.stage} */
   stage: Id;
 }
@@ -73,5 +73,5 @@ export interface Answer {
     /**问题答案，对选择题为string[]，对部门志愿为Id[]，其它为string */
     [questionId: Id]: string | string[] | Id[];
   };
-  sumbitAt: Timestamp;
+  sumbitAt: Date;
 }

@@ -46,6 +46,10 @@ function SuccessPage({ formName }: { formName: string }) {
   return (<Result
     status='success'
     title='提交成功'
-    subTitle={`感谢您参与${formName}。我们将通过短信通知您报名后续信息。`}
+    subTitle={<>
+      感谢您参与{formName}。
+      <br />
+      我们将通过短信发送后续报名信息，请注意查收。
+    </>}
   />);
 }

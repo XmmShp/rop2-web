@@ -78,7 +78,7 @@ function DepartManage() {
                     span: 1
                   }, {
                     label: '创建时间',
-                    children: new Date(record.createdAt * 1000).stringify(),
+                    children: record.createdAt.stringify(),
                     span: 2
                   }, {
                     label: '名称',

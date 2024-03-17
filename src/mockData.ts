@@ -1,12 +1,11 @@
 import { Form } from "./api/models/form";
 import { Depart, Org } from "./api/models/org";
-import { Timestamp } from "./api/models/shared";
 import { Stage } from "./api/models/stage";
 import { setKnown } from "./store";
 
 let id = 0;
 export function newId() { return id++; }
-export function now(): Timestamp { return Math.floor(Date.now() / 1000); }
+export function now(): Date { return new Date(); }
 
 export const org: Org = { createdAt: now(), id: newId(), name: '测试组织', defaultDepart: -1 };
 
@@ -135,8 +134,8 @@ export const forms: Form[] = [{
   name: '求是潮2024春季纳新',
   desc: '欢迎您参加求是潮2024春季纳新。\n请您准确填写以下信息，以便我们整理信息进行面试。',
   entry: entryGroupId,
-  startAt: now() - 60 * 30,
-  endAt: now() + 60 * 30
+  startAt: now(),
+  endAt: now()
 }];
 
 setKnown({ org: [org], depart: departs, stage: stages, form: forms })
