@@ -1,25 +1,12 @@
-import { Button, Card, Descriptions, Flex, Space, Table, Tabs, Typography } from 'antd';
+import { Button, Card, Descriptions, Flex, Space, Table, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useState } from 'react';
-import { delay, useOrg } from '../../utils';
-import { getOrg, getStage } from '../../store';
-import { taskLabel } from '../../api/models/task';
-import { TempInput, showDrawer, showModal } from '../../shared/LightComponent';
-import { message } from '../../App';
+import { delay, useOrg } from '../utils';
+import { getOrg } from '../store';
+import { TempInput, showDrawer, showModal } from '../shared/LightComponent';
+import { message } from '../App';
 
-export default function OrgManage() {
-
-  return (<Tabs centered
-    items={[{
-      label: '部门管理',
-      children: <DepartManage />
-    }, {
-      label: '阶段管理',
-      children: <StageManage />
-    }].map(v => { return { ...v, key: v.label } })} />);
-}
-
-function DepartManage() {
+export default function DepartManage() {
   const orgId = useOrg();
   function refreshData(setState = false) {
     const result = getOrg(orgId);
@@ -132,93 +119,7 @@ function DepartManage() {
         dataSource={departs.filter(({ id }) => id !== org.defaultDepart)}
         pagination={false}
         expandable={{
-          rowExpandable() { return false },
-          expandIcon() { return <></> }
-        }} />
-    </Flex >
-  </Card>);
-}
-
-function StageManage() {
-  const orgId = useOrg();
-  function refreshData(setState = false) {
-    const result = getOrg(orgId).stages;
-    if (setState) setStages(result);
-    return result;
-  }
-  const [stages, setStages] = useState(refreshData);
-  return (<Card>
-    <Flex vertical gap='small'>
-      <Typography.Text>
-        候选人按顺序完成所在<Typography.Text strong>阶段</Typography.Text>的所有流程后，会自动进入下一阶段。
-      </Typography.Text>
-      <Flex wrap='wrap'>
-        <Button icon={<PlusOutlined />} type='primary'
-          onClick={() => {
-            const vref = { value: '' };
-            showModal({
-              title: '新建阶段',
-              content: (<Flex vertical gap='small'><Typography.Text>
-                输入新阶段的名称:
-              </Typography.Text>
-                <TempInput vref={vref} showCount maxLength={20} /></Flex>),
-              async onConfirm() {
-                const newName = vref.value.trim();
-                if (!newName) {
-                  message.error('名称不能为空');
-                  return;
-                }
-                //TODO
-                await delay(500);
-                message.success("新建成功");
-              },
-            });
-          }}>新增</Button>
-      </Flex>
-      <Table title={(d) => `阶段列表 (${d.length}项)`} rowKey='id' bordered columns={[{
-        title: '名称',
-        dataIndex: 'name'
-      }, {
-        title: '流程',
-        render(value, record, index) {
-          return record.tasks.map(v => {
-            if (typeof v === 'string') return v;
-            return v.type;
-          }).map(v => taskLabel[v] ?? '位置').join(', ') || '无';
-        }
-      }, {
-        title: '下一阶段',
-        render(value, record, index) {
-          if (record.next) return getStage(record.next).name;
-          return '无';
-        }
-      }, {
-        title: '操作',
-        render(value, record, index) {
-          return (<Space size={0}>
-            <Button size='small' type='link'
-            >管理</Button>
-            <Button size='small' danger type='link'
-              onClick={() => showModal({
-                title: '删除阶段',
-                content: (<Flex vertical gap='small'><Typography.Text>
-                  您确定要删除<Typography.Text underline strong>{record.name}</Typography.Text>吗？
-                  <br />
-                  删除阶段也将删除所有该阶段的候选人信息。
-                </Typography.Text></Flex>),
-                okButtonProps: { danger: true },
-                async onConfirm() {
-                  //TODO
-                  await delay(500);
-                  message.success("删除成功");
-                }
-              })}>删除</Button>
-          </Space>);
-        }
-      }]} dataSource={stages}
-        pagination={false}
-        expandable={{
-          rowExpandable(record) { return false; },
+          rowExpandable() { return false; },
           expandIcon() { return <></>; }
         }} />
     </Flex>

@@ -1,14 +1,15 @@
 import React, { ComponentProps, ReactNode, useState } from 'react';
-import { LazyRouteFunction, Navigate, RouteObject, RouterProvider, createBrowserRouter, useRouteError } from 'react-router-dom';
+import { LazyRouteFunction, LoaderFunction, Navigate, RouteObject, RouterProvider, createBrowserRouter, useRouteError } from 'react-router-dom';
 import { ConfigProvider, theme, App as AntdApp } from 'antd';
-import { DashboardOutlined, ApartmentOutlined, FormOutlined, BarsOutlined, IdcardOutlined, FundViewOutlined } from '@ant-design/icons';
+import { DashboardOutlined, ApartmentOutlined, FormOutlined, BarsOutlined, IdcardOutlined, FundViewOutlined, MessageOutlined, FunnelPlotOutlined } from '@ant-design/icons';
 import { basename, useDarkMode } from './utils';
 import { useAppProps } from 'antd/es/app/context';
 
 function getConsoleLoader<C extends keyof typeof import('./console/index.ts'), M extends typeof import('./console/index.ts')[C]>(comName: C, props: ComponentProps<M> = {} as any): LazyRouteFunction<RouteObject> {
   return async () => {
     const { [comName]: Component } = await import('./console/index.ts');
-    return { element: (<Component {...props as any} />) };
+    const { loader } = Component as { loader?: LoaderFunction };
+    return { element: (<Component {...props as any} />), loader };
   }
 }
 //注：有label的会显示在侧边菜单中，否则仅有路由
@@ -19,17 +20,7 @@ export const consoleRoutes = [
     icon: <DashboardOutlined />,
     lazy: getConsoleLoader('Dash')
   }, {
-    label: '结果分析',
-    path: 'result',
-    icon: <BarsOutlined />,
-    lazy: getConsoleLoader('ResultOverview')
-  }, {
-    label: '面试管理',
-    path: 'interview',
-    icon: <FundViewOutlined />,
-    element: <></>,
-  }, {
-    label: '表单管理',
+    label: '表单',
     path: 'form',
     icon: <FormOutlined />,
     lazy: getConsoleLoader('FormOverview')
@@ -37,16 +28,36 @@ export const consoleRoutes = [
     path: 'form/edit',
     lazy: getConsoleLoader('FormEdit')
   }, {
-    label: '用户管理',
-    path: 'user',
-    icon: <IdcardOutlined />,
-    lazy: getConsoleLoader('UserManage')
+    label: '报名表',
+    path: 'result',
+    icon: <BarsOutlined />,
+    lazy: getConsoleLoader('ResultOverview')
   }, {
-    label: '组织管理',
-    path: 'org',
+    label: '面试',
+    path: 'interview',
+    icon: <FundViewOutlined />,
+    lazy: getConsoleLoader('InterviewManage')
+  }, {
+    label: '通知模板',
+    path: 'template',
+    icon: <MessageOutlined />,
+    lazy: getConsoleLoader('TemplateManage')
+  }, {
+    label: '阶段',
+    path: 'stage',
+    icon: <FunnelPlotOutlined />,
+    lazy: getConsoleLoader('StageManage')
+  }, {
+    label: '管理员',
+    path: 'admin',
+    icon: <IdcardOutlined />,
+    lazy: getConsoleLoader('AdminManage')
+  }, {
+    label: '部门',
+    path: 'depart',
     icon: <ApartmentOutlined />,
-    lazy: getConsoleLoader('OrgManage')
-  }
+    lazy: getConsoleLoader('DepartManage')
+  },
 ].map(v => { return { ...v, title: v.label, key: v.path } });
 
 function ErrorElement() {

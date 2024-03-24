@@ -1,4 +1,4 @@
-import { createRef, forwardRef, useMemo, useRef, useState } from 'react';
+import { createRef, forwardRef, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { delay, moveElement, newUniqueLabel, useForm } from '../../utils';
 import { getForm } from '../../store';
 import { Button, Collapse, DatePicker, Flex, Grid, Tabs, Tooltip, Typography } from 'antd';
@@ -20,6 +20,9 @@ export default function FormEdit() {
   const refs = useMemo(() => groups.map(() => createRef<HTMLDivElement>()), [groups]);
 
   const { lg = false } = Grid.useBreakpoint();
+  useLayoutEffect(() => {
+    pageRef.current?.scrollTo({ top: 0 })
+  })
 
   const editingTitle = useRef(form.name);//由于antd的可编辑文本特性，此处使用useRef而非useState
   return (

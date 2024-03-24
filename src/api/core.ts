@@ -10,14 +10,14 @@ async function saveToken(token: string) {
   const bytes = base64.parse(objB64, { loose: true });
   const decoder = new TextDecoder('utf-8');
   const objJson = decoder.decode(bytes);
-  const { at, nickname, perm } = JSON.parse(objJson) as {
+  const { at, nickname, level } = JSON.parse(objJson) as {
     at: number,//登录组织id
     nickname: string,
-    perm: string//perm描述
+    level: number//权限级别
   };
   setStore('at', at.toString());
   setStore('nickname', nickname);
-  setStore('perm', perm);
+  setStore('level', level.toString());
 }
 
 async function innerFetch(...[url, config]: Parameters<typeof fetch>): ReturnType<typeof fetch> {

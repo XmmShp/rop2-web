@@ -16,7 +16,7 @@ export default function Dash() {
     <Card>
       <Typography.Text className='welcome'>{greeting}，{getUser()}</Typography.Text>
       <br />
-      <Typography.Text className='origin'>测试组织</Typography.Text>
+      <Typography.Text className='at'>测试组织</Typography.Text>
     </Card>
     <Card>
       <Flex vertical gap='small'>
