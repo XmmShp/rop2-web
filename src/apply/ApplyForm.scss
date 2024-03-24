@@ -1,24 +1,19 @@
-.apply {
-  min-height: 100vh;
-  background-color: var(--ant-color-bg-layout);
+.card {
+  margin: 1em 1%;
+  padding: 0 min(3%, 3em) 2em;
+  flex: 1 1 auto;
+  max-width: min(95%, 54em);
   white-space: pre-wrap;
 
-  .card {
-    margin: 1em 1%;
-    padding: 0 min(3%, 3em) 2em;
-    flex: 1 1 auto;
-    max-width: min(95%, 54em);
+  .title {
+    text-align: center;
+  }
 
-    .title {
-      text-align: center;
-    }
+  .divider {
+    margin: 1.2em 0 0;
+  }
 
-    .divider {
-      margin: 1.2em 0 0;
-    }
-
-    .group:not(:first-child) .divider {
-      margin: 2.4em 0 0;
-    }
+  .group:not(:first-child) .divider {
+    margin: 2.4em 0 0;
   }
 }

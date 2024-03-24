@@ -4,3 +4,8 @@ body {
   padding: 0;
   color-scheme: light dark;
 }
+
+.app {
+  min-height: 100vh;
+  background-color: var(--ant-color-bg-layout);
+}

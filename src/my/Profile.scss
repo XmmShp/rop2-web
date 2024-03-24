@@ -1,0 +1,9 @@
+.card {
+  width: max(75%, min(100%, 36em));
+  margin: 1em 2em;
+
+  .desc {
+    font-size: .9em;
+    color: var(--ant-color-text-description);
+  }
+}

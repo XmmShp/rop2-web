@@ -75,11 +75,16 @@ const router = createBrowserRouter([{
       path: 'console',
       children: consoleRoutes,
       lazy: getConsoleLoader('ConsoleLayout', { routes: consoleRoutes.filter(v => 'label' in v) })
-    },
-    {
+    }, {
       path: 'apply/:id',
       async lazy() {
         const { default: Component } = await import('./apply/ApplyForm.tsx');
+        return { element: <Component /> }
+      }
+    }, {
+      path: 'my/profile',
+      async lazy() {
+        const { default: Component } = await import('./my/Profile.tsx');
         return { element: <Component /> }
       }
     }
@@ -98,7 +103,7 @@ export default function MyApp() {
     cssVar: true,
     hashed: false
   }}>
-    <AntdApp>
+    <AntdApp className='app'>
       <AppContextUser />
       <RouterProvider router={router} />
       {tempNode}
