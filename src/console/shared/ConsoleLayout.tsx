@@ -1,9 +1,8 @@
 import { Avatar, Dropdown, Flex, GetProp, Layout, Menu } from 'antd';
 import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { getUser, mapRecur, singleMatch, toArray, without } from '../../utils';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import './ConsoleLayout.scss';
-import { login } from '../../api/auth';
 
 export default function ConsoleLayout({ routes }: { routes: GetProp<typeof Menu, 'items'> }) {
   const { pathname } = useLocation();//react-router会自动去除basename部分
@@ -12,9 +11,7 @@ export default function ConsoleLayout({ routes }: { routes: GetProp<typeof Menu,
   const [collapsed, setCollapsed] = useState(window.innerWidth < 768);
   const topSub = toArray(singleMatch(sub ?? '', /^(\w+)/));
   const [openKeys, setOpenKeys] = useState<string[]>(topSub);
-  useMemo(() => {
-    login();//TODO 确定登录时机
-  }, []);
+
   if (!sub) return <Navigate to='dash' />;
   return (<Layout className='layout'>
     <Layout.Sider theme='light' className='sider'

@@ -62,18 +62,4 @@ export function setKnown(data: Partial<{
     });
 }
 
-/**生成项目特定的localStorage key，防止冲突 */
-function toStoreKey(from: string): string {
-  return `rop2:${from}`;
-}
-
-//间接访问localStorage.get/set的方法
-export function getStore(key: string): string | null {
-  return localStorage.getItem(toStoreKey(key));
-}
-
-export function setStore(key: string, value: string) {
-  localStorage.setItem(toStoreKey(key), value);
-}
-
 setKnown({ org: [org], depart: departs, stage: stages, form: forms })

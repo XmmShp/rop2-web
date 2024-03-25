@@ -1,5 +1,5 @@
 import React, { ComponentProps, ReactNode, useState } from 'react';
-import { LazyRouteFunction, LoaderFunction, Navigate, RouteObject, RouterProvider, createBrowserRouter, useRouteError } from 'react-router-dom';
+import { LazyRouteFunction, LoaderFunction, Navigate, RouteObject, RouterProvider, createBrowserRouter, isRouteErrorResponse, useRouteError } from 'react-router-dom';
 import { ConfigProvider, theme, App as AntdApp } from 'antd';
 import { DashboardOutlined, ApartmentOutlined, FormOutlined, BarsOutlined, IdcardOutlined, FundViewOutlined, MessageOutlined, FunnelPlotOutlined } from '@ant-design/icons';
 import { basename, useDarkMode } from './utils';
@@ -61,7 +61,11 @@ export const consoleRoutes = [
 ].map(v => { return { ...v, title: v.label, key: v.path } });
 
 function ErrorElement() {
-  console.error(useRouteError());
+  const error = useRouteError();
+  console.error(error);
+  const isRouteError = isRouteErrorResponse(error);
+  if (isRouteError && error.status === 404)
+    return <>404 Not Found</>
   return <>Oops, an error occurred<br />Check devtools for more info</>;
 }
 const router = createBrowserRouter([{

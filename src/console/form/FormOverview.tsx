@@ -1,21 +1,26 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { Flex, Typography, Button, Table, Space, Card } from 'antd';
-import { delay, useOrg } from '../../utils';
+import { delay } from '../../utils';
 import { useState } from 'react';
 import Search from '../shared/Search';
-import { getOrg, setStore } from '../../store';
+import { kvSet } from "../../store/kvCache";
 import { showModal } from '../../shared/LightComponent';
 import { message } from '../../App';
 import { useNavigate } from 'react-router-dom';
+import { dbStore, toPromise } from '../../store/dbCache';
+import { Form } from '../../api/models/form';
 
 export default function FormOverview() {
-  const orgId = useOrg();
-  function refreshData(setState = false) {
-    const result = getOrg(orgId).forms;
+  const store = dbStore('form');
+  async function refreshData(setState = false) {
+    const result = await toPromise<Form[]>(store.getAll());
     if (setState) setForms(result);
     return result;
   }
-  const [forms, setForms] = useState(refreshData);
+  const [forms, setForms] = useState<Form[]>(() => {
+    refreshData();
+    return [];
+  });
   const [filtered, setFiltered] = useState(forms);
   const navigate = useNavigate();
   return (<Card>
@@ -47,12 +52,12 @@ export default function FormOverview() {
           return (<Space size={0}>
             <Button size='small' type='link'
               onClick={() => {
-                setStore('form', record.id.toString());
+                kvSet('form', record.id.toString());
                 navigate('/console/form/edit');
               }} >编辑</Button>
             <Button size='small' type='link'
               onClick={() => {
-                setStore('form', record.id.toString());
+                kvSet('form', record.id.toString());
                 navigate('/console/result');
               }} >结果</Button>
             <Button size='small' type='link'>复制</Button>

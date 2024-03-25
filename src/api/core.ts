@@ -1,11 +1,11 @@
 import { base64 } from "rfc4648";
-import { getStore, setStore } from "../store";
+import { kvGet, kvSet } from "../store/kvCache";
 import { without } from "../utils";
 
 let apiBase = import.meta.env.VITE_APIBASE ?? 'http://127.0.0.1:8080';
 
 async function saveToken(token: string) {
-  setStore('token', token);
+  kvSet('token', token);
   const [objB64,] = token.split(' ');
   const bytes = base64.parse(objB64, { loose: true });
   const decoder = new TextDecoder('utf-8');
@@ -15,13 +15,13 @@ async function saveToken(token: string) {
     nickname: string,
     level: number//权限级别
   };
-  setStore('at', at.toString());
-  setStore('nickname', nickname);
-  setStore('level', level.toString());
+  kvSet('at', at.toString());
+  kvSet('nickname', nickname);
+  kvSet('level', level.toString());
 }
 
 async function innerFetch(...[url, config]: Parameters<typeof fetch>): ReturnType<typeof fetch> {
-  const token = getStore('token');
+  const token = kvGet('token');
   const resp = await fetch(url, {
     headers: {
       ...(token ? { 'rop-token': token } : {}),

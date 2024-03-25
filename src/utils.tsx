@@ -1,7 +1,7 @@
 import { useLayoutEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Id } from './api/models/shared';
-import { getStore, setStore } from './store';
+import { kvGet, kvSet } from "./store/kvCache";
 
 export function mapRecur<
   K extends string,
@@ -94,17 +94,17 @@ export function num(...from: (string | undefined | null | number)[]): number {
 /**React Hook，根据url或getStore返回正在管理的组织 */
 export function useOrg(): Id {
   const [params] = useSearchParams();
-  return num(params.get('org'), getStore('at'));
+  return num(params.get('org'), kvGet('at'));
 }
 
 /**React Hook，根据url或getStore返回正在管理的表单 */
 export function useForm(): Id {
   const [params] = useSearchParams();
-  return num(params.get('form'), getStore('form'));
+  return num(params.get('form'), kvGet('form'));
 }
 
 export function getUser(): string {
-  return getStore('nickname') ?? '';
+  return kvGet('nickname') ?? '';
 }
 
 export function newUniqueLabel(labels: string[], prefix: string): string {
@@ -138,7 +138,7 @@ export function moveElement<T>(array: T[], prevIndex: number, delta: number) {
 
 export function useStoredState<T>(initer: T | (() => T), storeKey: string) {
   const [value, setValue] = useState(() => {
-    const storedValue = getStore(storeKey);
+    const storedValue = kvGet(storeKey);
     if (storedValue) return JSON.parse(storedValue) as T;
     else {
       if (initer instanceof Function) return initer();
@@ -147,7 +147,7 @@ export function useStoredState<T>(initer: T | (() => T), storeKey: string) {
   });
   return [value, (newValue: T) => {
     setValue(newValue);
-    setStore(storeKey, JSON.stringify(newValue));
+    kvSet(storeKey, JSON.stringify(newValue));
   }] as const;
 }
 
