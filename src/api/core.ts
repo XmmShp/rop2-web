@@ -1,6 +1,6 @@
-import { base64 } from "rfc4648";
-import { kvGet, kvSet } from "../store/kvCache";
-import { without } from "../utils";
+import { base64 } from 'rfc4648';
+import { kvGet, kvSet } from '../store/kvCache';
+import { without } from '../utils';
 
 let apiBase = import.meta.env.VITE_APIBASE ?? 'http://127.0.0.1:8080';
 
@@ -42,31 +42,34 @@ async function innerFetch(...[url, config]: Parameters<typeof fetch>): ReturnTyp
 
 export async function getApi(
   pathname: `/${string}`,
-  params?: Record<string, any>
+  params: Record<string, any> = {},
+  fetchConfig: RequestInit = {}
 ): Promise<Response> {
   let url = apiBase + pathname;
-  if (params) {
+  const paramsEntries = Object.entries(params);
+  if (paramsEntries.length) {
     url += '?';
-    const str = Object.entries(params)
-      .map(([key, value]) =>
-        encodeURIComponent(key)
-        + '='
-        + encodeURIComponent(value)
-      );
+    const str = paramsEntries.map(
+      ([key, value]) =>
+        `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+    );
     url += str.join('&');
   }
   return await innerFetch(url, {
-    method: 'GET'
+    method: 'GET',
+    ...fetchConfig
   });
 }
 
 export async function postApi(
   pathname: `/${string}`,
-  body: Record<string, any>
+  body: Record<string, any>,
+  fetchConfig: RequestInit = {}
 ): Promise<Response> {
   return await innerFetch(apiBase + pathname, {
     method: 'POST',
     body: JSON.stringify(body),
-    headers: { 'content-type': 'application/json' }
+    headers: { 'content-type': 'application/json' },
+    ...fetchConfig
   });
 }
