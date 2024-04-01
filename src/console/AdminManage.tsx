@@ -4,6 +4,7 @@ import Search from "./shared/Search";
 import { useState } from "react";
 
 export default function AdminManage() {
+  //TODO 获取API数据
   const fullValue = [{ nickname: 'test' }];
   const [showValue, setShowValue] = useState(fullValue);
   return (<Card>

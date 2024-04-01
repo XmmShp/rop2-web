@@ -2,7 +2,8 @@ import { base64 } from 'rfc4648';
 import { kvGet, kvSet } from '../store/kvCache';
 import { without } from '../utils';
 
-let apiBase = import.meta.env.VITE_APIBASE ?? 'http://127.0.0.1:8080';
+//从环境变量读取api基路径(api基路径和前端基路径无关)。该值不能以/结尾
+const apiBase = import.meta.env.VITE_APIBASE ?? 'http://127.0.0.1:8080';
 
 async function saveToken(token: string) {
   kvSet('token', token);
@@ -33,7 +34,6 @@ async function innerFetch(...[url, config]: Parameters<typeof fetch>): ReturnTyp
     referrerPolicy: 'origin-when-cross-origin',
     ...without(config ?? {} as any, ['headers'])
   });
-  console.log(resp)
   const newToken = resp.headers.get('rop-refresh-token');
   if (newToken)
     saveToken(newToken)

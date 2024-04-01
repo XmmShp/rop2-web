@@ -7,21 +7,19 @@ import { kvSet } from "../../store/kvCache";
 import { showModal } from '../../shared/LightComponent';
 import { message } from '../../App';
 import { useNavigate } from 'react-router-dom';
-import { dbStore, toPromise } from '../../store/dbCache';
-import { Form } from '../../api/models/form';
+import { useData } from '../../api/useData';
+import dayjs from 'dayjs';
 
 export default function FormOverview() {
-  const store = dbStore('form');
-  async function refreshData(setState = false) {
-    const result = await toPromise<Form[]>(store.getAll());
-    if (setState) setForms(result);
-    return result;
-  }
-  const [forms, setForms] = useState<Form[]>(() => {
-    refreshData();
-    return [];
-  });
-  const [filtered, setFiltered] = useState(forms);
+  const [forms, loadingPromise, reload] = useData<{
+    id: string;
+    name: string;
+    startAt?: string;
+    endAt?: string;
+    createAt: string;
+    updateAt: string;
+  }[]>('/form/list', async (resp) => resp.json(), []);
+  const [searchValue, setSearchValue] = useState('');
   const navigate = useNavigate();
   return (<Card>
     <Flex vertical gap='small'>
@@ -32,19 +30,22 @@ export default function FormOverview() {
         <Button icon={<PlusOutlined />} type='primary'
         >新增</Button>
       </Flex>
-      <Search onChange={({ target: { value: search } }) => setFiltered(forms.filter(v => v.name.includes(search)))} />
+      <Search value={searchValue}
+        onChange={({ target: { value } }) => setSearchValue(value)} />
       <Table title={(d) => `表单列表 (${d.length}项)`} rowKey='id' bordered columns={[{
         title: '名称',
         dataIndex: 'name'
       }, {
         title: '创建时间',
         render(value, record, index) {
-          return record.createAt.stringify(true, true);
+          return dayjs(record.createAt).format('YYYY.MM.DD HH:mm:ss');
         },
       }, {
         title: '开放时间',
         render(value, record, index) {
-          return record.createAt.stringify(true, true) + ' ~ ' + record.createAt.stringify(true, true);
+          const start = record.startAt ? dayjs(record.startAt).format('YYYY.MM.DD HH:mm:ss') : '即刻';
+          const end = record.endAt ? dayjs(record.endAt).format('YYYY.MM.DD HH:mm:ss') : '无结束时间';
+          return start + ' ~ ' + end;
         },
       }, {
         title: '操作',
@@ -74,18 +75,22 @@ export default function FormOverview() {
                   //TODO
                   await delay(500);
                   message.success("删除成功");
+                  reload();
                 }
               })}>删除</Button>
           </Space>);
         }
-      }]} dataSource={filtered} pagination={{
-        hideOnSinglePage: false,
-        showSizeChanger: true,
-        showQuickJumper: true
-      }} expandable={{
-        rowExpandable(record) { return false },
-        expandIcon() { return <></> }
-      }} />
+      }]}
+        loading={!!loadingPromise}
+        dataSource={forms.filter(f => f.name.includes(searchValue))}
+        pagination={{
+          hideOnSinglePage: false,
+          showSizeChanger: true,
+          showQuickJumper: true
+        }} expandable={{
+          rowExpandable(record) { return false },
+          expandIcon() { return <></> }
+        }} />
     </Flex >
   </Card>);
 }

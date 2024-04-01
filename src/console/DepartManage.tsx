@@ -1,23 +1,27 @@
 import { Button, Card, Descriptions, Flex, Space, Table, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { useState } from 'react';
-import { delay, useOrg } from '../utils';
-import { getOrg } from '../store';
+import { delay } from '../utils';
 import { TempInput, showDrawer, showModal } from '../shared/LightComponent';
 import { message } from '../App';
+import { useData } from '../api/useData';
+import dayjs from 'dayjs';
 
 export default function DepartManage() {
-  const orgId = useOrg();
-  function refreshData(setState = false) {
-    const result = getOrg(orgId);
-    if (setState) {
-      setOrg(result);
-      setDeparts(result.children);
-    }
-    return result;
-  }
-  const [org, setOrg] = useState(() => refreshData(false));
-  const [departs, setDeparts] = useState(org.children);
+  type DepartList = {
+    id: number;
+    name: string;
+    createAt: string;
+  }[];
+  const [{ org, departs }, loadPromise, reload] = useData<{
+    org: {
+      defaultDepart: number;
+      name: string;
+    };
+    departs: DepartList;
+  }>('/org',
+    async (resp) => await resp.json(),
+    { org: { defaultDepart: -1, name: '' }, departs: [] });
+  //考虑到部门数据不多，不做分批查询/翻页
   return (<Card>
     <Flex vertical gap='small'>
       <Typography.Text>
@@ -42,6 +46,7 @@ export default function DepartManage() {
                 //TODO
                 await delay(500);
                 message.success("新建成功");
+                reload();
               },
             });
           }}>新增</Button>
@@ -65,7 +70,7 @@ export default function DepartManage() {
                     span: 1
                   }, {
                     label: '创建时间',
-                    children: record.createdAt.stringify(),
+                    children: dayjs(record.createAt).format('YYYY.MM.DD HH:mm:ss'),
                     span: 2
                   }, {
                     label: '名称',
@@ -95,6 +100,7 @@ export default function DepartManage() {
                       //TODO
                       await delay(500);
                       message.success("重命名成功");
+                      reload();
                     }
                   });
                 }}>重命名</Button>
@@ -111,12 +117,14 @@ export default function DepartManage() {
                     //TODO
                     await delay(500);
                     message.success("删除成功");
+                    reload();
                   }
                 })}>删除</Button>
             </Space>);
           },
         }]}
         dataSource={departs.filter(({ id }) => id !== org.defaultDepart)}
+        loading={!!loadPromise}
         pagination={false}
         expandable={{
           rowExpandable() { return false; },
