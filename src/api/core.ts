@@ -73,3 +73,8 @@ export async function postApi(
     ...fetchConfig
   });
 }
+
+export async function pkgPost(...args: Parameters<typeof postApi>): Promise<{ code: number, message?: string }> {
+  const resp = await postApi(...args);
+  return await resp.json();
+}

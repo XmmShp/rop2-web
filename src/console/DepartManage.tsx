@@ -1,10 +1,10 @@
 import { Button, Card, Descriptions, Flex, Space, Table, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { delay } from '../utils';
 import { TempInput, showDrawer, showModal } from '../shared/LightComponent';
 import { message } from '../App';
 import { useData } from '../api/useData';
 import dayjs from 'dayjs';
+import { addDepart, deleteDepart, renameDepart } from '../api/depart';
 
 export default function DepartManage() {
   type DepartList = {
@@ -43,8 +43,11 @@ export default function DepartManage() {
                   message.error('名称不能为空');
                   return;
                 }
-                //TODO
-                await delay(500);
+                const errMsg = await addDepart(newName);
+                if (errMsg) {
+                  message.error(errMsg);
+                  return;
+                }
                 message.success("新建成功");
                 reload();
               },
@@ -97,8 +100,11 @@ export default function DepartManage() {
                         message.error('名称不能为空');
                         return;
                       }
-                      //TODO
-                      await delay(500);
+                      const errMsg = await renameDepart(record.id, newName);
+                      if (errMsg) {
+                        message.error(errMsg);
+                        return;
+                      }
                       message.success("重命名成功");
                       reload();
                     }
@@ -114,8 +120,11 @@ export default function DepartManage() {
                   </Typography.Text></Flex>),
                   okButtonProps: { danger: true },
                   async onConfirm() {
-                    //TODO
-                    await delay(500);
+                    const errMsg = await deleteDepart(record.id);
+                    if (errMsg) {
+                      message.error(errMsg);
+                      return;
+                    }
                     message.success("删除成功");
                     reload();
                   }

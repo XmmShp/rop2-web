@@ -4,11 +4,12 @@ import { delay } from '../../utils';
 import { useState } from 'react';
 import Search from '../shared/Search';
 import { kvSet } from "../../store/kvCache";
-import { showModal } from '../../shared/LightComponent';
+import { showModal, TempInput } from '../../shared/LightComponent';
 import { message } from '../../App';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../../api/useData';
 import dayjs from 'dayjs';
+import { createForm } from '../../api/form';
 
 export default function FormOverview() {
   const [forms, loadingPromise, reload] = useData<{
@@ -28,6 +29,30 @@ export default function FormOverview() {
       </Typography.Text>
       <Flex wrap='wrap'>
         <Button icon={<PlusOutlined />} type='primary'
+          onClick={() => {
+            const vref = { value: '' };
+            showModal({
+              title: '新建表单',
+              content: (<Flex vertical gap='small'><Typography.Text>
+                输入新表单的名称:
+              </Typography.Text>
+                <TempInput vref={vref} showCount maxLength={25} /></Flex>),
+              async onConfirm() {
+                const newName = vref.value.trim();
+                if (!newName) {
+                  message.error('名称不能为空');
+                  return;
+                }
+                const errMsg = await createForm(newName);
+                if (errMsg) {
+                  message.error(errMsg);
+                  return;
+                }
+                message.success("新建成功");
+                reload();
+              },
+            });
+          }}
         >新增</Button>
       </Flex>
       <Search value={searchValue}
