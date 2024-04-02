@@ -1,7 +1,8 @@
 import { FundViewOutlined, HourglassOutlined, TeamOutlined } from '@ant-design/icons';
 import { Card, Flex, Statistic, Typography } from 'antd';
+import { useNickname } from '../../utils';
+import { useDeparts } from '../shared/useDeparts';
 import './Dash.scss';
-import { getUser } from '../../utils';
 
 export default function Dash() {
   const hour = new Date().getHours();
@@ -12,11 +13,14 @@ export default function Dash() {
   else if (hour <= 13) greeting = '中午好';
   else if (hour <= 18) greeting = '下午好';
   else greeting = '晚上好';
+
+  const nickname = useNickname();
+  const [, , , { org: { name: orgName } }] = useDeparts(true);
   return (<Flex vertical gap='small'>
     <Card>
-      <Typography.Text className='welcome'>{greeting}，{getUser()}</Typography.Text>
+      <Typography.Text className='welcome'>{greeting}，{nickname}</Typography.Text>
       <br />
-      <Typography.Text className='at'>测试组织</Typography.Text>
+      <Typography.Text className='at'>{orgName}</Typography.Text>
     </Card>
     <Card>
       <Flex vertical gap='small'>

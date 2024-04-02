@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from 'react';
+import { useLayoutEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Id } from './api/models/shared';
 import { kvGet, kvSet } from "./store/kvCache";
@@ -103,10 +103,6 @@ export function useForm(): Id {
   return num(params.get('form'), kvGet('form'));
 }
 
-export function getUser(): string {
-  return kvGet('nickname') ?? '';
-}
-
 export function newUniqueLabel(labels: string[], prefix: string): string {
   let usedCount = 0;
   let result = `${prefix}${labels.length + 1}`;
@@ -153,3 +149,12 @@ export function useStoredState<T>(initer: T | (() => T), storeKey: string) {
 
 /**保证以/结尾的basename。`import.meta.env.BASE_URL`在编译时会被vite静态替换。 */
 export const basename: `${string}/` = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/` as any;
+
+/**返回一个数，该数每经过`second`秒后自增1(需要重新调用此函数获取)。 */
+export function period(second: number) {
+  return Math.floor(Date.now() / 1000 / second);
+}
+
+export function useNickname() {
+  return useMemo<string>(() => kvGet('nickname') ?? '未登录', [period(15)]);
+}

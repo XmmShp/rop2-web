@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { getApi } from './core';
 
-/**React Hook，实现异步加载数据。返回一个数组，元素分别为：数据；加载Promise(加载完后设为null)；刷新函数
+/**React Hook，实现异步加载数据。返回一个数组，元素分别为：数据；加载Promise(加载完后设为null，可判真切换加载UI)；刷新函数
  * 
  * 首次渲染时先返回默认值避免阻塞渲染；同时发送GET请求，用响应对象调用`dataProcessor`（可返回Promise），然后用返回值更新state。
  * 
- * 当deps发生变化时，重新发送GET请求。此函数不会自动追踪params的变化。
+ * 当deps发生变化时，重新发送**GET**请求。不会自动追踪`params`的变化；不传`deps`视同传空数组，不会在每次重渲染时重新fetch。
  */
 export function useData<T>(
   pathname: `/${string}`,

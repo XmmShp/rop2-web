@@ -12,6 +12,8 @@ export type OrgInfo = {
   };
   departs: Depart[];
 };
+
+/**获取部门/组织信息。基于useData，无`deps`。 */
 export function useDeparts(includeDefaultDepart: boolean = false): [Depart[], Promise<OrgInfo> | null, () => void, OrgInfo] {
   const [orgInfo, loadPromise, reload] = useData<OrgInfo>('/org',
     async (resp) => await resp.json(),

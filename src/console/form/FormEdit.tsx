@@ -1,6 +1,5 @@
-import { createRef, forwardRef, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { delay, moveElement, newUniqueLabel, useForm } from '../../utils';
-import { getForm } from '../../store';
+import { createRef, forwardRef, useMemo, useRef, useState } from 'react';
+import { delay, moveElement, newUniqueLabel, num, period } from '../../utils';
 import { Button, Collapse, DatePicker, Flex, Grid, Tabs, Tooltip, Typography } from 'antd';
 import './FormEdit.scss';
 import { QuestionGroup } from '../../api/models/form';
@@ -10,15 +9,19 @@ import QuestionGroupSelect from './QuestionGroupSelect';
 import { message } from '../../App';
 import { showModal } from '../../shared/LightComponent';
 import dayjs from 'dayjs';
+import { useForm } from '../shared/useForm';
+import { kvGet } from '../../store/kvCache';
 
 export default function FormEdit() {
-  const formId = useForm();
-  const [form, setForm] = useState(() => getForm(formId));
+  // const form = forms[0];
+  const [form, , reload] = useForm(useMemo(() => num(kvGet('form'), -1), [period(15)]));
   const pageRef = useRef<HTMLDivElement>(null);
   const groups = form.children;
   const [curGroupIndex, setCurGroupIndex] = useState(-1);
   const refs = useMemo(() => groups.map(() => createRef<HTMLDivElement>()), [groups]);
   const { lg = false } = Grid.useBreakpoint();
+
+  //TODO 编辑表单&更新机制
 
   const editingTitle = useRef(form.name);//由于antd的可编辑文本特性，此处使用useRef而非useState
   return (
@@ -76,28 +79,31 @@ export default function FormEdit() {
           <Typography.Title level={3} editable={{
             onChange(v) { editingTitle.current = v; },
             async onEnd() {
-              setForm({ ...form, name: editingTitle.current });
+              // setForm({ ...form, name: editingTitle.current });
 
               //TODO request API
               await delay(200);
               message.success('标题已保存');
+              reload();
             }
           }} className='title'>{form.name}</Typography.Title>
           <DescEditor desc={form.desc} onConfirm={async (newDesc) => {
-            setForm({ ...form, desc: newDesc });
+            // setForm({ ...form, desc: newDesc });
 
             //TODO request API
             await delay(200);
+            reload();
           }} />
 
           {groups.map((group, index) => <GroupCard key={group.id}
             ref={refs[index]}
             isEntry={form.entry === group.id} group={group} groups={groups}
             onEdit={async (newObj) => {
-              setForm({ ...form, children: groups.with(index, newObj) });
+              // setForm({ ...form, children: groups.with(index, newObj) });
 
               //TODO request API
               await delay(150);
+              reload();
             }}
             onDelete={async () => await showModal({
               title: '删除问题组',
@@ -109,10 +115,11 @@ export default function FormEdit() {
                 删除问题组将删除其包含的所有题目(共 {group.children.length} 题)。
               </Typography.Text>,
               async onConfirm() {
-                setForm({ ...form, children: groups.toSpliced(index, 1) });
+                // setForm({ ...form, children: groups.toSpliced(index, 1) });
 
                 //TODO request API
                 await delay(150);
+                reload();
               }
             })} />)}
 
@@ -128,7 +135,8 @@ export default function FormEdit() {
                 label: newUniqueLabel(groups.map(gr => gr.label), '问题组')
               };
               //TODO request API
-              setForm({ ...form, children: [...groups, newGroup] });
+              // setForm({ ...form, children: [...groups, newGroup] });
+              reload();
             }}>新增题目组</Button>
         </Flex>
       </Flex>

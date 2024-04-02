@@ -1,16 +1,19 @@
-import { Avatar, Dropdown, Flex, GetProp, Layout, Menu } from 'antd';
+import { Avatar, Dropdown, Flex, GetProp, Grid, Layout, Menu } from 'antd';
 import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { getUser, mapRecur, singleMatch, toArray, without } from '../../utils';
+import { mapRecur, singleMatch, toArray, useNickname, without } from '../../utils';
 import { useState } from 'react';
 import './ConsoleLayout.scss';
+import { logout } from '../../api/auth';
 
 export default function ConsoleLayout({ routes }: { routes: GetProp<typeof Menu, 'items'> }) {
   const { pathname } = useLocation();//react-router会自动去除basename部分
   const navigate = useNavigate();
   const sub = singleMatch(pathname, /^\/console\/(\w+(\/\w+)*)(?!\/)\/?/);
-  const [collapsed, setCollapsed] = useState(window.innerWidth < 768);
+  const { lg = false } = Grid.useBreakpoint();
+  const [collapsed, setCollapsed] = useState(!lg);
   const topSub = toArray(singleMatch(sub ?? '', /^(\w+)/));
   const [openKeys, setOpenKeys] = useState<string[]>(topSub);
+  const nickname = useNickname();
 
   if (!sub) return <Navigate to='dash' />;
   return (<Layout className='layout'>
@@ -34,10 +37,18 @@ export default function ConsoleLayout({ routes }: { routes: GetProp<typeof Menu,
       <Flex className='title-bar' align='center' justify='space-between'>
         <span className='title'>求是潮纳新开放系统V2</span>
         <Link className='current-activity' to='/'>正在进行的纳新名称</Link>
-        <Dropdown trigger={['click']} menu={{ items: [{ label: '退出', }].map((v, i) => { return { ...v, key: i } }) }}>
+        <Dropdown trigger={['click']} menu={{
+          items: [{ label: '退出', }].map((v) => { return { ...v, key: v.label } }),
+          onClick(info) {
+            if (info.key === '退出') {
+              logout();
+              //TODO 重定向登录etc
+            }
+          }
+        }}>
           <Flex className='user-area' align='center' >
-            <Avatar className='avatar'>{getUser()}</Avatar>
-            <span className='username'>{getUser()}</span>
+            <Avatar className='avatar'>{nickname}</Avatar>
+            <span className='username'>{nickname}</span>
           </Flex>
         </Dropdown>
       </Flex>

@@ -18,7 +18,7 @@ export default function FormOverview() {
     startAt?: string;
     endAt?: string;
     createAt: string;
-    updateAt: string;
+    // updateAt: string;//not used yet
   }[]>('/form/list', async (resp) => resp.json(), []);
   const [searchValue, setSearchValue] = useState('');
   const navigate = useNavigate();
@@ -68,8 +68,8 @@ export default function FormOverview() {
       }, {
         title: '开放时间',
         render(value, record, index) {
-          const start = record.startAt ? dayjs(record.startAt).format('YYYY.MM.DD HH:mm:ss') : '即刻';
-          const end = record.endAt ? dayjs(record.endAt).format('YYYY.MM.DD HH:mm:ss') : '无结束时间';
+          const start = record.startAt ? dayjs(record.startAt).format('YYYY.MM.DD HH:mm:ss') : '即刻开始';
+          const end = record.endAt ? dayjs(record.endAt).format('YYYY.MM.DD HH:mm:ss') : '现已结束';
           return start + ' ~ ' + end;
         },
       }, {
