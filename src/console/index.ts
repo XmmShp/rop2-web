@@ -4,7 +4,7 @@ import ConsoleLayout from './shared/ConsoleLayout';
 import Dash from './dash/Dash';
 import FormOverview from './form/FormOverview';
 import FormEdit from './form/FormEdit';
-import ResultOverview from './TemplateManage';
+import ResultOverview from './result/ResultOverview';
 import AdminManage from './AdminManage';
 import TemplateManage from './TemplateManage';
 import StageManage from './StageManage';

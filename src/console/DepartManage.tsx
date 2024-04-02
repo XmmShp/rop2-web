@@ -2,25 +2,12 @@ import { Button, Card, Descriptions, Flex, Space, Table, Typography } from 'antd
 import { PlusOutlined } from '@ant-design/icons';
 import { TempInput, showDrawer, showModal } from '../shared/LightComponent';
 import { message } from '../App';
-import { useData } from '../api/useData';
 import dayjs from 'dayjs';
 import { addDepart, deleteDepart, renameDepart } from '../api/depart';
+import { useDeparts } from './shared/useDeparts';
 
 export default function DepartManage() {
-  type DepartList = {
-    id: number;
-    name: string;
-    createAt: string;
-  }[];
-  const [{ org, departs }, loadPromise, reload] = useData<{
-    org: {
-      defaultDepart: number;
-      name: string;
-    };
-    departs: DepartList;
-  }>('/org',
-    async (resp) => await resp.json(),
-    { org: { defaultDepart: -1, name: '' }, departs: [] });
+  const [departs, loadPromise, reload, { org }] = useDeparts(false);
   //考虑到部门数据不多，不做分批查询/翻页
   return (<Card>
     <Flex vertical gap='small'>
@@ -132,7 +119,7 @@ export default function DepartManage() {
             </Space>);
           },
         }]}
-        dataSource={departs.filter(({ id }) => id !== org.defaultDepart)}
+        dataSource={departs}
         loading={!!loadPromise}
         pagination={false}
         expandable={{

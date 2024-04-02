@@ -18,11 +18,7 @@ export default function FormEdit() {
   const groups = form.children;
   const [curGroupIndex, setCurGroupIndex] = useState(-1);
   const refs = useMemo(() => groups.map(() => createRef<HTMLDivElement>()), [groups]);
-
   const { lg = false } = Grid.useBreakpoint();
-  useLayoutEffect(() => {
-    pageRef.current?.scrollTo({ top: 0 })
-  })
 
   const editingTitle = useRef(form.name);//由于antd的可编辑文本特性，此处使用useRef而非useState
   return (
@@ -54,7 +50,8 @@ export default function FormEdit() {
       <Flex className='page' vertical ref={pageRef}
         onScroll={() => {
           const scrollTop = pageRef.current!.scrollTop;
-          const curG = refs.findLastIndex(r => r.current!.offsetTop <= scrollTop) ?? -1;
+          const alignMargin = 1.2 * 14;//1.2em
+          const curG = refs.findLastIndex(r => r.current!.offsetTop <= scrollTop + alignMargin) ?? -1;
           setCurGroupIndex(curG);
         }}>
         <Flex className='form' vertical gap='middle'>
