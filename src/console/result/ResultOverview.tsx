@@ -1,15 +1,15 @@
 import { Card, Checkbox, Flex, Table } from 'antd';
 import { useStoredState } from '../../utils';
 import { Id } from '../../api/models/shared';
-import { useDeparts } from '../shared/useDeparts';
+import { useOrg } from '../shared/useOrg';
 
 export default function ResultOverview() {
-  const [departs, departsLoading] = useDeparts(false);
+  const [{ departs }, orgInfoLoading] = useOrg(false);
   const [filterDeparts, setFilterDeparts] = useStoredState<Id[]>(() => {
     if (departs.length === 1) return [departs[0].id];
     else return [];
   }, 'result/filterDeparts');
-  return (<Card loading={!!departsLoading}>
+  return (<Card loading={!!orgInfoLoading}>
     <Flex vertical gap='middle'>
       {departs.length
         ? <Flex wrap='wrap'>

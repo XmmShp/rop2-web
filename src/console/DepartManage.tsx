@@ -4,10 +4,10 @@ import { TempInput, showDrawer, showModal } from '../shared/LightComponent';
 import { message } from '../App';
 import dayjs from 'dayjs';
 import { addDepart, deleteDepart, renameDepart } from '../api/depart';
-import { useDeparts } from './shared/useDeparts';
+import { useOrg } from './shared/useOrg';
 
 export default function DepartManage() {
-  const [departs, loadPromise, reload, { org }] = useDeparts(false);
+  const [{ org, departs }, loadPromise, reload] = useOrg(false);
   //考虑到部门数据不多，不做分批查询/翻页
   return (<Card>
     <Flex vertical gap='small'>

@@ -91,18 +91,6 @@ export function num(...from: (string | undefined | null | number)[]): number {
   return 0;
 }
 
-/**React Hook，根据url或getStore返回正在管理的组织 */
-export function useOrg(): Id {
-  const [params] = useSearchParams();
-  return num(params.get('org'), kvGet('at'));
-}
-
-/**React Hook，根据url或getStore返回正在管理的表单 */
-export function useForm(): Id {
-  const [params] = useSearchParams();
-  return num(params.get('form'), kvGet('form'));
-}
-
 export function newUniqueLabel(labels: string[], prefix: string): string {
   let usedCount = 0;
   let result = `${prefix}${labels.length + 1}`;

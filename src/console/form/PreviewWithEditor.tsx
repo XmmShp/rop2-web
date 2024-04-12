@@ -1,17 +1,17 @@
 import { ArrowDownOutlined, ArrowUpOutlined, DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Checkbox, Flex, Grid, Input, InputNumber, Select, Typography } from 'antd';
-import { Fragment, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ChoiceQuestion, CustomQuestion, QuestionGroup, ValidQuestion } from '../../api/models/form';
 import FormQuestion from '../../shared/FormQuestion';
-import { getOrg } from '../../store';
-import { newUniqueLabel, useOrg } from '../../utils';
+import { newUniqueLabel } from '../../utils';
 import { Id } from '../../api/models/shared';
 import QuestionGroupSelect from './QuestionGroupSelect';
 import { message } from '../../App';
+import { useOrg } from '../shared/useOrg';
 
 function QuestionEditor({ question, onChange, groups, thisGroup }:
   { question: ValidQuestion, onChange: (newObj: ValidQuestion) => void, groups: QuestionGroup[], thisGroup: Id }) {
-  const org = useOrg();
+  const [{ departs }] = useOrg(false);
   return (<Flex vertical className='editing' gap='small'>
     <Flex align='center' gap='small'>
       问题类型
@@ -64,15 +64,14 @@ function QuestionEditor({ question, onChange, groups, thisGroup }:
         case 'phone':
           return <></>;//内置题目，没有可编辑属性
         case 'choice-depart':
-          const orgInstance = getOrg(org);
+          //TODO: 根据useDeparts属性选择性启用志愿选择题
           return (<>
             <Flex align='center' gap='small'>
               <span className='prompt'>最多选择项数</span>
-              <InputNumber maxLength={2} min={1} max={getOrg(org).children.length} value={question.maxSelection} onChange={(v) => onChange({ ...question, maxSelection: v ?? 1 })} />
+              <InputNumber maxLength={2} min={1} max={departs.length} value={question.maxSelection} onChange={(v) => onChange({ ...question, maxSelection: v ?? 1 })} />
             </Flex>
             <Flex wrap='wrap' gap='middle'>
-              {orgInstance.children.map((dep) => {
-                if (orgInstance.defaultDepart === dep.id) return <Fragment key={dep.id}></Fragment>;//默认部门恒不显示
+              {departs.map((dep) => {
                 //对于某一部门，如choices对象上不存在该键(undefined)，则隐藏该部门(不可选择)
                 //如为null，表示可选择，不揭示任何问题组
                 //否则，为揭示的问题组id

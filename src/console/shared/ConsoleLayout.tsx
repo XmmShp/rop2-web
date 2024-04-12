@@ -4,6 +4,7 @@ import { mapRecur, singleMatch, toArray, useNickname, without } from '../../util
 import { useState } from 'react';
 import './ConsoleLayout.scss';
 import { logout } from '../../api/auth';
+import { useOrg } from './useOrg';
 
 export default function ConsoleLayout({ routes }: { routes: GetProp<typeof Menu, 'items'> }) {
   const { pathname } = useLocation();//react-router会自动去除basename部分
@@ -14,6 +15,8 @@ export default function ConsoleLayout({ routes }: { routes: GetProp<typeof Menu,
   const topSub = toArray(singleMatch(sub ?? '', /^(\w+)/));
   const [openKeys, setOpenKeys] = useState<string[]>(topSub);
   const nickname = useNickname();
+  //TODO: 根据useDeparts选择性渲染
+  const [{ org: { useDeparts } }] = useOrg(true);
 
   if (!sub) return <Navigate to='dash' />;
   return (<Layout className='layout'>

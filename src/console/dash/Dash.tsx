@@ -1,7 +1,7 @@
 import { FundViewOutlined, HourglassOutlined, TeamOutlined } from '@ant-design/icons';
 import { Card, Flex, Statistic, Typography } from 'antd';
 import { useNickname } from '../../utils';
-import { useDeparts } from '../shared/useDeparts';
+import { useOrg } from '../shared/useOrg';
 import './Dash.scss';
 
 export default function Dash() {
@@ -15,7 +15,7 @@ export default function Dash() {
   else greeting = '晚上好';
 
   const nickname = useNickname();
-  const [, , , { org: { name: orgName } }] = useDeparts(true);
+  const [{ org: { name: orgName } }] = useOrg(false);
   return (<Flex vertical gap='small'>
     <Card>
       <Typography.Text className='welcome'>{greeting}，{nickname}</Typography.Text>

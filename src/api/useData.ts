@@ -18,9 +18,8 @@ export function useData<T>(
   const [loadPromise, setLoadPromise] = useState<Promise<T> | null>(null);
   const [forceReloadTimes, setForceReloadTimes] = useState(0);
   useEffect(() => {
-    let abortFunc: () => void;
+    const abortCtrl = new AbortController();
     const promise = new Promise<T>((rs, rj) => {
-      const abortCtrl = new AbortController();
       getApi(pathname, params, { signal: abortCtrl.signal })
         .then(
           (resp) => {
@@ -37,14 +36,13 @@ export function useData<T>(
             rj(reason);
           }
         );
-      abortFunc = abortCtrl.abort.bind(abortCtrl);
     });
     promise.then((v) => {
       setLoadPromise(null);
       setData(v);
     });
     setLoadPromise(promise);
-    return abortFunc!; // 非空断言
+    return abortCtrl.abort.bind(abortCtrl);
   }, [forceReloadTimes, ...deps]);
   return [data, loadPromise, () => setForceReloadTimes(forceReloadTimes + 1)];
 }
