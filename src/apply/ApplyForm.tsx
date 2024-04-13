@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import './ApplyForm.scss';
 import { Button, Card, Divider, Flex, Result, Typography } from 'antd';
 import FormQuestion from '../shared/FormQuestion';
+import { departs } from '../mockData';
 
 export default function ApplyForm() {
   const params = useParams();
@@ -27,7 +28,9 @@ export default function ApplyForm() {
             (<Flex key={label} vertical gap='middle'
               className='group'>
               <Divider className='divider' orientation='center'>{label}</Divider>
-              {children.map(ques => (<FormQuestion key={ques.id} question={ques} />))}
+              {children.map(ques => (<FormQuestion key={ques.id} question={ques}
+                //TODO:报名页正确获取departs
+                departs={departs} />))}
             </Flex>))}
           </Flex>
 

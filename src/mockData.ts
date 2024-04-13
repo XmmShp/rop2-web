@@ -1,6 +1,7 @@
 import { Form } from "./api/models/form";
-import { Depart, Org } from "./api/models/org";
+import { Org } from "./api/models/org";
 import { Stage } from "./api/models/stage";
+import { Depart } from "./console/shared/useOrg";
 
 let id = 0;
 function newId() { return id++; }
@@ -11,8 +12,7 @@ export const org: Org = { createdAt: now(), id: newId(), name: '测试组织', d
 export const departs: Depart[] = [{
   name: '默认部门',
   id: newId(),
-  parent: org.id,
-  createdAt: now()
+  createAt: now().toJSON()
 }, ...[
   '部门A',
   '部门B',
@@ -22,7 +22,7 @@ export const departs: Depart[] = [{
   '部门F',
   'To be, or not to be, that is a question',
 ].map(name => {
-  return { name, id: newId(), parent: org.id, createdAt: now() };
+  return { name, id: newId(), createAt: now().toJSON() };
 })];
 
 export const stages: Stage[] = [{

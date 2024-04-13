@@ -157,6 +157,7 @@ export function PreviewWithEditor({ question, onConfirm, onDelete, groups, thisG
   const quesIndex = group.children.indexOf(question);
   const isFirst = quesIndex == 0;
   const isLast = quesIndex == group.children.length - 1;
+  const [{ departs }] = useOrg(false);
   return <>
     {isEditing
       ? <Flex vertical gap='small'>
@@ -194,7 +195,7 @@ export function PreviewWithEditor({ question, onConfirm, onDelete, groups, thisG
             icon={<ArrowDownOutlined />} type='dashed'
             onClick={() => onMove(1)} /> : <></>}
         </Flex>
-        <FormQuestion question={question} />
+        <FormQuestion question={question} departs={departs} />
       </Flex>}
   </>
 }

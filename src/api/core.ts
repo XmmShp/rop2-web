@@ -26,7 +26,7 @@ async function innerFetch(...[url, config]: Parameters<typeof fetch>): ReturnTyp
   const resp = await fetch(url, {
     headers: {
       ...(token ? { 'rop-token': token } : {}),
-      ...(config?.headers) ?? {}
+      ...(config?.headers) ?? {},
     },
     credentials: 'omit',
     cache: 'no-store',
@@ -74,6 +74,10 @@ export async function postApi(
   });
 }
 
+/**发送POST请求。
+ * 
+ * 若收到响应，将其视为json解析并返回（无论其状态码是否为200）。
+ */
 export async function pkgPost(...args: Parameters<typeof postApi>): Promise<{ code: number, message?: string }> {
   const resp = await postApi(...args);
   return await resp.json();

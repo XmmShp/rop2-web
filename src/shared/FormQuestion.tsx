@@ -1,10 +1,10 @@
 import { Flex, Input, Select, Typography } from 'antd';
 import { ValidQuestion } from '../api/models/form';
 import './FormQuestion.scss';
-import { getDepart } from '../store';
+import { Depart } from '../console/shared/useOrg';
 
-export default function FormQuestion({ question }
-  : { question: ValidQuestion }) {
+export default function FormQuestion({ question, departs = [] }
+  : { question: ValidQuestion, departs?: Depart[] }) {
   return (<Flex className='question' vertical gap='small'>
     {(() => {
       switch (question.type) {
@@ -42,7 +42,7 @@ export default function FormQuestion({ question }
                 options={entries.map(([id, reveal]) => {
                   return {
                     value: id,
-                    label: getDepart(Number(id)).name
+                    label: departs.find((d) => d.id.toString() === id)?.name ?? '加载中'
                   };
                 })} maxCount={maxCount} />
             </>);
