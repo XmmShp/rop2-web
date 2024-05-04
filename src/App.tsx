@@ -80,7 +80,7 @@ const router = createBrowserRouter([{
       children: consoleRoutes,
       lazy: getConsoleLoader('ConsoleLayout', { routes: consoleRoutes.filter(v => 'label' in v) })
     }, {
-      path: 'apply/:id',
+      path: 'apply/:formId',
       async lazy() {
         const { default: Component } = await import('./apply/ApplyForm.tsx');
         return { element: <Component /> }

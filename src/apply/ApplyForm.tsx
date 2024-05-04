@@ -6,11 +6,12 @@ import './ApplyForm.scss';
 import { Button, Card, Divider, Flex, Result, Typography } from 'antd';
 import FormQuestion from '../shared/FormQuestion';
 import { departs } from '../mockData';
+import { useForm } from '../console/shared/useForm';
 
 export default function ApplyForm() {
   const params = useParams();
-  const id = num(params.id, 0);
-  const form = useMemo(() => getForm(id), [id]);
+  let { formId } = useParams(); //react-router捕获到的id
+  const [form] = useForm(num(formId), 'applicant');
   const [completed, setCompleted] = useState(false);
   return (<Flex justify='center'
     className='apply'>
@@ -51,8 +52,8 @@ function SuccessPage({ formName }: { formName: string }) {
     title='提交成功'
     subTitle={<>
       感谢您参与{formName}。
-      <br />
-      我们将通过短信发送后续报名信息，请注意查收。
+      {/* <br /> */}
+      {/* 我们将通过短信发送后续报名信息，请注意查收。 */}
     </>}
   />);
 }

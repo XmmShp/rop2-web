@@ -13,9 +13,10 @@ export type FormDetail = {
   startAt: Dayjs | null;
   endAt: Dayjs | null;
 }
-/**获取单个表单详情。 */
-export function useForm(formId: number): [FormDetail, Promise<FormDetail> | null, () => void] {
-  const [form, loadPromise, reload] = useData<FormDetail>('/form/detail',
+/**获取单个表单详情。支持管理员和候选人两种访问路径。 */
+export function useForm(formId: number, type: 'admin' | 'applicant' = 'admin'): [FormDetail, Promise<FormDetail> | null, () => void] {
+  const apiPath = type === 'admin' ? '/form/detail' : '/applicant/form';
+  const [form, loadPromise, reload] = useData<FormDetail>(apiPath,
     async (resp) => {
       const value = await resp.json();
       value.children = JSON.parse(value.children);

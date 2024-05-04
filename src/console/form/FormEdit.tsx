@@ -13,7 +13,6 @@ import { useForm } from '../shared/useForm';
 import { kvGet } from '../../store/kvCache';
 
 export default function FormEdit() {
-  // const form = forms[0];
   const [form, , reload] = useForm(useMemo(() => num(kvGet('form'), -1), [period(15)]));
   const pageRef = useRef<HTMLDivElement>(null);
   const groups = form.children;
