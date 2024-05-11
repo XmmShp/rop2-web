@@ -49,7 +49,7 @@ export default function FormOverview() {
                   return;
                 }
                 message.success('新建成功');
-                reload();
+                reload(forms);
               },
             });
           }}
@@ -57,7 +57,7 @@ export default function FormOverview() {
       </Flex>
       <Search value={searchValue}
         onChange={({ target: { value } }) => setSearchValue(value)} />
-      <Table title={(d) => `表单列表 (${d.length}项)`} rowKey='id' bordered columns={[{
+      <Table title={(d) => `表单列表 (本页 ${d.length} 项 / 共 ${forms.length} 项)`} rowKey='id' bordered columns={[{
         title: '名称',
         dataIndex: 'name'
       }, {
@@ -101,7 +101,7 @@ export default function FormOverview() {
                   //TODO
                   await delay(500);
                   message.success('删除成功');
-                  reload();
+                  reload(forms);
                 }
               })}>删除</Button>
           </Space>);

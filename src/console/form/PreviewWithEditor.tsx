@@ -125,7 +125,7 @@ export function DescEditor({ desc, onConfirm }: { desc: string, onConfirm: (newD
           <Button type='primary'
             onClick={async () => {
               setEditing(undefined);
-              onConfirm(editing).then(() => { message.success('简介已保存') });
+              onConfirm(editing);
             }}>
             保存
           </Button>
@@ -171,7 +171,7 @@ export function PreviewWithEditor({ question, onConfirm, onDelete, groups, thisG
             onClick={async () => {
               setEditing(undefined);
               await onConfirm(editing);
-              message.success('问题已保存');
+              // message.success('问题已保存');
             }}>
             保存
           </Button>

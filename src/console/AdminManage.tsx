@@ -17,7 +17,7 @@ export default function AdminManage() {
         >新增</Button>
       </Flex>
       <Search onChange={({ target: { value: search } }) => setShowValue(fullValue.filter(v => v.nickname.includes(search)))} />
-      <Table title={(d) => `管理员列表 (${d.length}项)`} rowKey='nickname' bordered columns={[{
+      <Table title={(d) => `管理员列表 (本页 ${d.length} 项 / 筛选到 ${showValue.length} 项 / 共 ${fullValue.length} 项)`} rowKey='nickname' bordered columns={[{
         title: '昵称',
         dataIndex: 'nickname'
       }, {

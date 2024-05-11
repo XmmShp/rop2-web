@@ -1,5 +1,5 @@
 import dayjs, { Dayjs } from 'dayjs';
-import { useData } from '../../api/useData';
+import { DataTuple, useData } from '../../api/useData';
 import { Id } from '../../api/models/shared';
 import { useNavigate, useParams } from 'react-router-dom';
 import { kvGet } from '../../store/kvCache';
@@ -59,13 +59,12 @@ export type FormDetail = {
   name: string;
   desc: string;
   children: QuestionGroup[];
-  /**首个问题组 */
-  entry: number;
+  /**首个问题组默认为1 */
   startAt: Dayjs | null;
   endAt: Dayjs | null;
 }
 /**获取单个表单详情。支持管理员和候选人两种访问路径。 */
-export function useForm(type: 'admin' | 'applicant' = 'admin'): [FormDetail, Promise<FormDetail> | null, () => void] {
+export function useForm(type: 'admin' | 'applicant' = 'admin'): DataTuple<FormDetail> {
   const { formId: paramFormId } = useParams();
   const formId = num(paramFormId ?? kvGet('form'), -1);
   const defaultForm = {
@@ -74,7 +73,6 @@ export function useForm(type: 'admin' | 'applicant' = 'admin'): [FormDetail, Pro
     name: '加载中',
     desc: '',
     children: [],
-    entry: -1,
     startAt: null,
     endAt: null
   };
@@ -85,8 +83,9 @@ export function useForm(type: 'admin' | 'applicant' = 'admin'): [FormDetail, Pro
       message.error('未指定表单，请先选择目前工作表单');
     }, []);
     return [defaultForm, Promise.resolve(defaultForm), () => { }];
-  }
-  useEffect(() => { }, []);
+  } else
+    //React Hook调用顺序和数量必须恒定
+    useEffect(() => { }, []);
   const apiPath = type === 'admin' ? '/form/detail' : '/applicant/form';
 
   const [form, loadPromise, reload] = useData<FormDetail>(apiPath,

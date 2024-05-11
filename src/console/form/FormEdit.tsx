@@ -10,6 +10,7 @@ import { message } from '../../App';
 import { showModal } from '../../shared/LightComponent';
 import dayjs from 'dayjs';
 import { useForm } from '../shared/useForm';
+import { editForm } from '../../api/form';
 
 export default function FormEdit() {
   const [form, , reload] = useForm('admin');
@@ -18,8 +19,6 @@ export default function FormEdit() {
   const [curGroupIndex, setCurGroupIndex] = useState(-1);
   const refs = useMemo(() => groups.map(() => createRef<HTMLDivElement>()), [groups]);
   const { lg = false } = Grid.useBreakpoint();
-
-  //TODO 编辑表单&更新机制
 
   const editingTitle = useRef(form.name);//由于antd的可编辑文本特性，此处使用useRef而非useState
   return (
@@ -77,31 +76,31 @@ export default function FormEdit() {
           <Typography.Title level={3} editable={{
             onChange(v) { editingTitle.current = v; },
             async onEnd() {
-              // setForm({ ...form, name: editingTitle.current });
-
-              //TODO request API
-              await delay(200);
+              const newForm = { ...form, name: editingTitle.current };
+              const prom = editForm(form.id, { name: editingTitle.current });
+              reload(newForm, prom);
+              await prom;
               message.success('标题已保存');
-              reload();
             }
           }} className='title'>{form.name}</Typography.Title>
           <DescEditor desc={form.desc} onConfirm={async (newDesc) => {
-            // setForm({ ...form, desc: newDesc });
-
-            //TODO request API
-            await delay(200);
-            reload();
+            const newForm = { ...form, desc: newDesc };
+            const prom = editForm(form.id, { desc: newDesc });
+            reload(newForm, prom);
+            await prom;
+            message.success('简介已保存');
           }} />
 
           {groups.map((group, index) => <GroupCard key={group.id}
             ref={refs[index]}
-            isEntry={form.entry === group.id} group={group} groups={groups}
+            isEntry={1 === group.id} group={group} groups={groups}
             onEdit={async (newObj) => {
-              // setForm({ ...form, children: groups.with(index, newObj) });
-
-              //TODO request API
-              await delay(150);
-              reload();
+              const newChildren = groups.with(index, newObj);
+              const newForm = { ...form, children: newChildren };
+              const prom = editForm(form.id, { children: JSON.stringify(newChildren) });
+              reload(newForm, prom);
+              await prom;
+              message.success('修改已保存');
             }}
             onDelete={async () => await showModal({
               title: '删除问题组',
@@ -113,16 +112,17 @@ export default function FormEdit() {
                 删除问题组将删除其包含的所有题目(共 {group.children.length} 题)。
               </Typography.Text>,
               async onConfirm() {
-                // setForm({ ...form, children: groups.toSpliced(index, 1) });
-
-                //TODO request API
-                await delay(150);
-                reload();
+                const newChildren = groups.toSpliced(index, 1);
+                const newForm = { ...form, children: newChildren };
+                const prom = editForm(form.id, { children: JSON.stringify(newChildren) });
+                reload(newForm, prom);
+                await prom;
+                message.success('修改已保存');
               }
             })} />)}
 
           <Button type='default' icon={<PlusOutlined />}
-            onClick={() => {
+            onClick={async () => {
               let maxGroupId = 0;
               groups.forEach(({ id }) => {
                 if (id > maxGroupId) maxGroupId = id;
@@ -132,9 +132,12 @@ export default function FormEdit() {
                 children: [],
                 label: newUniqueLabel(groups.map(gr => gr.label), '问题组')
               };
-              //TODO request API
-              // setForm({ ...form, children: [...groups, newGroup] });
-              reload();
+              const newChildren = [...groups, newGroup];
+              const newForm = { ...form, children: newChildren };
+              const prom = editForm(form.id, { children: JSON.stringify(newChildren) });
+              reload(newForm, prom);
+              await prom;
+              message.success('修改已保存');
             }}>新增题目组</Button>
         </Flex>
       </Flex>
