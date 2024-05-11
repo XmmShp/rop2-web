@@ -1,18 +1,6 @@
 import { useLayoutEffect, useMemo, useState } from 'react';
 import { kvGet, kvSet } from './store/kvCache';
 
-export function mapRecur<
-  K extends string,
-  T extends { [key in K]?: Partial<T>[] } & Record<keyof any, any>,
-  R extends T
->(arr: T[], key: K, handler: (obj: T, stack: T[]) => R, ancestors: T[] = []): R[] {
-  return arr.map((v) => {
-    const result = { ...v };
-    if (result[key]?.length) (result[key] as any) = mapRecur(result[key]!, key, handler, [...ancestors, result]);
-    return handler(result, ancestors);
-  });
-}
-
 export function singleMatch(str: string, regexp: RegExp): string | null {
   const result = str.match(regexp);
   if (!result)
@@ -145,4 +133,10 @@ export function period(second: number) {
 
 export function useNickname() {
   return useMemo<string>(() => kvGet('nickname') ?? '未登录', [period(15)]);
+}
+
+/**尝试用简体中文表示一个整数，对于0~10返回零~十，其它返回数字toString */
+export function numSC(from: number): string {
+  const base = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
+  return base[from] ?? from.toString();
 }

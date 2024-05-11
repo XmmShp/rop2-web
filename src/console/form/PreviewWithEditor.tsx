@@ -11,7 +11,7 @@ import { useOrg } from '../shared/useOrg';
 
 function QuestionEditor({ question, onChange, groups, thisGroup }:
   { question: ValidQuestion, onChange: (newObj: ValidQuestion) => void, groups: QuestionGroup[], thisGroup: Id }) {
-  const [{ departs }] = useOrg(false);
+  const [{ departs }] = useOrg();
   return (<Flex vertical className='editing' gap='small'>
     <Flex align='center' gap='small'>
       问题类型
@@ -157,7 +157,7 @@ export function PreviewWithEditor({ question, onConfirm, onDelete, groups, thisG
   const quesIndex = group.children.indexOf(question);
   const isFirst = quesIndex == 0;
   const isLast = quesIndex == group.children.length - 1;
-  const [{ departs }] = useOrg(false);
+  const [{ departs }] = useOrg();
   return <>
     {isEditing
       ? <Flex vertical gap='small'>

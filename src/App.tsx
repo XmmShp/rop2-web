@@ -15,6 +15,11 @@ function getConsoleLoader<C extends keyof typeof import('./console/index.ts'), M
 //注：有label的会显示在侧边菜单中，否则仅有路由
 export const consoleRoutes = [
   {
+    path: '',
+    index: true,
+    element: <Navigate to='dash' />
+  },
+  {
     label: '仪表盘',
     path: 'dash',
     icon: <DashboardOutlined />,
@@ -25,11 +30,11 @@ export const consoleRoutes = [
     icon: <FormOutlined />,
     lazy: getConsoleLoader('FormOverview')
   }, {
-    path: 'form/edit',
+    path: 'form/edit/:formId?',
     lazy: getConsoleLoader('FormEdit')
   }, {
     label: '报名表',
-    path: 'result',
+    path: 'result/:formId?',
     icon: <BarsOutlined />,
     lazy: getConsoleLoader('ResultOverview')
   }, {
@@ -38,10 +43,10 @@ export const consoleRoutes = [
     icon: <FundViewOutlined />,
     lazy: getConsoleLoader('InterviewManage')
   }, {
-    label: '通知模板',
-    path: 'template',
+    label: '通知',
+    path: 'message',
     icon: <MessageOutlined />,
-    lazy: getConsoleLoader('TemplateManage')
+    lazy: getConsoleLoader('MessageManage')
   }, {
     label: '阶段',
     path: 'stage',
@@ -78,7 +83,13 @@ const router = createBrowserRouter([{
     }, {
       path: 'console',
       children: consoleRoutes,
-      lazy: getConsoleLoader('ConsoleLayout', { routes: consoleRoutes.filter(v => 'label' in v) })
+      lazy: getConsoleLoader('ConsoleLayout', {
+        routes: consoleRoutes
+          //没有label的只做路由，不在导航中
+          .filter(v => 'label' in v)
+          //不传递lazy等参数防止渲染报错
+          .map(v => { return { ...v, lazy: undefined, path: undefined } })
+      })
     }, {
       path: 'apply/:formId',
       async lazy() {

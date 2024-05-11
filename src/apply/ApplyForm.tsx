@@ -1,5 +1,3 @@
-import { useParams } from 'react-router-dom';
-import { num } from '../utils';
 import { useState } from 'react';
 import './ApplyForm.scss';
 import { Button, Card, Divider, Flex, Result, Typography } from 'antd';
@@ -9,8 +7,7 @@ import { useData } from '../api/useData';
 import { Depart } from '../console/shared/useOrg';
 
 export default function ApplyForm() {
-  let { formId } = useParams(); //react-router捕获到的id
-  const [form] = useForm(num(formId), 'applicant');
+  const [form] = useForm('applicant');
   const [departs] = useData<Depart[]>('/applicant/org', async (resp) => await resp.json(), []);
   const [completed, setCompleted] = useState(false);
   return (<Flex justify='center'

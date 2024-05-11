@@ -1,6 +1,6 @@
 import { Card, Flex } from 'antd';
 
-export default function TemplateManage() {
+export default function MessageManage() {
   return (<Card>
     <Flex vertical gap='small'>
       WIP

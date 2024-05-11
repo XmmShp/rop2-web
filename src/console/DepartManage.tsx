@@ -7,7 +7,7 @@ import { addDepart, deleteDepart, renameDepart } from '../api/depart';
 import { useOrg } from './shared/useOrg';
 
 export default function DepartManage() {
-  const [{ org, departs }, loadPromise, reload] = useOrg(false);
+  const [{ org, departs }, loadPromise, reload] = useOrg();
   //考虑到部门数据不多，不做分批查询/翻页
   return (<Card>
     <Flex vertical gap='small'>

@@ -69,22 +69,23 @@ export default function FormOverview() {
         title: '开放时间',
         render(value, record, index) {
           const start = record.startAt ? dayjs(record.startAt).format('YYYY.MM.DD HH:mm:ss') : '即刻开始';
-          const end = record.endAt ? dayjs(record.endAt).format('YYYY.MM.DD HH:mm:ss') : '现已结束';
+          const end = record.endAt ? dayjs(record.endAt).format('YYYY.MM.DD HH:mm:ss') : '长期有效';
           return start + ' ~ ' + end;
         },
       }, {
         title: '操作',
         render(value, record, index) {
+          const formId = record.id.toString();
           return (<Space size={0}>
             <Button size='small' type='link'
               onClick={() => {
-                kvSet('form', record.id.toString());
-                navigate('/console/form/edit');
+                kvSet('form', formId);
+                navigate(`/console/form/edit/${formId}`);
               }} >编辑</Button>
             <Button size='small' type='link'
               onClick={() => {
-                kvSet('form', record.id.toString());
-                navigate('/console/result');
+                kvSet('form', formId);
+                navigate(`/console/result/${formId}`);
               }} >结果</Button>
             <Button size='small' type='link'>复制</Button>
             <Button size='small' danger type='link'

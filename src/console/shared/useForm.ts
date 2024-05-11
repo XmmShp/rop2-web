@@ -1,6 +1,11 @@
 import dayjs, { Dayjs } from 'dayjs';
 import { useData } from '../../api/useData';
 import { Id } from '../../api/models/shared';
+import { useNavigate, useParams } from 'react-router-dom';
+import { kvGet } from '../../store/kvCache';
+import { num } from '../../utils';
+import { useEffect } from 'react';
+import { message } from '../../App';
 
 type QuestionType = 'name' | 'zjuid' | 'phone' | 'choice-depart' | 'text' | 'choice';
 interface Question {
@@ -60,8 +65,30 @@ export type FormDetail = {
   endAt: Dayjs | null;
 }
 /**获取单个表单详情。支持管理员和候选人两种访问路径。 */
-export function useForm(formId: number, type: 'admin' | 'applicant' = 'admin'): [FormDetail, Promise<FormDetail> | null, () => void] {
+export function useForm(type: 'admin' | 'applicant' = 'admin'): [FormDetail, Promise<FormDetail> | null, () => void] {
+  const { formId: paramFormId } = useParams();
+  const formId = num(paramFormId ?? kvGet('form'), -1);
+  const defaultForm = {
+    owner: -1,
+    id: formId,
+    name: '加载中',
+    desc: '',
+    children: [],
+    entry: -1,
+    startAt: null,
+    endAt: null
+  };
+  const navigate = useNavigate();
+  if (formId < 0) {
+    useEffect(() => {
+      navigate('/console/form');
+      message.error('未指定表单，请先选择目前工作表单');
+    }, []);
+    return [defaultForm, Promise.resolve(defaultForm), () => { }];
+  }
+  useEffect(() => { }, []);
   const apiPath = type === 'admin' ? '/form/detail' : '/applicant/form';
+
   const [form, loadPromise, reload] = useData<FormDetail>(apiPath,
     async (resp) => {
       const value = await resp.json();
@@ -70,16 +97,7 @@ export function useForm(formId: number, type: 'admin' | 'applicant' = 'admin'): 
       if (value.endAt) value.endAt = dayjs(value.endAt);
       return value;
     },
-    {
-      owner: -1,
-      id: formId,
-      name: '加载中',
-      desc: '',
-      children: [],
-      entry: -1,
-      startAt: null,
-      endAt: null
-    },
+    defaultForm,
     { id: formId }, [formId]);
   return [form, loadPromise, reload];
 }

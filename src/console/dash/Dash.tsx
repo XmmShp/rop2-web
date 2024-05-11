@@ -15,7 +15,7 @@ export default function Dash() {
   else greeting = '晚上好';
 
   const nickname = useNickname();
-  const [{ org: { name: orgName } }] = useOrg(false);
+  const [{ org: { name: orgName } }] = useOrg();
   return (<Flex vertical gap='small'>
     <Card>
       <Typography.Text className='welcome'>{greeting}，{nickname}</Typography.Text>

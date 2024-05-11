@@ -1,39 +1,27 @@
-import { Avatar, Dropdown, Flex, GetProp, Grid, Layout, Menu } from 'antd';
-import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { mapRecur, singleMatch, toArray, useNickname, without } from '../../utils';
-import { useState } from 'react';
+import { Avatar, Dropdown, Flex, GetProp, Layout, Menu } from 'antd';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { singleMatch, useNickname } from '../../utils';
 import './ConsoleLayout.scss';
 import { logout } from '../../api/auth';
-import { useOrg } from './useOrg';
+import { OrgContext, useOrgProvider } from './useOrg';
 
-export default function ConsoleLayout({ routes }: { routes: GetProp<typeof Menu, 'items'> }) {
-  const { pathname } = useLocation();//react-router会自动去除basename部分
+export default function ConsoleLayout({ routes }: { routes: (GetProp<typeof Menu, 'items'>[number] & { key: string })[] }) {
+  routes = routes.map(v => { return { ...v, key: v.key.replace(/\/:\w+\??$/, '') } });
+  const { pathname } = useLocation(); //react-router会自动去除basename部分
+  const sub = singleMatch(pathname, /\/console\/(.+)/) ?? '';
   const navigate = useNavigate();
-  const sub = singleMatch(pathname, /^\/console\/(\w+(\/\w+)*)(?!\/)\/?/);
-  const { lg = false } = Grid.useBreakpoint();
-  const [collapsed, setCollapsed] = useState(!lg);
-  const topSub = toArray(singleMatch(sub ?? '', /^(\w+)/));
-  const [openKeys, setOpenKeys] = useState<string[]>(topSub);
   const nickname = useNickname();
-  //TODO: 根据useDeparts选择性渲染
-  const [{ org: { useDeparts } }] = useOrg(true);
+  const orgDataTuple = useOrgProvider(); //TODO: 根据useDeparts选择性渲染
+  const [{ org: { useDeparts } }] = orgDataTuple;
 
-  if (!sub) return <Navigate to='dash' />;
   return (<Layout className='layout'>
     <Layout.Sider theme='light' className='sider'
       collapsible
-      collapsed={collapsed}
-      onCollapse={(col) => {
-        if (!col) setOpenKeys([singleMatch(sub ?? '', /^(\w+)/)!]);
-        setCollapsed(col);
-      }}
-    >
-      <Menu className='menu'
-        selectedKeys={[sub, ...topSub]} mode='inline'
-        openKeys={collapsed ? undefined : openKeys}
-        onOpenChange={(keys) => setOpenKeys(keys)}
+      defaultCollapsed={window.innerWidth < 992}>
+      <Menu className='menu' mode='inline'
+        selectedKeys={[routes.find(r => sub.startsWith(r.key))?.key ?? '__default']}
         onClick={(info) => navigate(info.key)}
-        items={mapRecur(routes as any, 'children', (o) => without(o as any, ['lazy', 'path', 'element'])) as any} />
+        items={routes} />
     </Layout.Sider>
 
     <Layout.Content className='main'>
@@ -56,7 +44,9 @@ export default function ConsoleLayout({ routes }: { routes: GetProp<typeof Menu,
         </Dropdown>
       </Flex>
       <div className='content'>
-        <Outlet />
+        <OrgContext.Provider value={orgDataTuple}>
+          <Outlet />
+        </OrgContext.Provider>
       </div>
     </Layout.Content>
   </Layout>);

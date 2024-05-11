@@ -1,5 +1,5 @@
 import { createRef, forwardRef, useMemo, useRef, useState } from 'react';
-import { delay, moveElement, newUniqueLabel, num, period } from '../../utils';
+import { delay, moveElement, newUniqueLabel } from '../../utils';
 import { Button, Collapse, DatePicker, Flex, Grid, Tabs, Tooltip, Typography } from 'antd';
 import './FormEdit.scss';
 import { QuestionGroup } from '../shared/useForm';
@@ -10,10 +10,9 @@ import { message } from '../../App';
 import { showModal } from '../../shared/LightComponent';
 import dayjs from 'dayjs';
 import { useForm } from '../shared/useForm';
-import { kvGet } from '../../store/kvCache';
 
 export default function FormEdit() {
-  const [form, , reload] = useForm(useMemo(() => num(kvGet('form'), -1), [period(15)]));
+  const [form, , reload] = useForm('admin');
   const pageRef = useRef<HTMLDivElement>(null);
   const groups = form.children;
   const [curGroupIndex, setCurGroupIndex] = useState(-1);
