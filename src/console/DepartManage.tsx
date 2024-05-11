@@ -7,7 +7,8 @@ import { addDepart, deleteDepart, renameDepart } from '../api/depart';
 import { useOrg } from './shared/useOrg';
 
 export default function DepartManage() {
-  const [{ org, departs }, loadPromise, reload] = useOrg();
+  const [orgInfo, loadPromise, reload] = useOrg();
+  const { org, departs } = orgInfo;
   //考虑到部门数据不多，不做分批查询/翻页
   return (<Card>
     <Flex vertical gap='small'>
@@ -36,7 +37,7 @@ export default function DepartManage() {
                   return;
                 }
                 message.success('新建成功');
-                reload();
+                reload(orgInfo);
               },
             });
           }}>新增</Button>
@@ -93,7 +94,7 @@ export default function DepartManage() {
                         return;
                       }
                       message.success('重命名成功');
-                      reload();
+                      reload(orgInfo);
                     }
                   });
                 }}>重命名</Button>
@@ -113,7 +114,7 @@ export default function DepartManage() {
                       return;
                     }
                     message.success('删除成功');
-                    reload();
+                    reload(orgInfo);
                   }
                 })}>删除</Button>
             </Space>);
