@@ -1,17 +1,17 @@
 import { useParams } from 'react-router-dom';
 import { num } from '../utils';
-import { getForm } from '../store';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import './ApplyForm.scss';
 import { Button, Card, Divider, Flex, Result, Typography } from 'antd';
 import FormQuestion from '../shared/FormQuestion';
-import { departs } from '../mockData';
 import { useForm } from '../console/shared/useForm';
+import { useData } from '../api/useData';
+import { Depart } from '../console/shared/useOrg';
 
 export default function ApplyForm() {
-  const params = useParams();
   let { formId } = useParams(); //react-router捕获到的id
   const [form] = useForm(num(formId), 'applicant');
+  const [departs] = useData<Depart[]>('/applicant/org', async (resp) => await resp.json(), []);
   const [completed, setCompleted] = useState(false);
   return (<Flex justify='center'
     className='apply'>
@@ -30,7 +30,6 @@ export default function ApplyForm() {
               className='group'>
               <Divider className='divider' orientation='center'>{label}</Divider>
               {children.map(ques => (<FormQuestion key={ques.id} question={ques}
-                //TODO:报名页正确获取departs
                 departs={departs} />))}
             </Flex>))}
           </Flex>

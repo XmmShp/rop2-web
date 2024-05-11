@@ -2,7 +2,7 @@ import { createRef, forwardRef, useMemo, useRef, useState } from 'react';
 import { delay, moveElement, newUniqueLabel, num, period } from '../../utils';
 import { Button, Collapse, DatePicker, Flex, Grid, Tabs, Tooltip, Typography } from 'antd';
 import './FormEdit.scss';
-import { QuestionGroup } from '../../api/models/form';
+import { QuestionGroup } from '../shared/useForm';
 import { DescEditor, PreviewWithEditor } from './PreviewWithEditor';
 import { ArrowRightOutlined, DeleteOutlined, LoginOutlined, PlusOutlined } from '@ant-design/icons';
 import QuestionGroupSelect from './QuestionGroupSelect';

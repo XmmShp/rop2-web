@@ -3,7 +3,7 @@ import { Flex, Typography, Button, Table, Space, Card } from 'antd';
 import { delay } from '../../utils';
 import { useState } from 'react';
 import Search from '../shared/Search';
-import { kvSet } from "../../store/kvCache";
+import { kvSet } from '../../store/kvCache';
 import { showModal, TempInput } from '../../shared/LightComponent';
 import { message } from '../../App';
 import { useNavigate } from 'react-router-dom';
@@ -48,7 +48,7 @@ export default function FormOverview() {
                   message.error(errMsg);
                   return;
                 }
-                message.success("新建成功");
+                message.success('新建成功');
                 reload();
               },
             });
@@ -99,7 +99,7 @@ export default function FormOverview() {
                 async onConfirm() {
                   //TODO
                   await delay(500);
-                  message.success("删除成功");
+                  message.success('删除成功');
                   reload();
                 }
               })}>删除</Button>

@@ -29,7 +29,7 @@ export default function ConsoleLayout({ routes }: { routes: GetProp<typeof Menu,
       }}
     >
       <Menu className='menu'
-        selectedKeys={[sub, ...topSub]} mode="inline"
+        selectedKeys={[sub, ...topSub]} mode='inline'
         openKeys={collapsed ? undefined : openKeys}
         onOpenChange={(keys) => setOpenKeys(keys)}
         onClick={(info) => navigate(info.key)}

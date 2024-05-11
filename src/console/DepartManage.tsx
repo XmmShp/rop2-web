@@ -35,7 +35,7 @@ export default function DepartManage() {
                   message.error(errMsg);
                   return;
                 }
-                message.success("新建成功");
+                message.success('新建成功');
                 reload();
               },
             });
@@ -92,7 +92,7 @@ export default function DepartManage() {
                         message.error(errMsg);
                         return;
                       }
-                      message.success("重命名成功");
+                      message.success('重命名成功');
                       reload();
                     }
                   });
@@ -112,7 +112,7 @@ export default function DepartManage() {
                       message.error(errMsg);
                       return;
                     }
-                    message.success("删除成功");
+                    message.success('删除成功');
                     reload();
                   }
                 })}>删除</Button>

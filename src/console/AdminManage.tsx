@@ -1,7 +1,7 @@
-import { PlusOutlined } from "@ant-design/icons";
-import { Flex, Typography, Button, Table, Space, Card } from "antd";
-import Search from "./shared/Search";
-import { useState } from "react";
+import { PlusOutlined } from '@ant-design/icons';
+import { Flex, Typography, Button, Table, Space, Card } from 'antd';
+import Search from './shared/Search';
+import { useState } from 'react';
 
 export default function AdminManage() {
   //TODO 获取API数据

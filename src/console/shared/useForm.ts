@@ -1,6 +1,52 @@
 import dayjs, { Dayjs } from 'dayjs';
-import { QuestionGroup } from '../../api/models/form';
 import { useData } from '../../api/useData';
+import { Id } from '../../api/models/shared';
+
+type QuestionType = 'name' | 'zjuid' | 'phone' | 'choice-depart' | 'text' | 'choice';
+interface Question {
+  id: Id;
+  type: QuestionType;
+  /**是否可选，为空默认必填 */
+  optional?: boolean;
+}
+export interface NameQuestion extends Question { type: 'name'; }
+export interface ZJUIdQuestion extends Question { type: 'zjuid'; }
+export interface PhoneQuestion extends Question { type: 'phone'; }
+export interface ChoiceDepartQuestion extends Question {
+  type: 'choice-depart';
+  optional?: false;
+  /**最多选择项数 */
+  maxSelection: number;
+  choices: {
+    //选择对应id揭示的问题组
+    [departId: Id]: Id | null | undefined;
+  };
+}
+export type BuiltinQuestion = NameQuestion | ZJUIdQuestion | PhoneQuestion | ChoiceDepartQuestion;
+export interface CustomQuestion extends Question {
+  title: string;
+  desc?: string;
+}
+export interface TextQuestion extends CustomQuestion {
+  type: 'text';
+  /**答题时输入框最多拓展到的行数，为空默认为1 */
+  maxLine?: number;
+}
+export interface ChoiceQuestion extends CustomQuestion {
+  type: 'choice';
+  /**最多选择项数，为空则可全选 */
+  maxSelection?: number;
+  choices: {
+    [label: string]: Id | null;
+  };
+}
+export type ValidQuestion = BuiltinQuestion | TextQuestion | ChoiceQuestion;
+export interface QuestionGroup {
+  id: Id;
+  label: string;
+  children: ValidQuestion[];
+  next?: Id;
+}
 
 export type FormDetail = {
   owner: number;

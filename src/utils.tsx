@@ -1,7 +1,5 @@
 import { useLayoutEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Id } from './api/models/shared';
-import { kvGet, kvSet } from "./store/kvCache";
+import { kvGet, kvSet } from './store/kvCache';
 
 export function mapRecur<
   K extends string,
@@ -89,7 +87,7 @@ export function num(...from: (string | undefined | null | number)[]): number {
     //TODO: 改用Number.isSafeInteger?
     if (isFinite(r)) return r;
   }
-  throw new Error("数字转换失败");
+  throw new Error('数字转换失败');
   // return 0;
 }
 

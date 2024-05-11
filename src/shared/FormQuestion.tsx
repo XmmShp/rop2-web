@@ -1,5 +1,5 @@
 import { Flex, Input, Select, Typography } from 'antd';
-import { ValidQuestion } from '../api/models/form';
+import { ValidQuestion } from '../console/shared/useForm';
 import './FormQuestion.scss';
 import { Depart } from '../console/shared/useOrg';
 
