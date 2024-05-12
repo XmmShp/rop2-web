@@ -3,8 +3,8 @@ import { ValidQuestion } from '../console/shared/useForm';
 import './FormQuestion.scss';
 import { Depart } from '../console/shared/useOrg';
 
-export default function FormQuestion({ question, departs = [] }
-  : { question: ValidQuestion, departs?: Depart[] }) {
+export default function FormQuestion({ value, question, departs = [], onRevealChange }
+  : { value?: string | string[], question: ValidQuestion, departs?: Depart[], onRevealChange?: (revealGroups: number[]) => void }) {
   return (<Flex className='question' vertical gap='small'>
     {(() => {
       switch (question.type) {
@@ -39,6 +39,8 @@ export default function FormQuestion({ question, departs = [] }
               </Typography.Text>
               <Select placeholder={`最多选择 ${maxCount} 项`}
                 mode='multiple'
+                value={value as string[]}
+                onChange={(v: string[]) => onRevealChange?.(v.map(v => question.choices[v]).filter((v) => typeof v === 'number'))}
                 options={entries.map(([id, reveal]) => {
                   return {
                     value: id,
@@ -60,9 +62,9 @@ export default function FormQuestion({ question, departs = [] }
             {(() => {
               const { maxLine } = question;
               if (!maxLine || maxLine <= 1)
-                return <Input required={!question.optional} />;
+                return <Input value={value} required={!question.optional} />;
               else
-                return <Input.TextArea required={!question.optional}
+                return <Input.TextArea value={value} required={!question.optional}
                   autoSize={{ minRows: 2, maxRows: maxLine }} />;
             })()}
           </>);
@@ -82,6 +84,8 @@ export default function FormQuestion({ question, departs = [] }
                 </Typography.Text>
               </Flex>
               <Select className='select' placeholder={allowMultiple ? `最多选择 ${maxCount} 项` : '选择 1 项'}
+                value={value as string[]}
+                onChange={(v: string[]) => onRevealChange?.(v.map(v => question.choices[v]).filter((v) => typeof v === 'number'))}
                 mode={allowMultiple ? 'multiple' : undefined}
                 maxCount={allowMultiple ? maxCount : undefined}
                 options={options.map(([label, reveal]) => {
@@ -91,7 +95,7 @@ export default function FormQuestion({ question, departs = [] }
             </>);
           }
         default:
-          return (<>此问题暂时无法显示 {JSON.stringify(question)}</>);
+          return (<>此问题暂时无法显示<br />{JSON.stringify(question)}</>);
       }
     })()}
   </Flex>);

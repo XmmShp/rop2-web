@@ -24,7 +24,7 @@ export interface ChoiceDepartQuestion extends Question {
   maxSelection: number;
   choices: {
     //选择对应id揭示的问题组
-    [departId: Id]: Id | null | undefined;
+    [departId: string]: Id | null | undefined;
   };
 }
 export type BuiltinQuestion = ChoiceDepartQuestion;
@@ -90,6 +90,11 @@ export function useForm(type: 'admin' | 'applicant' = 'admin'): DataTuple<FormDe
 
   const [form, loadPromise, reload] = useData<FormDetail>(apiPath,
     async (resp) => {
+      if (resp.status == 404) {
+        navigate('/console/form');
+        message.error('表单不存在');
+        return defaultForm;
+      }
       const value = await resp.json();
       value.children = JSON.parse(value.children);
       if (value.startAt) value.startAt = dayjs(value.startAt);

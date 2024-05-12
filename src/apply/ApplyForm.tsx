@@ -6,10 +6,15 @@ import { useForm } from '../console/shared/useForm';
 import { useData } from '../api/useData';
 import { Depart } from '../console/shared/useOrg';
 
+
 export default function ApplyForm() {
   const [form] = useForm('applicant');
-  const [departs] = useData<Depart[]>('/applicant/org', async (resp) => await resp.json(), []);
+  const [departs] = useData<Depart[]>('/applicant/org', async (resp) => await resp.json(), [], { id: form.owner }, [form.owner], form.owner > 0);
   const [completed, setCompleted] = useState(false);
+
+
+  // const [revealGroups, setRevealGroups] = useState<RevealPaths>({ [0]:  [1] });
+  // useEffect(() => setRevealGroups(joinRevealGroups(form.children, [], [1])), [form.children]);
   return (<Flex justify='center'
     className='apply'>
     <Card className='card'>
@@ -23,10 +28,13 @@ export default function ApplyForm() {
           </Typography.Text>
           <Flex vertical >
             {form.children.map(({ children, label }) =>
+            // {form.children.filter((group) => revealGroups.some(r => r === group.id)).map(({ children, label }) =>
             (<Flex key={label} vertical gap='middle'
               className='group'>
               <Divider className='divider' orientation='center'>{label}</Divider>
               {children.map(ques => (<FormQuestion key={ques.id} question={ques}
+                //TODO 计算新的reveal结果
+                // onRevealChange={(newReveal) => setRevealGroups(joinRevealGroups(form.children, revealGroups, newReveal))}
                 departs={departs} />))}
             </Flex>))}
           </Flex>

@@ -16,11 +16,16 @@ export function useData<T>(
   initialState: T | (() => T),
   params: Record<string, any> = {},
   deps: React.DependencyList = [],
+  condition = true
 ): DataTuple<T> {
   const [data, setData] = useState<T>(initialState);
   const [loadPromise, setLoadPromise] = useState<Promise<T> | null>(null);
   const [forceReloadTimes, setForceReloadTimes] = useState(0);
   useEffect(() => {
+    if (!condition) {
+      setLoadPromise(new Promise(() => { }));
+      return;
+    }
     const abortCtrl = new AbortController();
     const promise = new Promise<T>((rs, rj) => {
       getApi(pathname, params, { signal: abortCtrl.signal })
@@ -46,7 +51,7 @@ export function useData<T>(
     });
     setLoadPromise(promise);
     return abortCtrl.abort.bind(abortCtrl);
-  }, [forceReloadTimes, ...deps]);
+  }, [condition, forceReloadTimes, ...deps]);
   return [data, loadPromise, (newValue: T, waitUntil) => {
     setData(newValue);
     if (waitUntil)
