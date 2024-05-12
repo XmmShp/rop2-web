@@ -34,7 +34,7 @@ function QuestionEditor({ question, onChange, groups, thisGroup }:
           onChange(newObj as any);
           //把部分属性置为非空。需要后端根据问题类型获取需要的属性
         }}
-        options={[{
+        options={[/**{
           label: '姓名',
           value: 'name'
         }, {
@@ -43,26 +43,22 @@ function QuestionEditor({ question, onChange, groups, thisGroup }:
         }, {
           label: '手机号',
           value: 'phone'
-        }, {
-          label: '部门志愿选择',
-          value: 'choice-depart'
-        }, {
-          label: '文本题',
-          value: 'text'
-        }, {
-          label: '选择题',
-          value: 'choice'
-        }] satisfies {
-          label: string;
-          value: ValidQuestion['type'];
-        }[]} />
+        },*/ {
+            label: '部门志愿选择',
+            value: 'choice-depart'
+          }, {
+            label: '文本题',
+            value: 'text'
+          }, {
+            label: '选择题',
+            value: 'choice'
+          }] satisfies {
+            label: string;
+            value: ValidQuestion['type'];
+          }[]} />
     </Flex>
     {(() => {
       switch (question.type) {
-        case 'name':
-        case 'zjuid':
-        case 'phone':
-          return <></>;//内置题目，没有可编辑属性
         case 'choice-depart':
           //TODO: 根据useDeparts属性选择性启用志愿选择题
           return (<>

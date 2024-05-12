@@ -14,9 +14,9 @@ interface Question {
   /**是否可选，为空默认必填 */
   optional?: boolean;
 }
-export interface NameQuestion extends Question { type: 'name'; }
-export interface ZJUIdQuestion extends Question { type: 'zjuid'; }
-export interface PhoneQuestion extends Question { type: 'phone'; }
+// export interface NameQuestion extends Question { type: 'name'; }
+// export interface ZJUIdQuestion extends Question { type: 'zjuid'; }
+// export interface PhoneQuestion extends Question { type: 'phone'; }
 export interface ChoiceDepartQuestion extends Question {
   type: 'choice-depart';
   optional?: false;
@@ -27,7 +27,7 @@ export interface ChoiceDepartQuestion extends Question {
     [departId: Id]: Id | null | undefined;
   };
 }
-export type BuiltinQuestion = NameQuestion | ZJUIdQuestion | PhoneQuestion | ChoiceDepartQuestion;
+export type BuiltinQuestion = ChoiceDepartQuestion;
 export interface CustomQuestion extends Question {
   title: string;
   desc?: string;

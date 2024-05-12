@@ -72,8 +72,7 @@ export function num(...from: (string | undefined | null | number)[]): number {
     if (typeof f === 'number') return f;
     if (f === undefined || f === null || !f.trim()) continue;
     const r = Number(f);
-    //TODO: 改用Number.isSafeInteger?
-    if (isFinite(r)) return r;
+    if (Number.isSafeInteger(r)) return r;
   }
   throw new Error('数字转换失败');
   // return 0;

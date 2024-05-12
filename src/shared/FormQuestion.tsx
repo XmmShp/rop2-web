@@ -8,27 +8,27 @@ export default function FormQuestion({ question, departs = [] }
   return (<Flex className='question' vertical gap='small'>
     {(() => {
       switch (question.type) {
-        case 'name':
-          return (<>
-            <Typography.Text>
-              您的姓名
-            </Typography.Text>
-            <Input minLength={2} maxLength={8} required={!question.optional} />
-          </>);
-        case 'zjuid':
-          return (<>
-            <Typography.Text>
-              您的学号
-            </Typography.Text>
-            <Input minLength={6} maxLength={10} inputMode='numeric' type='number' required={!question.optional} />
-          </>);
-        case 'phone':
-          return (<>
-            <Typography.Text>
-              您的手机号
-            </Typography.Text>
-            <Input minLength={11} maxLength={11} inputMode='numeric' type='number' required={!question.optional} />
-          </>);
+        // case 'name':
+        //   return (<>
+        //     <Typography.Text>
+        //       您的姓名
+        //     </Typography.Text>
+        //     <Input minLength={2} maxLength={8} required={!question.optional} />
+        //   </>);
+        // case 'zjuid':
+        //   return (<>
+        //     <Typography.Text>
+        //       您的学号
+        //     </Typography.Text>
+        //     <Input minLength={6} maxLength={10} inputMode='numeric' type='number' required={!question.optional} />
+        //   </>);
+        // case 'phone':
+        //   return (<>
+        //     <Typography.Text>
+        //       您的手机号
+        //     </Typography.Text>
+        //     <Input minLength={11} maxLength={11} inputMode='numeric' type='number' required={!question.optional} />
+        //   </>);
         case 'choice-depart':
           {
             const entries = Object.entries(question.choices).filter(([, reveal]) => reveal !== undefined);

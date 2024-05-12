@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useId, useState } from 'react';
+import { createContext, useContext } from 'react';
 import { DataTuple, useData } from '../../api/useData';
 
 export type Depart = {

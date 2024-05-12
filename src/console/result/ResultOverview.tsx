@@ -160,7 +160,6 @@ export default function ResultOverview() {
         }, {
           title: '单独操作',
           render(value, record) {
-            //TODO: 操作区按钮设计&逻辑&API
             return (<Space size={0}>
               <Button size='small' type='link'>查看简历</Button>
               <Dropdown.Button size='small' type='link'
