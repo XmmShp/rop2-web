@@ -122,8 +122,9 @@ export function useStoredState<T>(initer: T | (() => T), storeKey: string) {
   }] as const;
 }
 
-/**保证以/结尾的basename。`import.meta.env.BASE_URL`在编译时会被vite静态替换。 */
-export const basename: `${string}/` = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/` as any;
+/**保证不以/结尾的basename，如/rop2。如果直接在根目录部署，返回空字符串 */
+export const basename: string = import.meta.env.BASE_URL.replace(/\/$/, '');
+//`import.meta.env.BASE_URL`在编译时会被vite静态替换
 
 /**返回一个数，该数每经过`second`秒后自增1(需要重新调用此函数获取)。 */
 export function period(second: number) {

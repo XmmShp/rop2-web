@@ -1,10 +1,10 @@
 import { createRef, forwardRef, useMemo, useRef, useState } from 'react';
-import { delay, moveElement, newUniqueLabel } from '../../utils';
-import { Button, Collapse, DatePicker, Flex, Grid, Tabs, Tooltip, Typography } from 'antd';
+import { basename, delay, moveElement, newUniqueLabel } from '../../utils';
+import { Button, Collapse, DatePicker, Flex, FloatButton, Grid, Tabs, Tooltip, Typography } from 'antd';
 import './FormEdit.scss';
 import { QuestionGroup } from '../shared/useForm';
 import { DescEditor, PreviewWithEditor } from './PreviewWithEditor';
-import { ArrowRightOutlined, DeleteOutlined, LoginOutlined, PlusOutlined } from '@ant-design/icons';
+import { ArrowRightOutlined, DeleteOutlined, EyeOutlined, LoginOutlined, PlusOutlined } from '@ant-design/icons';
 import QuestionGroupSelect from './QuestionGroupSelect';
 import { message } from '../../App';
 import { showModal } from '../../shared/LightComponent';
@@ -23,6 +23,8 @@ export default function FormEdit() {
   const editingTitle = useRef(form.name);//由于antd的可编辑文本特性，此处使用useRef而非useState
   return (
     <Flex className='editor'>
+      <FloatButton tooltip='预览表单' type='primary' icon={<EyeOutlined />}
+        onClick={() => window.open(`${basename}/apply/${form.id}?preview=1`, '_blank')} />
       <Flex className={'anchor' + (lg ? '' : ' hidden')}>
         <Tabs tabPosition='left'
           activeKey={groups[curGroupIndex]?.id?.toString() ?? 'header'}
@@ -64,8 +66,8 @@ export default function FormEdit() {
               <Typography.Text>设置开放时间</Typography.Text>
               <DatePicker.RangePicker showTime
                 defaultValue={[form.startAt && dayjs(form.startAt), form.endAt && dayjs(form.endAt)]}
-                allowEmpty={[true, false]}
-                placeholder={['即刻起(默认)', '']}
+                allowEmpty={[true, true]}
+                placeholder={['即刻起', '长期有效']}
                 minDate={dayjs(new Date()).add(-3, 'day')}
                 maxDate={dayjs(new Date()).add(3, 'month')}
                 onChange={([start, end]) => {

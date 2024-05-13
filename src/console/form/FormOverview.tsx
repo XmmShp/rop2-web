@@ -6,14 +6,13 @@ import Search from '../shared/Search';
 import { kvSet } from '../../store/kvCache';
 import { showModal, TempInput } from '../../shared/LightComponent';
 import { message } from '../../App';
-import { useNavigate } from 'react-router-dom';
 import { useData } from '../../api/useData';
 import dayjs from 'dayjs';
 import { createForm } from '../../api/form';
 
 export default function FormOverview() {
   const [forms, loadingPromise, reload] = useData<{
-    id: string;
+    id: number;
     name: string;
     startAt?: string;
     endAt?: string;
@@ -21,7 +20,6 @@ export default function FormOverview() {
     // updateAt: string;//not used yet
   }[]>('/form/list', async (resp) => resp.json(), []);
   const [searchValue, setSearchValue] = useState('');
-  const navigate = useNavigate();
   return (<Card>
     <Flex vertical gap='small'>
       <Typography.Text>
@@ -75,19 +73,27 @@ export default function FormOverview() {
       }, {
         title: '操作',
         render(value, record, index) {
-          const formId = record.id.toString();
+          const formId = record.id;
+          function setActiveForm(formId: number) { kvSet('form', formId.toString()); }
           return (<Space size={0}>
             <Button size='small' type='link'
-              onClick={() => {
-                kvSet('form', formId);
-                navigate(`/console/form/edit/${formId}`);
-              }} >编辑</Button>
+              onClick={() => { setActiveForm(formId); }}
+              href={`/console/form/edit/${formId}`} >
+              编辑
+            </Button>
             <Button size='small' type='link'
-              onClick={() => {
-                kvSet('form', formId);
-                navigate(`/console/result/${formId}`);
-              }} >结果</Button>
-            <Button size='small' type='link'>复制</Button>
+              onClick={() => { setActiveForm(formId); }}
+              href={`/console/result/${formId}`} >
+              结果
+            </Button>
+            <Button size='small' type='link'
+              onClick={() => { setActiveForm(formId); }}
+              href={`/apply/${formId}?preview=1`} target='_blank'>
+              预览
+            </Button>
+            <Button size='small' type='link'
+              onClick={() => {/**TODO: 复制表单 */ }}
+            >复制</Button>
             <Button size='small' danger type='link'
               onClick={() => showModal({
                 title: '删除表单',
@@ -98,7 +104,7 @@ export default function FormOverview() {
                 </Typography.Text></Flex>),
                 okButtonProps: { danger: true },
                 async onConfirm() {
-                  //TODO
+                  //TODO 删除表单API
                   await delay(500);
                   message.success('删除成功');
                   reload(forms);
@@ -114,7 +120,7 @@ export default function FormOverview() {
           showSizeChanger: true,
           showQuickJumper: true
         }} expandable={{
-          rowExpandable(record) { return false },
+          rowExpandable() { return false },
           expandIcon() { return <></> }
         }} />
     </Flex >
