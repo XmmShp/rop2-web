@@ -1,6 +1,6 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { Flex, Typography, Button, Table, Space, Card } from 'antd';
-import { delay } from '../../utils';
+import { basename, delay } from '../../utils';
 import { useState } from 'react';
 import Search from '../shared/Search';
 import { kvSet } from '../../store/kvCache';
@@ -75,20 +75,21 @@ export default function FormOverview() {
         render(value, record, index) {
           const formId = record.id;
           function setActiveForm(formId: number) { kvSet('form', formId.toString()); }
+          //注：这里的href是antd的属性，与react-router无关，不会自动处理basename
           return (<Space size={0}>
             <Button size='small' type='link'
               onClick={() => { setActiveForm(formId); }}
-              href={`/console/form/edit/${formId}`} >
+              href={`${basename}/console/form/edit/${formId}`} >
               编辑
             </Button>
             <Button size='small' type='link'
               onClick={() => { setActiveForm(formId); }}
-              href={`/console/result/${formId}`} >
+              href={`${basename}/console/result/${formId}`} >
               结果
             </Button>
             <Button size='small' type='link'
               onClick={() => { setActiveForm(formId); }}
-              href={`/apply/${formId}?preview=1`} target='_blank'>
+              href={`${basename}/apply/${formId}?preview=1`} target='_blank'>
               预览
             </Button>
             <Button size='small' type='link'

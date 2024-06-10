@@ -105,6 +105,8 @@ const router = createBrowserRouter([{
     }
   ]
 }], {
+  //给react-router提供basename
+  //影响react-router组件，antd的href要手动加上basename
   basename
 });
 
