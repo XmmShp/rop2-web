@@ -1,5 +1,5 @@
 import { createRef, forwardRef, useMemo, useRef, useState } from 'react';
-import { basename, delay, moveElement, newUniqueLabel } from '../../utils';
+import { basename, moveElement, newUniqueLabel } from '../../utils';
 import { Button, Collapse, DatePicker, Flex, FloatButton, Grid, Tabs, Tooltip, Typography } from 'antd';
 import './FormEdit.scss';
 import { QuestionGroup } from '../shared/useForm';
@@ -13,7 +13,7 @@ import { useForm } from '../shared/useForm';
 import { editForm } from '../../api/form';
 
 export default function FormEdit() {
-  const [form, , reload] = useForm('admin');
+  const [form, , reloadForm] = useForm('admin');
   const pageRef = useRef<HTMLDivElement>(null);
   const groups = form.children;
   const [curGroupIndex, setCurGroupIndex] = useState(-1);
@@ -65,7 +65,7 @@ export default function FormEdit() {
             <Flex vertical>
               <Typography.Text>设置开放时间</Typography.Text>
               <DatePicker.RangePicker showTime
-                defaultValue={[form.startAt && dayjs(form.startAt), form.endAt && dayjs(form.endAt)]}
+                value={[form.startAt && dayjs(form.startAt), form.endAt && dayjs(form.endAt)]}
                 allowEmpty={[true, true]}
                 placeholder={['即刻起', '长期有效']}
                 minDate={dayjs(new Date()).add(-3, 'day')}
@@ -81,7 +81,7 @@ export default function FormEdit() {
             async onEnd() {
               const newForm = { ...form, name: editingTitle.current };
               const prom = editForm(form.id, { name: editingTitle.current });
-              reload(newForm, prom);
+              reloadForm(newForm, prom);
               await prom;
               message.success('标题已保存');
             }
@@ -89,7 +89,7 @@ export default function FormEdit() {
           <DescEditor desc={form.desc} onConfirm={async (newDesc) => {
             const newForm = { ...form, desc: newDesc };
             const prom = editForm(form.id, { desc: newDesc });
-            reload(newForm, prom);
+            reloadForm(newForm, prom);
             await prom;
             message.success('简介已保存');
           }} />
@@ -101,7 +101,7 @@ export default function FormEdit() {
               const newChildren = groups.with(index, newObj);
               const newForm = { ...form, children: newChildren };
               const prom = editForm(form.id, { children: JSON.stringify(newChildren) });
-              reload(newForm, prom);
+              reloadForm(newForm, prom);
               await prom;
               message.success('修改已保存');
             }}
@@ -118,7 +118,7 @@ export default function FormEdit() {
                 const newChildren = groups.toSpliced(index, 1);
                 const newForm = { ...form, children: newChildren };
                 const prom = editForm(form.id, { children: JSON.stringify(newChildren) });
-                reload(newForm, prom);
+                reloadForm(newForm, prom);
                 await prom;
                 message.success('修改已保存');
               }
@@ -138,7 +138,7 @@ export default function FormEdit() {
               const newChildren = [...groups, newGroup];
               const newForm = { ...form, children: newChildren };
               const prom = editForm(form.id, { children: JSON.stringify(newChildren) });
-              reload(newForm, prom);
+              reloadForm(newForm, prom);
               await prom;
               message.success('修改已保存');
             }}>新增题目组</Button>

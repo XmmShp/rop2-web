@@ -1,10 +1,13 @@
 import { Flex, Input, Select, Typography } from 'antd';
-import { ValidQuestion } from '../console/shared/useForm';
+import { ChoiceDepartQuestion, ValidQuestion } from '../console/shared/useForm';
 import './FormQuestion.scss';
 import { Depart } from '../console/shared/useOrg';
 
-export default function FormQuestion({ value, question, departs = [], onRevealChange }
-  : { value?: string | string[], question: ValidQuestion, departs?: Depart[], onRevealChange?: (revealGroups: number[]) => void }) {
+export type ValueOf<Q extends ValidQuestion> = Q extends { choices: Record<infer K extends string, any> } ? K[] : string;
+export default function FormQuestion<Q extends ValidQuestion>({ value, question, departs = [], onChange }
+  : {
+    value?: ValueOf<Q>, question: Q, departs?: Depart[], onChange?: (value: ValueOf<Q>) => void
+  }) {
   return (<Flex className='question' vertical gap='small'>
     {(() => {
       switch (question.type) {
@@ -39,8 +42,8 @@ export default function FormQuestion({ value, question, departs = [], onRevealCh
               </Typography.Text>
               <Select placeholder={`最多选择 ${maxCount} 项`}
                 mode='multiple'
-                value={value as string[]}
-                onChange={(v: string[]) => onRevealChange?.(v.map(v => question.choices[v]).filter((v) => typeof v === 'number'))}
+                value={value as ValueOf<ChoiceDepartQuestion>}
+                onChange={(v: string[]) => { onChange?.(v as ValueOf<Q>); }}
                 options={entries.map(([id, reveal]) => {
                   return {
                     value: id,
@@ -62,9 +65,13 @@ export default function FormQuestion({ value, question, departs = [], onRevealCh
             {(() => {
               const { maxLine } = question;
               if (!maxLine || maxLine <= 1)
-                return <Input value={value} required={!question.optional} />;
+                return <Input
+                  onInput={({ currentTarget: { value } }) => onChange?.(value as ValueOf<Q>)}
+                  value={value} required={!question.optional} />;
               else
-                return <Input.TextArea value={value} required={!question.optional}
+                return <Input.TextArea
+                  onInput={({ currentTarget: { value } }) => onChange?.(value as ValueOf<Q>)}
+                  value={value} required={!question.optional}
                   autoSize={{ minRows: 2, maxRows: maxLine }} />;
             })()}
           </>);
@@ -85,7 +92,7 @@ export default function FormQuestion({ value, question, departs = [], onRevealCh
               </Flex>
               <Select className='select' placeholder={allowMultiple ? `最多选择 ${maxCount} 项` : '选择 1 项'}
                 value={value as string[]}
-                onChange={(v: string[]) => onRevealChange?.(v.map(v => question.choices[v]).filter((v) => typeof v === 'number'))}
+                onChange={(v: string[]) => onChange?.(v as ValueOf<Q>)}
                 mode={allowMultiple ? 'multiple' : undefined}
                 maxCount={allowMultiple ? maxCount : undefined}
                 options={options.map(([label, reveal]) => {

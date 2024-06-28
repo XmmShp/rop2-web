@@ -72,7 +72,7 @@ export function useForm(type: 'admin' | 'applicant' = 'admin'): DataTuple<FormDe
     id: formId,
     name: '加载中',
     desc: '',
-    children: [],
+    children: [{ id: 1, label: 'loading', children: [] } satisfies QuestionGroup],
     startAt: null,
     endAt: null
   };

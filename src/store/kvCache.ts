@@ -3,7 +3,7 @@
 
 /**生成项目特定的localStorage key，防止冲突 */
 const scopedKeyRegex = /^rop2:.+$/;
-function scopedKey(from: string): string {
+function scopedKey<S extends string>(from: S): `rop2:${S}` {
   return `rop2:${from}`;
 }
 

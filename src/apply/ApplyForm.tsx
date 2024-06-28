@@ -1,12 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './ApplyForm.scss';
 import { Button, Card, Divider, Flex, Result, Typography } from 'antd';
-import FormQuestion from '../shared/FormQuestion';
+import FormQuestion, { ValueOf } from '../shared/FormQuestion';
 import { useForm } from '../console/shared/useForm';
 import { useData } from '../api/useData';
 import { Depart } from '../console/shared/useOrg';
 import { useSearchParams } from 'react-router-dom';
-
 
 export default function ApplyForm() {
   const [searchParams] = useSearchParams();
@@ -16,10 +15,47 @@ export default function ApplyForm() {
   const [form] = useForm(isPreview ? 'admin' : 'applicant');
   const [departs] = useData<Depart[]>('/applicant/org', async (resp) => await resp.json(), [], { id: form.owner }, [form.owner], form.owner > 0);
   const [completed, setCompleted] = useState(false);
+  type AnswerMap = {
+    [questionId: string]: unknown;
+  };
+  const [answer, setAnswer] = useState<AnswerMap>({});
+  useEffect(() => {
+    if ('message' in form.children) return;
+    const v: AnswerMap = {};
+    form.children.forEach(
+      group => group.children.forEach(q => v[q.id] = ('choices' in q) ? [] : ''));
+    setAnswer(v);
+    calcRevealGroups(v);
+  }, [form.children]);
+  const [revealGroups, setRevealGroups] = useState<string[]>([]);
+  function calcRevealGroups(newAnswer: AnswerMap) {
+    const knwonGroups = new Set<string>();
+    const calcQueue = ['1'];
+    const revealGroupsSet = new Set<string>();
+    let curGroup: string | undefined;
+    while (curGroup = calcQueue.shift()) {
+      if (knwonGroups.has(curGroup)) continue;
+      knwonGroups.add(curGroup);
+      revealGroupsSet.add(curGroup);
+      const curGroupInst = form.children.find(g => g.id.toString() === curGroup);
+      if (!curGroupInst)
+        throw new Error(`Unable to find group by id ${curGroup}`);
+      curGroupInst.children.forEach(ques => {
+        if ('choices' in ques) {
+          const selectedOptions = newAnswer[ques.id] as string[];
+          selectedOptions?.forEach(o => {
+            const nextGroupId = ques.choices[o];
+            if (nextGroupId)
+              calcQueue.push(nextGroupId.toString());
+          });
+        }
+      });
+      if (curGroupInst.next)
+        calcQueue.push(curGroupInst.next.toString());
+    }
+    setRevealGroups([...revealGroupsSet]);
+  }
 
-  //TODO reveal机制(用有向图？)
-  // const [revealGroups, setRevealGroups] = useState<RevealPaths>({ [0]:  [1] });
-  // useEffect(() => setRevealGroups(joinRevealGroups(form.children, [], [1])), [form.children]);
   return (<Flex justify='center'
     className='apply'>
     <Card className='card'>
@@ -37,15 +73,25 @@ export default function ApplyForm() {
               {form.desc}
             </Typography.Text>
             <Flex vertical >
-              {form.children.map(({ children, label }) =>
-              // {form.children.filter((group) => revealGroups.some(r => r === group.id)).map(({ children, label }) =>
-              (<Flex key={label} vertical gap='middle'
-                className='group'>
-                <Divider className='divider' orientation='center'>{label}</Divider>
-                {children.map(ques => (<FormQuestion key={ques.id} question={ques}
-                  // onRevealChange={(newReveal) => setRevealGroups(joinRevealGroups(form.children, revealGroups, newReveal))}
-                  departs={departs} />))}
-              </Flex>))}
+              {revealGroups.map((revealId) => {
+                const findResult = form.children.find((group) => group.id.toString() === revealId);
+                if (!findResult) throw new Error(`Unable to find group by id ${revealId}`);
+                const { children, label } = findResult;
+                // {form.children.filter((group) => revealGroups.some(r => r === group.id)).map(({ children, label }) =>
+                return (<Flex key={label} vertical gap='middle'
+                  className='group'>
+                  <Divider className='divider' orientation='center'>{label}</Divider>
+                  {children.map(ques => (<FormQuestion key={ques.id} question={ques}
+                    value={answer[ques.id] as ValueOf<typeof ques>}
+                    onChange={(v) => {
+                      const newAnswer = { ...answer, [ques.id]: v };
+                      setAnswer(newAnswer);
+                      if (ques.type === 'choice' || ques.type === 'choice-depart')
+                        calcRevealGroups(newAnswer);
+                    }}
+                    departs={departs} />))}
+                </Flex>)
+              })}
             </Flex>
 
             <Button type='primary'
