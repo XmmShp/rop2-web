@@ -16,7 +16,7 @@ export function useData<T>(
   initialState: T | (() => T),
   params: Record<string, any> = {},
   deps: React.DependencyList = [],
-  condition = true
+  condition = true, //对于有顺序的请求，可以等待前一个请求完成(condition为false时不发送本请求)
 ): DataTuple<T> {
   const [data, setData] = useState<T>(initialState);
   const [loadPromise, setLoadPromise] = useState<Promise<T> | null>(null);
