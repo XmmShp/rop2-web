@@ -15,13 +15,21 @@ export default function ApplyForm() {
   const isPreview = typeof searchParams.get('preview') === 'string';
 
   //管理员在预览模式下使用管理渠道获取表单详情（绕过开始&结束时间限制）
+  const [{ phone: profilePhone }, profilePromise] = useData<{ phone: string }>('/applicant/profile', async (resp) => {
+    const profile = await resp.json();
+    profile.phone ??= '';
+    return profile;
+  }, { phone: '' }, {}, []);
+  useEffect(() => {
+    if (profilePromise?.then) profilePromise.then((prof) => setPhone(prof.phone));
+  }, [profilePromise]);
   const [form] = useForm(isPreview ? 'admin' : 'applicant');
-  const [departs] = useData<Depart[]>('/applicant/org', async (resp) => await resp.json(), [], { id: form.owner }, [form.owner], form.owner > 0);
+  const [departs] = useData<Depart[]>('/applicant/org', (resp) => resp.json(), [], { id: form.owner }, [form.owner], form.owner > 0);
   const [completed, setCompleted] = useState(false);
   type AnswerMap = {
     [questionId: string]: unknown;
   };
-  const [phone, setPhone] = useState('');
+  const [phone, setPhone] = useState(profilePhone);
   const [answer, setAnswer] = useState<AnswerMap>({});
   useEffect(() => {
     if ('message' in form.children) return;
