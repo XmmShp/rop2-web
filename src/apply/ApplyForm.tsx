@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import './ApplyForm.scss';
-import { Button, Card, Divider, Flex, Result, Typography } from 'antd';
+import { Button, Card, Divider, Flex, Form, Result, Typography } from 'antd';
 import FormQuestion, { ValueOf } from '../shared/FormQuestion';
-import { useForm } from '../console/shared/useForm';
+import { QuestionGroup, useForm } from '../console/shared/useForm';
 import { useData } from '../api/useData';
 import { Depart } from '../console/shared/useOrg';
 import { useSearchParams } from 'react-router-dom';
@@ -27,19 +27,19 @@ export default function ApplyForm() {
     setAnswer(v);
     calcRevealGroups(v);
   }, [form.children]);
-  const [revealGroups, setRevealGroups] = useState<string[]>([]);
+  const [revealGroups, setRevealGroups] = useState<QuestionGroup[]>([]);
   function calcRevealGroups(newAnswer: AnswerMap) {
-    const knwonGroups = new Set<string>();
+    const knwonGroups = new Set<QuestionGroup>();
     const calcQueue = ['1'];
-    const revealGroupsSet = new Set<string>();
+    const revealGroupsSet = new Set<QuestionGroup>();
     let curGroup: string | undefined;
     while (curGroup = calcQueue.shift()) {
-      if (knwonGroups.has(curGroup)) continue;
-      knwonGroups.add(curGroup);
-      revealGroupsSet.add(curGroup);
       const curGroupInst = form.children.find(g => g.id.toString() === curGroup);
       if (!curGroupInst)
         throw new Error(`Unable to find group by id ${curGroup}`);
+      if (knwonGroups.has(curGroupInst)) continue;
+      knwonGroups.add(curGroupInst);
+      revealGroupsSet.add(curGroupInst);
       curGroupInst.children.forEach(ques => {
         if ('choices' in ques) {
           const selectedOptions = newAnswer[ques.id] as string[];
@@ -60,45 +60,47 @@ export default function ApplyForm() {
     className='apply'>
     <Card className='card'>
       {'message' in form.children
-        ? /**问卷存在异常，只显示message */ <Typography.Title level={4}>
+        ? /**问卷存在异常，只显示message */
+        <Typography.Title level={4}>
           {form.children.message as string}
         </Typography.Title>
-        : /**问卷children有效 */ (completed
-          ? /**已完成页面 */ <SuccessPage formName={form.name} />
-          : /**填表页面 */ <Flex vertical gap='large'>
+        : /**问卷children有效 */
+        (completed
+          ? /**已完成页面 */
+          <SuccessPage formName={form.name} />
+          : /**填表页面 */
+          <Flex vertical gap='large'>
             <Typography.Title level={3} className='title'>
               {form.name}
             </Typography.Title>
             <Typography.Text>
               {form.desc}
             </Typography.Text>
-            <Flex vertical >
-              {revealGroups.map((revealId) => {
-                const findResult = form.children.find((group) => group.id.toString() === revealId);
-                if (!findResult) throw new Error(`Unable to find group by id ${revealId}`);
-                const { children, label } = findResult;
-                // {form.children.filter((group) => revealGroups.some(r => r === group.id)).map(({ children, label }) =>
+            <Form layout='vertical'
+              onFinish={(v) => {
+                console.log(v);
+                setCompleted(true);
+              }}>
+              {revealGroups.map((group) => {
+                const { children, label } = group;
                 return (<Flex key={label} vertical gap='middle'
                   className='group'>
                   <Divider className='divider' orientation='center'>{label}</Divider>
-                  {children.map(ques => (<FormQuestion key={ques.id} question={ques}
-                    value={answer[ques.id] as ValueOf<typeof ques>}
-                    onChange={(v) => {
-                      const newAnswer = { ...answer, [ques.id]: v };
-                      setAnswer(newAnswer);
-                      if (ques.type === 'choice' || ques.type === 'choice-depart')
-                        calcRevealGroups(newAnswer);
-                    }}
-                    departs={departs} />))}
+                  {children.map(ques => (
+                    <FormQuestion question={ques}
+                      value={answer[ques.id] as ValueOf<typeof ques>}
+                      onChange={(v) => {
+                        const newAnswer = { ...answer, [ques.id]: v };
+                        setAnswer(newAnswer);
+                        if (ques.type === 'choice' || ques.type === 'choice-depart')
+                          calcRevealGroups(newAnswer);
+                      }}
+                      departs={departs} />
+                  ))}
                 </Flex>)
               })}
-            </Flex>
-
-            <Button type='primary'
-              onClick={() => {
-                //TODO request API
-                setCompleted(true);
-              }}>提交</Button>
+              <Button type='primary' htmlType='submit'>提交</Button>
+            </Form>
           </Flex>)
       }
     </Card>

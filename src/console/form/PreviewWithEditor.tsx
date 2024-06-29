@@ -1,5 +1,5 @@
 import { ArrowDownOutlined, ArrowUpOutlined, DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Flex, Grid, Input, InputNumber, Select, Typography } from 'antd';
+import { Button, Checkbox, Flex, Form, Grid, Input, InputNumber, Select, Typography } from 'antd';
 import { useMemo, useState } from 'react';
 import { ChoiceQuestion, CustomQuestion, QuestionGroup, ValidQuestion } from '../shared/useForm';
 import FormQuestion from '../../shared/FormQuestion';
@@ -173,26 +173,28 @@ export function PreviewWithEditor({ question, onConfirm, onDelete, groups, thisG
           </Button>
         </Flex>
       </Flex>
-      : <Flex className='pre-editor' vertical={!lg} align='center' gap='small'>
-        <Flex className='ops' vertical={lg}>
-          <Button size='small'
-            icon={<EditOutlined />} type='dashed'
-            onClick={() => setEditing(question)} />
-          <Button size='small'
-            icon={<DeleteOutlined />} type='dashed'
-            onClick={async () => {
-              await onDelete();
-              message.success('问题已删除');
-            }} />
-          {!isFirst ? <Button size='small'
-            icon={<ArrowUpOutlined />} type='dashed'
-            onClick={() => onMove(-1)} /> : <></>}
-          {!isLast ? <Button size='small'
-            icon={<ArrowDownOutlined />} type='dashed'
-            onClick={() => onMove(1)} /> : <></>}
+      : <Form layout='vertical'>
+        <Flex align='center' gap='small' className='pre-editor'>
+          <Flex className='ops' vertical={true}>
+            <Button size='small'
+              icon={<EditOutlined />} type='dashed'
+              onClick={() => setEditing(question)} />
+            <Button size='small'
+              icon={<DeleteOutlined />} type='dashed'
+              onClick={async () => {
+                await onDelete();
+                message.success('问题已删除');
+              }} />
+            {!isFirst ? <Button size='small'
+              icon={<ArrowUpOutlined />} type='dashed'
+              onClick={() => onMove(-1)} /> : <></>}
+            {!isLast ? <Button size='small'
+              icon={<ArrowDownOutlined />} type='dashed'
+              onClick={() => onMove(1)} /> : <></>}
+          </Flex>
+          <FormQuestion question={question} departs={departs} />
         </Flex>
-        <FormQuestion question={question} departs={departs} />
-      </Flex>}
+      </Form>}
   </>
 }
 
