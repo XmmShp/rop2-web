@@ -1,4 +1,4 @@
-.question {
+.question-container {
   flex-wrap: wrap;
   width: 100%;
 
@@ -7,9 +7,15 @@
     appearance: none;
   }
 
+  &.with-desc .form-item .ant-form-item-label {
+    padding: 0;
+  }
+
   .desc {
     color: var(--ant-color-text-secondary);
-    font-size: calc(.9 * var(--ant-font-size));
+    font-size: calc(.95 * var(--ant-font-size));
+    display: block;
+    padding: var(--ant-form-vertical-label-padding);
   }
 
   .select {

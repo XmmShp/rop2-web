@@ -8,6 +8,7 @@ import { Id } from '../../api/models/shared';
 import QuestionGroupSelect from './QuestionGroupSelect';
 import { message } from '../../App';
 import { useOrg } from '../shared/useOrg';
+import { DisabledContextProvider } from 'antd/es/config-provider/DisabledContext';
 
 function QuestionEditor({ question, onChange, groups, thisGroup }:
   { question: ValidQuestion, onChange: (newObj: ValidQuestion) => void, groups: QuestionGroup[], thisGroup: Id }) {
@@ -138,17 +139,18 @@ export function DescEditor({ desc, onConfirm }: { desc: string, onConfirm: (newD
   </Flex>
 }
 
-export function PreviewWithEditor({ question, onConfirm, onDelete, groups, thisGroup, onMove }: {
-  question: ValidQuestion;
-  onConfirm: (newObj: ValidQuestion) => Promise<void>;
-  onDelete: () => Promise<void>;
-  groups: QuestionGroup[];
-  thisGroup: Id;
-  onMove: (delta: number) => Promise<void>;
-}) {
+export function PreviewWithEditor(
+  { question, onConfirm, onDelete, groups, thisGroup, onMove, readOnly = false }: {
+    question: ValidQuestion;
+    onConfirm: (newObj: ValidQuestion) => Promise<void>;
+    onDelete: () => Promise<void>;
+    groups: QuestionGroup[];
+    thisGroup: Id;
+    onMove: (delta: number) => Promise<void>;
+    readOnly?: boolean
+  }) {
   const [editing, setEditing] = useState<ValidQuestion | undefined>(undefined);
   const isEditing = typeof editing === 'object';
-  const { lg = false } = Grid.useBreakpoint();
   const group = useMemo(() => groups.find(g => g.id === thisGroup)!, [groups, thisGroup]);
   const quesIndex = group.children.indexOf(question);
   const isFirst = quesIndex == 0;
@@ -176,21 +178,20 @@ export function PreviewWithEditor({ question, onConfirm, onDelete, groups, thisG
       : <Form layout='vertical'>
         <Flex align='center' gap='small' className='pre-editor'>
           <Flex className='ops' vertical={true}>
-            <Button size='small'
-              icon={<EditOutlined />} type='dashed'
-              onClick={() => setEditing(question)} />
-            <Button size='small'
-              icon={<DeleteOutlined />} type='dashed'
-              onClick={async () => {
-                await onDelete();
-                message.success('问题已删除');
-              }} />
-            {!isFirst ? <Button size='small'
-              icon={<ArrowUpOutlined />} type='dashed'
-              onClick={() => onMove(-1)} /> : <></>}
-            {!isLast ? <Button size='small'
-              icon={<ArrowDownOutlined />} type='dashed'
-              onClick={() => onMove(1)} /> : <></>}
+            <DisabledContextProvider disabled={readOnly}>
+              <Button size='small'
+                icon={<EditOutlined />} type='dashed'
+                onClick={() => setEditing(question)} />
+              <Button size='small'
+                icon={<DeleteOutlined />} type='dashed'
+                onClick={() => onDelete()} />
+              {!isFirst && !readOnly ? <Button size='small'
+                icon={<ArrowUpOutlined />} type='dashed'
+                onClick={() => onMove(-1)} /> : <></>}
+              {!isLast && !readOnly ? <Button size='small'
+                icon={<ArrowDownOutlined />} type='dashed'
+                onClick={() => onMove(1)} /> : <></>}
+            </DisabledContextProvider>
           </Flex>
           <FormQuestion question={question} departs={departs} />
         </Flex>

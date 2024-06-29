@@ -1,5 +1,5 @@
 import { createRef, forwardRef, useMemo, useRef, useState } from 'react';
-import { basename, moveElement, newUniqueLabel } from '../../utils';
+import { basename, moveElement, newUniqueLabel, throwArgs } from '../../utils';
 import { Button, Collapse, DatePicker, Flex, FloatButton, Grid, Tabs, Tooltip, Typography } from 'antd';
 import './FormEdit.scss';
 import { QuestionGroup } from '../shared/useForm';
@@ -12,6 +12,7 @@ import dayjs from 'dayjs';
 import { useForm } from '../shared/useForm';
 import { editForm } from '../../api/form';
 
+export const builtinPhoneQuestion = { type: 'text', title: '您的手机号', maxLine: 1, id: -1 } as const;
 export default function FormEdit() {
   const [form, , reloadForm] = useForm('admin');
   const pageRef = useRef<HTMLDivElement>(null);
@@ -68,11 +69,17 @@ export default function FormEdit() {
                 value={[form.startAt && dayjs(form.startAt), form.endAt && dayjs(form.endAt)]}
                 allowEmpty={[true, true]}
                 placeholder={['即刻起', '长期有效']}
-                minDate={dayjs(new Date()).add(-3, 'day')}
-                maxDate={dayjs(new Date()).add(3, 'month')}
-                onChange={([start, end]) => {
-                  //TODO formEdit API
-                  //start end为null|dayjs，可用toJSON()
+                minDate={dayjs().add(-7, 'day')}
+                maxDate={dayjs().add(3, 'month')}
+                onChange={async (value) => {
+                  const [start, end] = value ?? [];
+                  //unix时间戳<100即为设空
+                  const startAt = start ?? dayjs.unix(1);
+                  //>2048年即为设空
+                  const endAt = end ?? dayjs('2050-01-01T00:00:00.000Z');
+                  await editForm(form.id, { startAt, endAt });
+                  reloadForm({ ...form, startAt, endAt });
+                  message.success('开放时间已保存');
                 }} />
             </Flex>
           </Tooltip>
@@ -193,6 +200,15 @@ const GroupCard = forwardRef<HTMLDivElement,
           }} />
       </Flex>),
       children: (<Flex vertical gap='small'>
+        {isEntry && <PreviewWithEditor
+          readOnly //每个表单固定的手机号问题，不能编辑
+          question={builtinPhoneQuestion}
+          groups={groups}
+          thisGroup={group.id}
+          onConfirm={throwArgs}
+          onDelete={throwArgs}
+          onMove={throwArgs}
+        />}
         {questions.map((ques, index) => (
           <PreviewWithEditor key={ques.id}
             question={ques}
@@ -200,8 +216,7 @@ const GroupCard = forwardRef<HTMLDivElement,
             thisGroup={group.id}
             onConfirm={async (newObj) => await onEdit({ ...group, children: questions.with(index, newObj) })}
             onDelete={async () => await onEdit({ ...group, children: questions.toSpliced(index, 1) })}
-            onMove={async (delta) => await onEdit({ ...group, children: moveElement(questions, index, delta) })}
-          />
+            onMove={async (delta) => await onEdit({ ...group, children: moveElement(questions, index, delta) })} />
         ))}
         <Flex wrap='wrap' align='center' gap='small'>
           <Button type='primary' icon={<PlusOutlined />}

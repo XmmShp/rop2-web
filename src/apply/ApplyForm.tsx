@@ -6,6 +6,9 @@ import { QuestionGroup, useForm } from '../console/shared/useForm';
 import { useData } from '../api/useData';
 import { Depart } from '../console/shared/useOrg';
 import { useSearchParams } from 'react-router-dom';
+import { saveResult } from '../api/applicant';
+import { message } from '../App';
+import { builtinPhoneQuestion } from '../console/form/FormEdit';
 
 export default function ApplyForm() {
   const [searchParams] = useSearchParams();
@@ -18,6 +21,7 @@ export default function ApplyForm() {
   type AnswerMap = {
     [questionId: string]: unknown;
   };
+  const [phone, setPhone] = useState('');
   const [answer, setAnswer] = useState<AnswerMap>({});
   useEffect(() => {
     if ('message' in form.children) return;
@@ -55,7 +59,6 @@ export default function ApplyForm() {
     }
     setRevealGroups([...revealGroupsSet]);
   }
-
   return (<Flex justify='center'
     className='apply'>
     <Card className='card'>
@@ -77,17 +80,24 @@ export default function ApplyForm() {
               {form.desc}
             </Typography.Text>
             <Form layout='vertical'
-              onFinish={(v) => {
-                console.log(v);
-                setCompleted(true);
+              onFinish={async (v) => {
+                const { message: errMsg } = await saveResult(form.id, { phone }, answer);
+                if (errMsg)
+                  message.error(errMsg);
+                else
+                  setCompleted(true);
               }}>
               {revealGroups.map((group) => {
-                const { children, label } = group;
+                const { children, label, id: groupId } = group;
+                const isEntry = groupId === 1;
                 return (<Flex key={label} vertical gap='middle'
                   className='group'>
                   <Divider className='divider' orientation='center'>{label}</Divider>
+                  {isEntry && <FormQuestion question={builtinPhoneQuestion}
+                    value={phone}
+                    onChange={setPhone} />}
                   {children.map(ques => (
-                    <FormQuestion question={ques}
+                    <FormQuestion question={ques} key={ques.id}
                       value={answer[ques.id] as ValueOf<typeof ques>}
                       onChange={(v) => {
                         const newAnswer = { ...answer, [ques.id]: v };

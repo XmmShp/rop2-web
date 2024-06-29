@@ -11,14 +11,17 @@ async function saveToken(token: string) {
   const bytes = base64.parse(objB64, { loose: true });
   const decoder = new TextDecoder('utf-8');
   const objJson = decoder.decode(bytes);
-  const { at, nickname, level } = JSON.parse(objJson) as {
+  const { at, nickname, level, zjuId } = JSON.parse(objJson) as {
     at: number,//登录组织id
     nickname: string,
-    level: number//权限级别
+    level: number,//权限级别
+    zjuId: string,
   };
+  //以下字段仅供缓存(显示)使用，不作为凭据
   kvSet('at', at.toString());
   kvSet('nickname', nickname);
   kvSet('level', level.toString());
+  kvSet('zjuId', zjuId);
 }
 
 async function innerFetch(...[url, config]: Parameters<typeof fetch>): ReturnType<typeof fetch> {

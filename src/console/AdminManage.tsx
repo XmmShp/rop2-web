@@ -4,7 +4,7 @@ import Search from './shared/Search';
 import { useState } from 'react';
 import { showModal, TempInput, TempRadioGroup } from '../shared/LightComponent';
 import { message } from '../App';
-import { num } from '../utils';
+import { debounce, num } from '../utils';
 import { useData } from '../api/useData';
 import dayjs, { Dayjs } from 'dayjs';
 import { editAdmin } from '../api/admin';
@@ -15,6 +15,7 @@ export type AdminList = { admins: AdminProfile[]; count: number; filteredCount: 
 function describeLevel(level: number) { return levels[level] || levels['_'].replace('{}', level.toString()) }
 export default function AdminManage() {
   const [filter, setFilter] = useState('');
+  const setFilterDebounced = debounce(setFilter, 250);//节流，避免每个字符都查一次服务器
   const [limit, setLimit] = useState(10);
   const [offset, setOffset] = useState(0);
   const [list, loading, reload] = useData<AdminList>('/admin', async (resp) => {
@@ -68,7 +69,7 @@ export default function AdminManage() {
           onClick={() => showEditModal('', '', 20)}
         >新增</Button>
       </Flex>
-      <Search onChange={({ target: { value: searchValue } }) => setFilter(searchValue)} />
+      <Search onChange={({ target: { value: searchValue } }) => setFilterDebounced(searchValue)} />
       <Table bordered
         loading={!!loading}
         title={(d) => `管理员列表 (本页 ${admins.length} 项${filter ? ` / 筛选到 ${filteredCount} 项` : ''} / 共 ${count} 项)`}

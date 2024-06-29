@@ -140,3 +140,14 @@ export function numSC(from: number): string {
   const base = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
   return base[from] ?? from.toString();
 }
+
+/**获得函数的防抖版本。忽略this(读取为null)和返回值。*/
+export function debounce<A extends any[]>(f: (...args: A) => void, wait: number): (...args: A) => void {
+  let timerId: number;
+  return function (...args: A) {
+    clearTimeout(timerId);
+    timerId = setTimeout(() => f.apply(null, args), wait);
+  };
+}
+
+export const throwArgs = (...args: any[]) => { throw args };
