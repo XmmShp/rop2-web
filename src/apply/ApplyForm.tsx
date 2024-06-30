@@ -9,6 +9,7 @@ import { useSearchParams } from 'react-router-dom';
 import { saveResult } from '../api/applicant';
 import { message } from '../App';
 import { builtinPhoneQuestion } from '../console/form/FormEdit';
+import { num } from '../utils';
 
 export default function ApplyForm() {
   const [searchParams] = useSearchParams();
@@ -89,7 +90,13 @@ export default function ApplyForm() {
             </Typography.Text>
             <Form layout='vertical'
               onFinish={async (v) => {
-                const { message: errMsg } = await saveResult(form.id, { phone }, answer);
+                const intentDeparts = form.children.first(
+                  (g) => g.children.first(
+                    (q) => q.type === 'choice-depart' && (answer[q.id] as string[]
+                    )
+                  )
+                )?.map(d => num(d)) ?? [];
+                const { message: errMsg } = await saveResult(form.id, { phone }, intentDeparts, answer);
                 if (errMsg)
                   message.error(errMsg);
                 else

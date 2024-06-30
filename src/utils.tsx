@@ -27,12 +27,16 @@ export function without<K extends string | symbol, O extends Record<K, any>>(obj
   return nObj;
 }
 
+type FalseTypes = undefined | null | false | 0;
 declare global {
   interface Number {
     pad(minLength?: number, floatMaxLength?: number): string;
   }
   interface Date {
     stringify(withTime?: boolean, useDot?: boolean): string;
+  }
+  interface Array<T> {
+    first<R extends Exclude<any, FalseTypes>>(cb: (v: T) => R | FalseTypes): R | undefined;
   }
 }
 Object.defineProperty(Number.prototype, 'pad', {
@@ -52,6 +56,15 @@ Object.defineProperty(Date.prototype, 'stringify', {
   },
   configurable: true,
 } satisfies ThisType<Date> & PropertyDescriptor);
+Object.defineProperty(Array.prototype, 'first', {
+  value<R extends Exclude<any, FalseTypes>>(cb: (v: unknown) => R | FalseTypes): R | undefined {
+    for (let i = 0; i < this.length; i++) {
+      const r = cb(this[i]);
+      if (r) return r;
+    }
+  },
+  configurable: true,
+} satisfies ThisType<Array<any>> & PropertyDescriptor);
 
 /**仅限测试，返回一个指定延时后兑现的Promise */
 export function delay(ms: number): Promise<void> {

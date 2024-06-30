@@ -5,6 +5,7 @@ import { useOrg } from '../shared/useOrg';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from '../shared/useForm';
 import DisabledContext from 'antd/es/config-provider/DisabledContext';
+import Search from '../shared/Search';
 
 /**所在阶段。1~127=第n阶段(可重命名)； */
 export type StepType = number;
@@ -130,6 +131,7 @@ export default function ResultOverview() {
           <Button onClick={() => setSelectedKeys([])}>取消选择</Button>
         </Space>
       </DisabledContext.Provider>
+      <Search />
       <Table
         pagination={{
           hideOnSinglePage: false,
