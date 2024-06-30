@@ -1,6 +1,6 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { Flex, Typography, Button, Table, Space, Card } from 'antd';
-import { basename, delay } from '../../utils';
+import { basename } from '../../utils';
 import { useState } from 'react';
 import Search from '../shared/Search';
 import { kvSet } from '../../store/kvCache';
@@ -8,7 +8,7 @@ import { showModal, TempInput } from '../../shared/LightComponent';
 import { message } from '../../App';
 import { useData } from '../../api/useData';
 import dayjs from 'dayjs';
-import { createForm } from '../../api/form';
+import { createForm, deleteForm } from '../../api/form';
 
 export default function FormOverview() {
   const [forms, loadingPromise, reload] = useData<{
@@ -41,7 +41,7 @@ export default function FormOverview() {
                   message.error('名称不能为空');
                   return;
                 }
-                const errMsg = await createForm(newName);
+                const { message: errMsg } = await createForm(newName);
                 if (errMsg) {
                   message.error(errMsg);
                   return;
@@ -106,8 +106,9 @@ export default function FormOverview() {
                 okButtonProps: { danger: true },
                 async onConfirm() {
                   //TODO 删除表单API
-                  await delay(500);
-                  message.success('删除成功');
+                  const { message: errMsg } = await deleteForm(formId);
+                  if (errMsg) message.error(errMsg);
+                  else message.success('删除成功');
                   reload(forms);
                 }
               })}>删除</Button>
