@@ -2,34 +2,32 @@ import { Button, Card, Checkbox, Dropdown, Flex, Radio, Segmented, Space, Table,
 import { debounce, numSC, useStoredState } from '../../utils';
 import { Id } from '../../api/models/shared';
 import { useOrg } from '../shared/useOrg';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from '../shared/useForm';
 import DisabledContext from 'antd/es/config-provider/DisabledContext';
 import Search from '../shared/Search';
 import { useData } from '../../api/useData';
+import { setIntents } from '../../api/result';
 
 /**所在阶段。1~127=第n阶段(可重命名)； */
 export type StepType = number;
-export type Person = {
-  zjuId: string;
-  /**真实姓名 */
-  name: string;
-  phone: string;
+const accepted = -50;
+const rejected = -1;
+const invalid = -2;
+const stepLabels: { [k: string]: string } = {
+  [-2]: '已失效',
+  [-1]: '已拒绝',
+  [-50]: '已录取',
+  [0]: '已填表'
 };
-const test_person = { zjuId: '3230009999', name: '测试', phone: '12300009999' } satisfies Person;
-export type Intent = {
-  /**姓名、手机号通过zjuid关联的Person获取 */
-  zjuId: string;
-  depart: Id;
-  step: StepType;
-};
-const test_intent = { zjuId: test_person.zjuId, depart: 2, step: 0 } satisfies Intent;
-export type Result = {
-  zjuId: string;
-  content: { [questionId: string]: string | number[] };
-};
-const test_result = { zjuId: test_person.zjuId, content: {} } satisfies Result;
-
+function getStepLabel(n: number): string {
+  return stepLabels[n] ?? `阶段${numSC(n)}`
+}
+function getNextStep(n: number): number {
+  if (n < 0) return n;
+  if (n >= 2) return accepted;
+  return n + 1;
+}
 export default function ResultOverview() {
   const [{ departs, org: { defaultDepart, name: orgName } }, orgInfoLoading] = useOrg();
   const [filterDeparts, setFilterDeparts] = useStoredState<Id[]>([], 'result/filterDeparts');
@@ -42,27 +40,31 @@ export default function ResultOverview() {
   const [filter, setFilter] = useState('');
   const debouncedSetFilter = debounce(setFilter, 250);
   const [step, setStep] = useState<StepType>(0);
-  type IntentOutline = { name: string, zjuId: string, phone: string, depart: number, order: number }
+  type IntentOutline = {
+    id: number,
+    name: string, zjuId: string, phone: string,
+    depart: number, order: number
+  }
   type IntentList = { intents: IntentOutline[], count: number, filteredCount: number }
-  const [{ intents, count, filteredCount }] = useData<IntentList>('/result/intents', async (resp) => {
+  const [intentList, loading, reload] = useData<IntentList>('/result/intents', async (resp) => {
     return await resp.json();
   }, { intents: [], count: 0, filteredCount: 0 },
     { offset, limit, filter, depart: [defaultDepart, ...filterDeparts].join(','), formId: form.id, step },
     [offset, limit, filter, filterDeparts, form.id, step], defaultDepart > 0)
+  const { intents, count, filteredCount } = intentList;
 
   useEffect(() => {//初始化(下载部门信息)后如果没有选择任何部门，自动全选
     if (filterDeparts.length <= 0 && orgInfoLoading)
       orgInfoLoading.then(({ departs: deps }) => setFilterDeparts(deps.map((d) => d.id)))
   }, [orgInfoLoading]);
+  const [selectedKeys, setSelectedKeys] = useState<number[]>([]);
+  async function setIntentsStep(intentIds: number[], step: StepType): Promise<string | undefined> {
+    setSelectedKeys([]);
+    const msg = (await setIntents(form.id, intentIds, step)).message;
+    reload(intentList);
+    return msg;
+  }
 
-  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
-
-  const stepToStageMap: { [k: string]: string } = {
-    [-2]: '已失效',
-    [-1]: '已拒绝',
-    [-50]: '已录取',
-    [0]: '已填表'
-  };
   return (<Card loading={!!orgInfoLoading}>
     <Flex vertical gap='middle'>
       {departs.length //当至少有一个部门(除默认部门)才显示部门筛选
@@ -87,8 +89,8 @@ export default function ResultOverview() {
         defaultValue={0}
         value={step}
         onChange={setStep}
-        options={[0, 1, 2, -50, -1, -2].map(n => { return { label: stepToStageMap[n] ?? `阶段${numSC(n)}`, value: n }; })} />
-      <Radio.Group defaultValue='pend'>
+        options={[0, 1, 2, -50, -1, -2].map(n => { return { label: getStepLabel(n), value: n } })} />
+      {/* <Radio.Group defaultValue='pend'>
         <Radio value='instance'>操作立即生效</Radio>
         <Radio value='pend'>操作在确认发送通知后生效</Radio>
       </Radio.Group>
@@ -99,28 +101,33 @@ export default function ResultOverview() {
         <Tooltip title='拒绝/下一阶段将影响候选人所有志愿；录取至某一志愿时将失效其它志愿'>
           <Radio value='unified'>所有志愿统一考核</Radio>
         </Tooltip>
-      </Radio.Group>
+      </Radio.Group> */}
       <DisabledContext.Provider value={selectedKeys.length <= 0}>
         <Space size='small'>
           批量操作(已选中<strong>{selectedKeys.length}</strong>项)：
           <Button>导出简历</Button>
           <Dropdown.Button type='primary'
-            //TODO
-            onClick={console.log}
+            onClick={() => setIntentsStep(selectedKeys, getNextStep(step))}
             menu={{
               items: [
-                { label: <Button size='small' type='link'>直接录取</Button> },
+                {
+                  label: <Button
+                    onClick={() => setIntentsStep(selectedKeys, accepted)}
+                    size='small' type='link'>直接录取</Button>
+                },
               ].map((v, i) => { return { ...v, key: i } })
             }}>
             下一阶段
           </Dropdown.Button>
           <Dropdown.Button danger
-            //TODO
-            onClick={console.log}
+            onClick={() => setIntentsStep(selectedKeys, rejected)}
             menu={{
               items: [
-                { label: <Button size='small' type='link' danger>失效</Button> },
-                { label: <Button size='small' type='link' danger>删除</Button> },
+                {
+                  label: <Button
+                    onClick={() => setIntentsStep(selectedKeys, invalid)}
+                    size='small' type='link' danger>失效</Button>
+                },
               ].map((v, i) => { return { ...v, key: i } })
             }}>
             拒绝
@@ -130,6 +137,7 @@ export default function ResultOverview() {
       </DisabledContext.Provider>
       <Search onChange={({ target: { value } }) => debouncedSetFilter(value)} placeholder='筛选姓名/学号/手机号' />
       <Table
+        loading={!!loading}
         pagination={{
           hideOnSinglePage: false,
           showSizeChanger: true,
@@ -145,10 +153,10 @@ export default function ResultOverview() {
           type: 'checkbox',
           selectedRowKeys: selectedKeys,
           onChange(selectedRowKeys, selectedRows, info) {
-            setSelectedKeys(selectedRowKeys as string[]);
+            setSelectedKeys(selectedRowKeys as number[]);
           },
         }}
-        rowKey={(obj) => obj.zjuId + ':' + obj.depart}
+        rowKey={(obj) => obj.id}
         columns={[{
           dataIndex: 'name',
           title: '姓名'
@@ -170,27 +178,30 @@ export default function ResultOverview() {
           render(value, record) {
             return (<Space size={0}>
               <Button size='small' type='link'>查看简历</Button>
-              <Dropdown.Button size='small' type='link'
-                //TODO
-                onClick={console.log}
+              {step >= 0 && <><Dropdown.Button size='small' type='link'
+                onClick={() => setIntentsStep([record.id], getNextStep(step))}
                 menu={{
-                  items: [
-                    { label: <Button size='small' type='link'>直接录取</Button> },
-                  ].map((v, i) => { return { ...v, key: i } })
+                  items: [{
+                    label: <Button
+                      onClick={() => setIntentsStep([record.id], accepted)}
+                      size='small' type='link'>直接录取</Button>
+                  },].map((v, i) => { return { ...v, key: i } })
                 }}>
                 下一阶段
               </Dropdown.Button>
-              <Dropdown.Button danger size='small' type='link'
-                //TODO
-                onClick={console.log}
-                menu={{
-                  items: [
-                    { label: <Button size='small' type='link' danger>失效</Button> },
-                    { label: <Button size='small' type='link' danger>删除</Button> },
-                  ].map((v, i) => { return { ...v, key: i } })
-                }}>
-                拒绝
-              </Dropdown.Button>
+                <Dropdown.Button danger size='small' type='link'
+                  onClick={() => setIntentsStep([record.id], rejected)}
+                  menu={{
+                    items: [
+                      {
+                        label: <Button
+                          onClick={() => setIntentsStep([record.id], invalid)}
+                          size='small' type='link' danger>失效</Button>
+                      },
+                    ].map((v, i) => { return { ...v, key: i } })
+                  }}>
+                  拒绝
+                </Dropdown.Button></>}
             </Space>);
           }
         }]}
