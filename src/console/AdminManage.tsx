@@ -72,7 +72,7 @@ export default function AdminManage() {
       <Search onChange={({ target: { value: searchValue } }) => setFilterDebounced(searchValue)} />
       <Table bordered
         loading={!!loading}
-        title={(d) => `管理员列表 (本页 ${admins.length} 项${filter ? ` / 筛选到 ${filteredCount} 项` : ''} / 共 ${count} 项)`}
+        title={(d) => `管理员列表 (本页 ${d.length} 项${filter ? ` / 筛选到 ${filteredCount} 项` : ''} / 共 ${count} 项)`}
         rowKey='nickname'
         columns={[{
           title: '昵称',

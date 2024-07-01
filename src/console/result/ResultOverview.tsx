@@ -1,11 +1,12 @@
 import { Button, Card, Checkbox, Dropdown, Flex, Radio, Segmented, Space, Table, Tooltip } from 'antd';
-import { numSC, useStoredState } from '../../utils';
+import { debounce, numSC, useStoredState } from '../../utils';
 import { Id } from '../../api/models/shared';
 import { useOrg } from '../shared/useOrg';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from '../shared/useForm';
 import DisabledContext from 'antd/es/config-provider/DisabledContext';
 import Search from '../shared/Search';
+import { useData } from '../../api/useData';
 
 /**所在阶段。1~127=第n阶段(可重命名)； */
 export type StepType = number;
@@ -30,30 +31,24 @@ export type Result = {
 const test_result = { zjuId: test_person.zjuId, content: {} } satisfies Result;
 
 export default function ResultOverview() {
-  const [{ departs }, orgInfoLoading] = useOrg();
+  const [{ departs, org: { defaultDepart, name: orgName } }, orgInfoLoading] = useOrg();
   const [filterDeparts, setFilterDeparts] = useStoredState<Id[]>([], 'result/filterDeparts');
 
-  const [form] = useForm('admin');
   //使用表单的问题来生成简历
+  const [form] = useForm('admin');
 
-  const people = [test_person];
-  const intents = [test_intent];
-  const results = [test_result];
-  let renderList = useMemo(() =>//聚合person intent result信息
-    intents.map(intent => {
-      const person = people.find((peo) => peo.zjuId === intent.zjuId);
-      return {
-        ...intent,
-        name: person?.name,
-        phone: person?.phone,
-        depart: departs.find((dep) => dep.id === intent.depart)?.name,
-      };
-    })
-    , [departs, people, intents]);
-  //TODO 测试用
-  renderList = new Array(15).fill(renderList[0], 0, 15).map((v, i) => {
-    return { ...v, zjuId: v.zjuId + i };
-  })
+  const [offset, setOffset] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [filter, setFilter] = useState('');
+  const debouncedSetFilter = debounce(setFilter, 250);
+  const [step, setStep] = useState<StepType>(0);
+  type IntentOutline = { name: string, zjuId: string, phone: string, depart: number, order: number }
+  type IntentList = { intents: IntentOutline[], count: number, filteredCount: number }
+  const [{ intents, count, filteredCount }] = useData<IntentList>('/result/intents', async (resp) => {
+    return await resp.json();
+  }, { intents: [], count: 0, filteredCount: 0 },
+    { offset, limit, filter, depart: [defaultDepart, ...filterDeparts].join(','), formId: form.id, step },
+    [offset, limit, filter, filterDeparts, form.id, step], defaultDepart > 0)
 
   useEffect(() => {//初始化(下载部门信息)后如果没有选择任何部门，自动全选
     if (filterDeparts.length <= 0 && orgInfoLoading)
@@ -62,7 +57,7 @@ export default function ResultOverview() {
 
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 
-  const stepToStageMap: { [k: number]: string } = {
+  const stepToStageMap: { [k: string]: string } = {
     [-2]: '已失效',
     [-1]: '已拒绝',
     [-50]: '已录取',
@@ -90,7 +85,9 @@ export default function ResultOverview() {
         : <></>}
       <Segmented block
         defaultValue={0}
-        options={[0, 1, 2, -50, -1, -2].map(n => { return { label: stepToStageMap[n] ?? `第${numSC(n)}阶段`, value: n }; })} />
+        value={step}
+        onChange={setStep}
+        options={[0, 1, 2, -50, -1, -2].map(n => { return { label: stepToStageMap[n] ?? `阶段${numSC(n)}`, value: n }; })} />
       <Radio.Group defaultValue='pend'>
         <Radio value='instance'>操作立即生效</Radio>
         <Radio value='pend'>操作在确认发送通知后生效</Radio>
@@ -131,14 +128,19 @@ export default function ResultOverview() {
           <Button onClick={() => setSelectedKeys([])}>取消选择</Button>
         </Space>
       </DisabledContext.Provider>
-      <Search />
+      <Search onChange={({ target: { value } }) => debouncedSetFilter(value)} placeholder='筛选姓名/学号/手机号' />
       <Table
         pagination={{
           hideOnSinglePage: false,
           showSizeChanger: true,
-          showQuickJumper: true
+          showQuickJumper: true,
+          onShowSizeChange(current, size) {
+            setLimit(size);
+            setOffset(Math.floor(offset / size) * size);
+          },
+          onChange(page) { setOffset((page - 1) * limit) }
         }}
-        dataSource={renderList}
+        dataSource={intents}
         rowSelection={{
           type: 'checkbox',
           selectedRowKeys: selectedKeys,
@@ -146,7 +148,7 @@ export default function ResultOverview() {
             setSelectedKeys(selectedRowKeys as string[]);
           },
         }}
-        rowKey={(obj) => obj.zjuId + '|' + obj.depart}
+        rowKey={(obj) => obj.zjuId + ':' + obj.depart}
         columns={[{
           dataIndex: 'name',
           title: '姓名'
@@ -157,8 +159,12 @@ export default function ResultOverview() {
           dataIndex: 'phone',
           title: '手机号'
         }, {
-          dataIndex: 'depart',
-          title: '志愿部门'
+          title: '志愿部门',
+          render(value, record, index) {
+            const depId = record.depart;
+            const depName = depId === defaultDepart ? orgName : departs.find((d) => d.id === record.depart)?.name ?? `未知(${depId})`;
+            return `[${record.order}]${depName}`;
+          },
         }, {
           title: '单独操作',
           render(value, record) {
@@ -188,7 +194,7 @@ export default function ResultOverview() {
             </Space>);
           }
         }]}
-        bordered title={(d) => `候选人列表 (本页 ${d.length} 项 / 共 ${renderList.length} 项)`} />
+        bordered title={(d) => `候选人列表 (本页 ${d.length} 项${filter ? ` / 筛选到 ${filteredCount} 项` : ''} / 共 ${count} 项)`} />
     </Flex>
   </Card>);
 }
