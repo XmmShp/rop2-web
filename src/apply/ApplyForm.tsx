@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { createRef, useEffect, useState } from 'react';
 import './ApplyForm.scss';
 import { Button, Card, Divider, Flex, Form, Result, Typography } from 'antd';
-import FormQuestion, { ValueOf } from '../shared/FormQuestion';
-import { QuestionGroup, useForm } from '../console/shared/useForm';
+import { ValueOf, FormQuestion } from '../shared/FormQuestion';
+import { QuestionGroup, useForm, ValidQuestion } from '../console/shared/useForm';
 import { useData } from '../api/useData';
 import { Depart } from '../console/shared/useOrg';
 import { useSearchParams } from 'react-router-dom';
@@ -11,6 +11,14 @@ import { message } from '../App';
 import { builtinPhoneQuestion } from '../console/form/FormEdit';
 import { num } from '../utils';
 
+export function validate(question: ValidQuestion, value: unknown): boolean {
+  if (!question.optional) {
+    if (!((value as Record<keyof any, any> | undefined)?.length)) {
+      return false;
+    }
+  }
+  return true;
+}
 export default function ApplyForm() {
   const [searchParams] = useSearchParams();
   const isPreview = typeof searchParams.get('preview') === 'string';
@@ -27,18 +35,23 @@ export default function ApplyForm() {
   const [form] = useForm(isPreview ? 'admin' : 'applicant');
   const [departs] = useData<Depart[]>('/applicant/org', (resp) => resp.json(), [], { id: form.owner }, [form.owner], form.owner > 0);
   const [completed, setCompleted] = useState(false);
-  type AnswerMap = {
-    [questionId: string]: unknown;
-  };
+  type AnswerMap = Record<string, unknown>;
   const [phone, setPhone] = useState(profilePhone);
   const [answer, setAnswer] = useState<AnswerMap>({});
+  type RefMap = Record<string, React.RefObject<HTMLDivElement>>;
+  const [refMap, setRefMap] = useState<RefMap>({});
   useEffect(() => {
     if ('message' in form.children) return;
-    const v: AnswerMap = {};
+    const newAnswerMap: AnswerMap = {};
+    const newRefMap: RefMap = { phoneRef: createRef() };
     form.children.forEach(
-      group => group.children.forEach(q => v[q.id] = ('choices' in q) ? [] : ''));
-    setAnswer(v);
-    calcRevealGroups(v);
+      group => group.children.forEach(q => {
+        newAnswerMap[q.id] = ('choices' in q) ? [] : '';
+        newRefMap[q.id] = createRef();
+      }));
+    setAnswer(newAnswerMap);
+    calcRevealGroups(newAnswerMap);
+    setRefMap(newRefMap);
   }, [form.children]);
   const [revealGroups, setRevealGroups] = useState<QuestionGroup[]>([]);
   function calcRevealGroups(newAnswer: AnswerMap) {
@@ -90,12 +103,19 @@ export default function ApplyForm() {
             </Typography.Text>
             <Form layout='vertical'
               onFinish={async (v) => {
-                const intentDeparts = form.children.first(
+                const choiceDepartQuestion = form.children.first(
                   (g) => g.children.first(
-                    (q) => q.type === 'choice-depart' && (answer[q.id] as string[]
-                    )
+                    (q) => q.type === 'choice-depart' && q
                   )
-                )?.map(d => num(d)) ?? [];
+                );
+                const intentDeparts = choiceDepartQuestion ? (answer[choiceDepartQuestion.id] as string[]).map(id => num(id)) : [];
+                const failedQues = revealGroups.first(rg => rg.children.first(q => validate(q, answer[q.id]) ? false : q));
+                if (failedQues) {
+                  const quesEle = refMap[failedQues.id]?.current!;
+                  quesEle.scrollIntoView();
+                  message.error('请填写所有必填项');
+                  return;
+                }
                 const { message: errMsg } = await saveResult(form.id, { phone }, intentDeparts, answer);
                 if (errMsg)
                   message.error(errMsg);
@@ -108,11 +128,15 @@ export default function ApplyForm() {
                 return (<Flex key={label} vertical gap='middle'
                   className='group'>
                   <Divider className='divider' orientation='center'>{label}</Divider>
-                  {isEntry && <FormQuestion question={builtinPhoneQuestion}
+                  {isEntry && <FormQuestion
+                    ref={refMap['phoneRef']}
+                    question={builtinPhoneQuestion}
                     value={phone}
-                    onChange={setPhone} />}
+                    onChange={(v) => setPhone(v as string)} />}
                   {children.map(ques => (
-                    <FormQuestion question={ques} key={ques.id}
+                    <FormQuestion
+                      ref={refMap[ques.id]}
+                      question={ques} key={ques.id}
                       value={answer[ques.id] as ValueOf<typeof ques>}
                       onChange={(v) => {
                         const newAnswer = { ...answer, [ques.id]: v };

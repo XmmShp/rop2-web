@@ -1,8 +1,8 @@
 import { ArrowDownOutlined, ArrowUpOutlined, DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Flex, Form, Grid, Input, InputNumber, Select, Typography } from 'antd';
+import { Button, Checkbox, Flex, Form, Input, InputNumber, Select, Typography } from 'antd';
 import { useMemo, useState } from 'react';
 import { ChoiceQuestion, CustomQuestion, QuestionGroup, ValidQuestion } from '../shared/useForm';
-import FormQuestion from '../../shared/FormQuestion';
+import { FormQuestion } from '../../shared/FormQuestion';
 import { newUniqueLabel } from '../../utils';
 import { Id } from '../../api/models/shared';
 import QuestionGroupSelect from './QuestionGroupSelect';
