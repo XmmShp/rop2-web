@@ -6,19 +6,14 @@ import Search from '../shared/Search';
 import { kvSet } from '../../store/kvCache';
 import { showModal, TempInput } from '../../shared/LightComponent';
 import { message } from '../../App';
-import { useData } from '../../api/useData';
 import dayjs from 'dayjs';
 import { createForm, deleteForm } from '../../api/form';
+import { useFormList } from '../shared/useFormList';
+
+export function setActiveForm(formId: number) { kvSet('form', formId.toString()); }
 
 export default function FormOverview() {
-  const [forms, loadingPromise, reload] = useData<{
-    id: number;
-    name: string;
-    startAt?: string;
-    endAt?: string;
-    createAt: string;
-    // updateAt: string;//not used yet
-  }[]>('/form/list', async (resp) => resp.json(), []);
+  const [forms, loadingPromise, reload] = useFormList();
   const [searchValue, setSearchValue] = useState('');
   return (<Card>
     <Flex vertical gap='small'>
@@ -74,7 +69,6 @@ export default function FormOverview() {
         title: '操作',
         render(value, record, index) {
           const formId = record.id;
-          function setActiveForm(formId: number) { kvSet('form', formId.toString()); }
           //注：这里的href是antd的属性，与react-router无关，不会自动处理basename
           return (<Space size={0}>
             <Button size='small' type='link'

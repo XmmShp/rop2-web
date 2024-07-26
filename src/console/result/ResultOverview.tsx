@@ -49,7 +49,7 @@ export default function ResultOverview() {
   const [intentList, loading, reload] = useData<IntentList>('/result/intents', async (resp) => {
     return await resp.json();
   }, { intents: [], count: 0, filteredCount: 0 },
-    { offset, limit, filter, depart: [defaultDepart, ...filterDeparts].join(','), formId: form.id, step },
+    { offset, limit, filter, depart: [...new Set([defaultDepart, ...filterDeparts])].join(','), formId: form.id, step },
     [offset, limit, filter, filterDeparts, form.id, step], defaultDepart > 0)
   const { intents, count, filteredCount } = intentList;
 

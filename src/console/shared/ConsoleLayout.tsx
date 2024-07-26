@@ -4,6 +4,8 @@ import { singleMatch, useNickname } from '../../utils';
 import './ConsoleLayout.scss';
 import { logout } from '../../api/auth';
 import { OrgContext, useOrgProvider } from './useOrg';
+import { FormListContext, useFormListProvider } from './useFormList';
+import { setActiveForm } from '../form/FormOverview';
 
 export default function ConsoleLayout({ routes }: { routes: (GetProp<typeof Menu, 'items'>[number] & { key: string })[] }) {
   routes = routes.map(v => { return { ...v, key: v.key.replace(/\/:\w+\??$/, '') } });
@@ -13,6 +15,8 @@ export default function ConsoleLayout({ routes }: { routes: (GetProp<typeof Menu
   const nickname = useNickname();
   const orgDataTuple = useOrgProvider(); //TODO: 根据useDeparts选择性渲染
   const [{ org: { useDeparts } }] = orgDataTuple;
+  const formListTuple = useFormListProvider();
+  const [forms] = formListTuple;
 
   return (<Layout className='layout'>
     <Layout.Sider theme='light' className='sider'
@@ -27,7 +31,10 @@ export default function ConsoleLayout({ routes }: { routes: (GetProp<typeof Menu
     <Layout.Content className='main'>
       <Flex className='title-bar' align='center' justify='space-between'>
         <span className='title'>求是潮纳新开放系统V2</span>
-        <Link className='current-activity' to='/'>正在进行的纳新名称</Link>
+        {forms.length && <Link
+          onClick={() => { setActiveForm(forms[0].id) }}
+          className='current-activity' to={`/console/result?id=${forms[0].id}`}>{forms[0].name}
+        </Link>}
         <Dropdown trigger={['click']} menu={{
           items: [{ label: '退出', }].map((v) => { return { ...v, key: v.label } }),
           onClick(info) {
@@ -45,7 +52,9 @@ export default function ConsoleLayout({ routes }: { routes: (GetProp<typeof Menu
       </Flex>
       <div className='content'>
         <OrgContext.Provider value={orgDataTuple}>
-          <Outlet />
+          <FormListContext.Provider value={formListTuple}>
+            <Outlet />
+          </FormListContext.Provider>
         </OrgContext.Provider>
       </div>
     </Layout.Content>
