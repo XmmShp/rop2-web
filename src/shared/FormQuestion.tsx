@@ -45,11 +45,13 @@ function _FormQuestion<Q extends ValidQuestion>({ value, question, departs = [],
                     validate(v as ValueOf<Q>);
                   }}
                   options={departOptions.map(([id, reveal]) => {
+                    let label = departs.find((d) => d.id.toString() === id)?.name;
+                    if (!label) return null;
                     return {
                       value: id,
-                      label: departs.find((d) => d.id.toString() === id)?.name ?? '加载中'
+                      label
                     };
-                  })} maxCount={maxCount} />);
+                  }).filter(v => v != null)} maxCount={maxCount} />);
               }
             case 'text':
               const { maxLine } = question;

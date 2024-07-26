@@ -31,7 +31,7 @@ export default function ConsoleLayout({ routes }: { routes: (GetProp<typeof Menu
     <Layout.Content className='main'>
       <Flex className='title-bar' align='center' justify='space-between'>
         <span className='title'>求是潮纳新开放系统V2</span>
-        {forms.length && <Link
+        {forms.length > 0 && <Link
           onClick={() => { setActiveForm(forms[0].id) }}
           className='current-activity' to={`/console/result?id=${forms[0].id}`}>{forms[0].name}
         </Link>}

@@ -23,7 +23,7 @@ export default function QuestionGroupSelect(props: {
 }): ReactElement;
 export default function QuestionGroupSelect({ groups, thisGroup, value, onChange, allowHide, size, title }: any): ReactElement {
   const options = [
-    { label: '无', value: -1 },
+    { label: '不跳转', value: -1 },
     ...groups.map((g: QuestionGroup) => {
       return {
         label: g.label,
@@ -33,7 +33,7 @@ export default function QuestionGroupSelect({ groups, thisGroup, value, onChange
     })
   ];
   if (allowHide)
-    options.unshift({ label: '隐藏', value: -2 });
+    options.unshift({ label: '隐藏选项', value: -2 });
   if (value === undefined)
     value = -2;
   else if (value === null || !groups.some((gr: QuestionGroup) => gr.id === value))
