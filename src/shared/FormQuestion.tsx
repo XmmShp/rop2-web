@@ -4,6 +4,10 @@ import './FormQuestion.scss';
 import { Depart } from '../console/shared/useOrg';
 import { forwardRef, useState } from 'react';
 
+export function getTitle(question: ValidQuestion) {
+  if (question.type === 'choice-depart') return '选择部门志愿';
+  return question.title ?? '未知问题';
+}
 export type ValueOf<Q extends ValidQuestion> = Q extends { choices: Record<infer K extends string, any> } ? K[] : string;
 export const FormQuestion = forwardRef(_FormQuestion);
 function _FormQuestion<Q extends ValidQuestion>({ value, question, departs = [], onChange }
@@ -21,7 +25,7 @@ function _FormQuestion<Q extends ValidQuestion>({ value, question, departs = [],
   }
   return <div ref={ref} className={'question-container' + (hasDesc ? ' with-desc' : '')}>
     <Form.Item className='form-item' key={question.id}
-      label={question.type === 'choice-depart' ? '选择部门志愿' : question.title}
+      label={getTitle(question)}
       required={!question.optional}
       validateStatus={validateStatus}
     >

@@ -1,12 +1,12 @@
 import dayjs, { Dayjs } from 'dayjs';
 import { DataTuple, useData } from '../../api/useData';
-import { Id } from '../../api/models/shared';
 import { useNavigate, useParams } from 'react-router-dom';
 import { kvGet } from '../../store/kvCache';
 import { num } from '../../utils';
 import { useEffect } from 'react';
 import { message } from '../../App';
 
+export type Id = number;
 type QuestionType = 'name' | 'zjuid' | 'phone' | 'choice-depart' | 'text' | 'choice';
 interface Question {
   id: Id;

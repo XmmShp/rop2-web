@@ -1,6 +1,6 @@
 //把有关后台(console)的组件统一导出，vite构建后在一个chunk内，避免生成多个小文件
 
-import ConsoleLayout from './shared/ConsoleLayout';
+import ConsoleLayout from './ConsoleLayout';
 import Dash from './dash/Dash';
 import FormOverview from './form/FormOverview';
 import FormEdit from './form/FormEdit';

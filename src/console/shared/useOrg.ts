@@ -25,6 +25,7 @@ export function useOrgProvider(): DataTuple<OrgInfo> {
   v[0].departs = v[0].departs.filter(d => d.id !== v[0].org.defaultDepart);
   return v;
 }
+/**使用Context传递的组织信息。 */
 export function useOrg(): DataTuple<OrgInfo> {
   const v = useContext(OrgContext);
   return v;

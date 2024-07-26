@@ -1,6 +1,5 @@
 import { ReactElement } from 'react';
-import { QuestionGroup } from '../shared/useForm';
-import { Id } from '../../api/models/shared';
+import { Id, QuestionGroup } from '../shared/useForm';
 import { GetProp, Select } from 'antd';
 
 export default function QuestionGroupSelect(props: {

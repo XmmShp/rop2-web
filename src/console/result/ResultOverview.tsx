@@ -1,13 +1,14 @@
-import { Button, Card, Checkbox, Dropdown, Flex, Radio, Segmented, Space, Table, Tooltip } from 'antd';
+import { Button, Card, Checkbox, Dropdown, Flex, message, Segmented, Space, Table, Typography } from 'antd';
 import { debounce, numSC, useStoredState } from '../../utils';
-import { Id } from '../../api/models/shared';
 import { useOrg } from '../shared/useOrg';
 import { useEffect, useState } from 'react';
-import { useForm } from '../shared/useForm';
+import { Id, useForm } from '../shared/useForm';
 import DisabledContext from 'antd/es/config-provider/DisabledContext';
 import Search from '../shared/Search';
 import { useData } from '../../api/useData';
 import { setIntents } from '../../api/result';
+import { showDrawer, showModal } from '../../shared/LightComponent';
+import ResultDisplay from '../shared/ResultDisplay';
 
 /**所在阶段。1~127=第n阶段(可重命名)； */
 export type StepType = number;
@@ -28,6 +29,7 @@ function getNextStep(n: number): number {
   if (n >= 2) return accepted;
   return n + 1;
 }
+export type Person = { name: string, zjuId: string, phone: string, };
 export default function ResultOverview() {
   const [{ departs, org: { defaultDepart, name: orgName } }, orgInfoLoading] = useOrg();
   const [filterDeparts, setFilterDeparts] = useStoredState<Id[]>([], 'result/filterDeparts');
@@ -42,9 +44,8 @@ export default function ResultOverview() {
   const [step, setStep] = useState<StepType>(0);
   type IntentOutline = {
     id: number,
-    name: string, zjuId: string, phone: string,
-    depart: number, order: number
-  }
+    depart: number, order: number,
+  } & Person
   type IntentList = { intents: IntentOutline[], count: number, filteredCount: number }
   const [intentList, loading, reload] = useData<IntentList>('/result/intents', async (resp) => {
     return await resp.json();
@@ -132,7 +133,20 @@ export default function ResultOverview() {
             }}>
             拒绝
           </Dropdown.Button>
-          <Button onClick={() => setSelectedKeys([])}>取消选择</Button>
+          <Button onClick={async () => {
+            const txt = selectedKeys.map(id => intents.find(i => i.id === id)?.phone).join('\n');
+            try {
+              await navigator.clipboard.writeText(txt);
+              message.success('复制成功');
+            } catch {
+              showDrawer({
+                title: '手动复制', children: <div>
+                  <Typography.Text>因浏览器限制，请手动复制以下内容：</Typography.Text>
+                  <pre style={{ userSelect: 'all', padding: 'var(--ant-padding-xs)', border: '1px solid var(--ant-color-text-secondary)' }}>{txt}</pre>
+                </div>
+              })
+            }
+          }}>复制手机号</Button>
         </Space>
       </DisabledContext.Provider>
       <Search onChange={({ target: { value } }) => debouncedSetFilter(value)} placeholder='筛选姓名/学号/手机号' />
@@ -177,7 +191,16 @@ export default function ResultOverview() {
           title: '单独操作',
           render(value, record) {
             return (<Space size={0}>
-              <Button size='small' type='link'>查看简历</Button>
+              <Button size='small' type='link'
+                onClick={() => {
+                  showDrawer({
+                    placement: 'left',
+                    size: 'large',
+                    title: `${record.name}(${record.zjuId}) 的报名表`,
+                    children: <ResultDisplay form={form} person={record} departs={departs} />
+                  });
+                }}
+              >查看简历</Button>
               {step >= 0 && <><Dropdown.Button size='small' type='link'
                 onClick={() => setIntentsStep([record.id], getNextStep(step))}
                 menu={{

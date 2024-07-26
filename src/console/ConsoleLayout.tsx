@@ -1,11 +1,11 @@
 import { Avatar, Dropdown, Flex, GetProp, Layout, Menu } from 'antd';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { singleMatch, useNickname } from '../../utils';
+import { singleMatch, useNickname } from '../utils';
 import './ConsoleLayout.scss';
-import { logout } from '../../api/auth';
-import { OrgContext, useOrgProvider } from './useOrg';
-import { FormListContext, useFormListProvider } from './useFormList';
-import { setActiveForm } from '../form/FormOverview';
+import { logout } from '../api/auth';
+import { OrgContext, useOrgProvider } from './shared/useOrg';
+import { FormListContext, useFormListProvider } from './shared/useFormList';
+import { setActiveForm } from './form/FormOverview';
 
 export default function ConsoleLayout({ routes }: { routes: (GetProp<typeof Menu, 'items'>[number] & { key: string })[] }) {
   routes = routes.map(v => { return { ...v, key: v.key.replace(/\/:\w+\??$/, '') } });

@@ -1,10 +1,9 @@
 import { ArrowDownOutlined, ArrowUpOutlined, DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Checkbox, Flex, Form, Input, InputNumber, Select, Typography } from 'antd';
 import { useMemo, useState } from 'react';
-import { ChoiceQuestion, CustomQuestion, QuestionGroup, ValidQuestion } from '../shared/useForm';
+import { ChoiceQuestion, CustomQuestion, Id, QuestionGroup, ValidQuestion } from '../shared/useForm';
 import { FormQuestion } from '../../shared/FormQuestion';
 import { newUniqueLabel } from '../../utils';
-import { Id } from '../../api/models/shared';
 import QuestionGroupSelect from './QuestionGroupSelect';
 import { message } from '../../App';
 import { useOrg } from '../shared/useOrg';
@@ -24,16 +23,16 @@ function QuestionEditor({ question, onChange, groups, thisGroup }:
         onChange={(v) => {
           const newObj = { ...question, type: v };
           if (newObj.type === 'choice') {
-            (newObj as any).choices ??= { '选项1': null, '选项2': null, '选项3': null };
+            (newObj as any).choices = { '选项1': null, '选项2': null, '选项3': null };
             (newObj as any).maxSelection = 3;
           }
           else if (newObj.type === 'choice-depart') {
-            (newObj as any).choices ??= {};
-            (newObj as any).maxSelection = 3;
+            (newObj as any).choices = {};
+            departs.forEach(dep => (newObj as any).choices[dep.id] = null);
+            (newObj as any).maxSelection = Math.min(3, departs.length);
           }
           (newObj as any).title ??= '问题标题';
           onChange(newObj as any);
-          //把部分属性置为非空。需要后端根据问题类型获取需要的属性
         }}
         options={[/**{
           label: '姓名',
