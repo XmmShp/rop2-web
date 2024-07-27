@@ -13,25 +13,28 @@ export function useFilterDeparts() {
   }, [orgInfoLoading]);
   return [filterDeparts, setFilterDeparts, orgInfo, orgInfoLoading] as const;
 }
-export function FilterDeparts({ filterDeparts, setFilterDeparts, departs }: {
+
+export function FilterDepartsComponent({ filterDeparts, setFilterDeparts, departs }: {
   filterDeparts: Id[],
   setFilterDeparts: (newValue: Id[]) => void,
   departs: Depart[]
 }) {
-  return (<Flex wrap='wrap'>
-    <Checkbox checked={filterDeparts.length >= departs.length}
-      indeterminate={filterDeparts.length > 0 && filterDeparts.length < departs.length}
-      onChange={({ target: { checked } }) => {
-        if (checked) setFilterDeparts(departs.map(d => d.id));
-        else setFilterDeparts([]);
-      }}>全选</Checkbox>
-    <Checkbox.Group options={departs.map(d => {
-      return {
-        label: d.name,
-        value: d.id
-      };
-    })}
-      value={filterDeparts}
-      onChange={setFilterDeparts} />
-  </Flex>);
+  return (departs.length > 0 &&
+    //有至少一个部门(默认部门除外)时显示筛选
+    <Flex wrap='wrap'>
+      <Checkbox checked={filterDeparts.length >= departs.length}
+        indeterminate={filterDeparts.length > 0 && filterDeparts.length < departs.length}
+        onChange={({ target: { checked } }) => {
+          if (checked) setFilterDeparts(departs.map(d => d.id));
+          else setFilterDeparts([]);
+        }}>全选</Checkbox>
+      <Checkbox.Group options={departs.map(d => {
+        return {
+          label: d.name,
+          value: d.id
+        };
+      })}
+        value={filterDeparts}
+        onChange={setFilterDeparts} />
+    </Flex>);
 }

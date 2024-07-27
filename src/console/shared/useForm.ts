@@ -63,10 +63,13 @@ export type FormDetail = {
   startAt: Dayjs | null;
   endAt: Dayjs | null;
 }
+export function useFormId(): Id {
+  const { formId: paramFormId } = useParams();
+  return num(paramFormId ?? kvGet('form'), -1);
+}
 /**获取单个表单详情。支持管理员和候选人两种访问路径。 */
 export function useForm(type: 'admin' | 'applicant' = 'admin'): DataTuple<FormDetail> {
-  const { formId: paramFormId } = useParams();
-  const formId = num(paramFormId ?? kvGet('form'), -1);
+  const formId = useFormId();
   const defaultForm = {
     owner: -1,
     id: formId,

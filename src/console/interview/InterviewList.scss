@@ -1,0 +1,30 @@
+.interview-list {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding: 1em;
+  gap: .4em;
+
+  .interview-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: .5em 1em;
+    width: 18em;
+    box-sizing: border-box;
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 0 0 10px 0 #0000001a;
+    transition: all 0.3s;
+
+    .time-left {
+      color: var(--ant-color-text-secondary);
+      font-size: calc(.8 * var(--ant-font-size));
+    }
+
+    .operations {
+      align-self: flex-end;
+    }
+  }
+}

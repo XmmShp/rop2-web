@@ -1,15 +1,14 @@
-import { Button, Card, Checkbox, Dropdown, Flex, message, Segmented, Space, Table, Typography } from 'antd';
-import { debounce, numSC, useStoredState } from '../../utils';
-import { Depart, useOrg } from '../shared/useOrg';
-import { useEffect, useState } from 'react';
-import { Id, useForm } from '../shared/useForm';
+import { Button, Card, Dropdown, Flex, message, Segmented, Space, Table, Typography } from 'antd';
+import { debounce, numSC } from '../../utils';
+import { useState } from 'react';
+import { useForm } from '../shared/useForm';
 import DisabledContext from 'antd/es/config-provider/DisabledContext';
 import Search from '../shared/Search';
 import { useData } from '../../api/useData';
 import { setIntents } from '../../api/result';
 import { showDrawer } from '../../shared/LightComponent';
 import ResultDisplay from '../shared/ResultDisplay';
-import { useFilterDeparts, FilterDeparts } from '../shared/FilterDeparts';
+import { useFilterDeparts, FilterDepartsComponent } from '../shared/FilterDeparts';
 
 /**所在阶段。1~127=第n阶段(可重命名)； */
 export type StepType = number;
@@ -65,9 +64,7 @@ export default function ResultOverview() {
 
   return (<Card loading={!!orgInfoLoading}>
     <Flex vertical gap='middle'>
-      {departs.length > 0 //当至少有一个部门(除默认部门)才显示部门筛选
-        && <FilterDeparts filterDeparts={filterDeparts}
-          setFilterDeparts={setFilterDeparts} departs={departs} />}
+      <FilterDepartsComponent {...{ departs, filterDeparts, setFilterDeparts }} />
       <Segmented block
         defaultValue={0}
         value={step}

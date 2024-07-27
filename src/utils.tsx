@@ -164,3 +164,16 @@ export function debounce<A extends any[]>(f: (...args: A) => void, wait: number)
 }
 
 export const throwArgs = (...args: any[]) => { throw args };
+
+export function accumulate<T>(array: T[], step: number, defaultElement?: T): T[][] {
+  const result: T[][] = [];
+  let i = 0;
+  for (i = 0; i < array.length; i += step) {
+    result.push(array.slice(i, i + step));
+  }
+  if (i > array.length && defaultElement !== undefined) {
+    const lastSlice = result[result.length - 1];
+    lastSlice.push(...new Array(step - lastSlice.length).fill(defaultElement));
+  }
+  return result;
+}
