@@ -1,0 +1,37 @@
+import { Flex, Checkbox } from 'antd';
+import { useEffect } from 'react';
+import { useStoredState } from '../../utils';
+import { Id } from './useForm';
+import { useOrg, Depart } from './useOrg';
+
+export function useFilterDeparts() {
+  const [filterDeparts, setFilterDeparts] = useStoredState<Id[]>([], 'filterDeparts');
+  const [orgInfo, orgInfoLoading] = useOrg();
+  useEffect(() => {//初始化(下载部门信息)后如果没有选择任何部门，自动全选
+    if (filterDeparts.length <= 0 && orgInfoLoading)
+      orgInfoLoading.then(({ departs: deps }) => setFilterDeparts(deps.map((d) => d.id)))
+  }, [orgInfoLoading]);
+  return [filterDeparts, setFilterDeparts, orgInfo, orgInfoLoading] as const;
+}
+export function FilterDeparts({ filterDeparts, setFilterDeparts, departs }: {
+  filterDeparts: Id[],
+  setFilterDeparts: (newValue: Id[]) => void,
+  departs: Depart[]
+}) {
+  return (<Flex wrap='wrap'>
+    <Checkbox checked={filterDeparts.length >= departs.length}
+      indeterminate={filterDeparts.length > 0 && filterDeparts.length < departs.length}
+      onChange={({ target: { checked } }) => {
+        if (checked) setFilterDeparts(departs.map(d => d.id));
+        else setFilterDeparts([]);
+      }}>全选</Checkbox>
+    <Checkbox.Group options={departs.map(d => {
+      return {
+        label: d.name,
+        value: d.id
+      };
+    })}
+      value={filterDeparts}
+      onChange={setFilterDeparts} />
+  </Flex>);
+}

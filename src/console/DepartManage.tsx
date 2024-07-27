@@ -40,7 +40,7 @@ export default function DepartManage() {
                 reload(orgInfo);
               },
             });
-          }}>新增</Button>
+          }}>新建</Button>
       </Flex>
       <Table title={(d) => `部门列表 (${d.length}项)`} rowKey='id' bordered
         columns={[{

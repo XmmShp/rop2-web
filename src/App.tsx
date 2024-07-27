@@ -71,7 +71,9 @@ function ErrorElement() {
   const isRouteError = isRouteErrorResponse(error);
   if (isRouteError && error.status === 404)
     return <>404 Not Found</>
-  return <>Oops, an error occurred<br />Check devtools for more info</>;
+  return <>Oops, an unhandled error was thrown<br />Check devtools for more info<br />
+    <pre>{String(error)}</pre>
+  </>;
 }
 const router = createBrowserRouter([{
   path: '/',

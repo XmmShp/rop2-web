@@ -98,9 +98,9 @@ export default function ApplyForm() {
             <Typography.Title level={3} className='title'>
               {form.name}
             </Typography.Title>
-            <Typography.Text>
+            {form.desc.length > 0 && <Typography.Text>
               {form.desc}
-            </Typography.Text>
+            </Typography.Text>}
             <Form layout='vertical'
               onFinish={async (v) => {
                 const choiceDepartQuestion = form.children.first(

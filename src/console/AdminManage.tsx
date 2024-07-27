@@ -67,7 +67,7 @@ export default function AdminManage() {
       <Flex wrap='wrap'>
         <Button icon={<PlusOutlined />} type='primary'
           onClick={() => showEditModal('', '', 20)}
-        >新增</Button>
+        >新建</Button>
       </Flex>
       <Search onChange={({ target: { value: searchValue } }) => setFilterDebounced(searchValue)} />
       <Table bordered

@@ -1,17 +1,19 @@
 import { Button, Card, Checkbox, Dropdown, Flex, message, Segmented, Space, Table, Typography } from 'antd';
 import { debounce, numSC, useStoredState } from '../../utils';
-import { useOrg } from '../shared/useOrg';
+import { Depart, useOrg } from '../shared/useOrg';
 import { useEffect, useState } from 'react';
 import { Id, useForm } from '../shared/useForm';
 import DisabledContext from 'antd/es/config-provider/DisabledContext';
 import Search from '../shared/Search';
 import { useData } from '../../api/useData';
 import { setIntents } from '../../api/result';
-import { showDrawer, showModal } from '../../shared/LightComponent';
+import { showDrawer } from '../../shared/LightComponent';
 import ResultDisplay from '../shared/ResultDisplay';
+import { useFilterDeparts, FilterDeparts } from '../shared/FilterDeparts';
 
 /**所在阶段。1~127=第n阶段(可重命名)； */
 export type StepType = number;
+const initial = 0;
 const accepted = -50;
 const rejected = -1;
 const invalid = -2;
@@ -21,7 +23,7 @@ const stepLabels: { [k: string]: string } = {
   [-50]: '已录取',
   [0]: '已填表'
 };
-function getStepLabel(n: number): string {
+export function getStepLabel(n: number): string {
   return stepLabels[n] ?? `阶段${numSC(n)}`
 }
 function getNextStep(n: number): number {
@@ -31,8 +33,7 @@ function getNextStep(n: number): number {
 }
 export type Person = { name: string, zjuId: string, phone: string, };
 export default function ResultOverview() {
-  const [{ departs, org: { defaultDepart, name: orgName } }, orgInfoLoading] = useOrg();
-  const [filterDeparts, setFilterDeparts] = useStoredState<Id[]>([], 'result/filterDeparts');
+  const [filterDeparts, setFilterDeparts, { departs, org: { defaultDepart, name: orgName } }, orgInfoLoading] = useFilterDeparts();
 
   //使用表单的问题来生成简历
   const [form] = useForm('admin');
@@ -54,10 +55,6 @@ export default function ResultOverview() {
     [offset, limit, filter, filterDeparts, form.id, step], defaultDepart > 0)
   const { intents, count, filteredCount } = intentList;
 
-  useEffect(() => {//初始化(下载部门信息)后如果没有选择任何部门，自动全选
-    if (filterDeparts.length <= 0 && orgInfoLoading)
-      orgInfoLoading.then(({ departs: deps }) => setFilterDeparts(deps.map((d) => d.id)))
-  }, [orgInfoLoading]);
   const [selectedKeys, setSelectedKeys] = useState<number[]>([]);
   async function setIntentsStep(intentIds: number[], step: StepType): Promise<string | undefined> {
     setSelectedKeys([]);
@@ -68,24 +65,9 @@ export default function ResultOverview() {
 
   return (<Card loading={!!orgInfoLoading}>
     <Flex vertical gap='middle'>
-      {departs.length //当至少有一个部门(除默认部门)才显示部门筛选
-        ? <Flex wrap='wrap'>
-          <Checkbox checked={filterDeparts.length >= departs.length}
-            indeterminate={filterDeparts.length > 0 && filterDeparts.length < departs.length}
-            onChange={({ target: { checked } }) => {
-              if (checked) setFilterDeparts(departs.map(d => d.id));
-              else setFilterDeparts([]);
-            }}>全选</Checkbox>
-          <Checkbox.Group options={departs.map(d => {
-            return {
-              label: d.name,
-              value: d.id
-            };
-          })}
-            value={filterDeparts}
-            onChange={setFilterDeparts} />
-        </Flex>
-        : <></>}
+      {departs.length > 0 //当至少有一个部门(除默认部门)才显示部门筛选
+        && <FilterDeparts filterDeparts={filterDeparts}
+          setFilterDeparts={setFilterDeparts} departs={departs} />}
       <Segmented block
         defaultValue={0}
         value={step}
@@ -105,16 +87,17 @@ export default function ResultOverview() {
       </Radio.Group> */}
       <DisabledContext.Provider value={selectedKeys.length <= 0}>
         <Space size='small'>
-          批量操作(已选中<strong>{selectedKeys.length}</strong>项)：
-          <Button>导出简历</Button>
+          批量操作(已选中<strong>{selectedKeys.length}</strong>项)
+          <Button onClick={() => {
+            //TODO
+          }}>导出简历</Button>
           <Dropdown.Button type='primary'
             onClick={() => setIntentsStep(selectedKeys, getNextStep(step))}
             menu={{
               items: [
                 {
                   label: <Button
-                    onClick={() => setIntentsStep(selectedKeys, accepted)}
-                    size='small' type='link'>直接录取</Button>
+                    onClick={() => setIntentsStep(selectedKeys, accepted)} size='small' type='link'>直接录取</Button>
                 },
               ].map((v, i) => { return { ...v, key: i } })
             }}>
@@ -126,27 +109,31 @@ export default function ResultOverview() {
               items: [
                 {
                   label: <Button
-                    onClick={() => setIntentsStep(selectedKeys, invalid)}
-                    size='small' type='link' danger>失效</Button>
+                    onClick={() => setIntentsStep(selectedKeys, invalid)} type='link' size='small' danger>失效</Button>
+                }, {
+                  label: <Button
+                    onClick={() => setIntentsStep(selectedKeys, initial)} type='link' size='small' danger>重置至已填表</Button>
                 },
               ].map((v, i) => { return { ...v, key: i } })
             }}>
             拒绝
           </Dropdown.Button>
-          <Button onClick={async () => {
-            const txt = selectedKeys.map(id => intents.find(i => i.id === id)?.phone).join('\n');
-            try {
-              await navigator.clipboard.writeText(txt);
-              message.success('复制成功');
-            } catch {
-              showDrawer({
-                title: '手动复制', children: <div>
-                  <Typography.Text>因浏览器限制，请手动复制以下内容：</Typography.Text>
-                  <pre style={{ userSelect: 'all', padding: 'var(--ant-padding-xs)', border: '1px solid var(--ant-color-text-secondary)' }}>{txt}</pre>
-                </div>
-              })
-            }
-          }}>复制手机号</Button>
+          <Button
+            onClick={async () => {
+              const txt = selectedKeys.map(id => intents.find(i => i.id === id)?.phone).join('\n');
+              try {
+                await navigator.clipboard.writeText(txt);
+                message.success('复制成功');
+                throw 1;
+              } catch {
+                showDrawer({
+                  title: '手动复制', children: <div>
+                    <Typography.Text>因浏览器限制，请手动复制以下内容：</Typography.Text>
+                    <pre style={{ userSelect: 'all', padding: 'var(--ant-padding-xs)', border: '1px solid var(--ant-color-text-secondary)' }}>{txt}</pre>
+                  </div>
+                })
+              }
+            }}>复制手机号</Button>
         </Space>
       </DisabledContext.Provider>
       <Search onChange={({ target: { value } }) => debouncedSetFilter(value)} placeholder='筛选姓名/学号/手机号' />
@@ -220,6 +207,10 @@ export default function ResultOverview() {
                         label: <Button
                           onClick={() => setIntentsStep([record.id], invalid)}
                           size='small' type='link' danger>失效</Button>
+                      }, {
+                        label: <Button
+                          onClick={() => setIntentsStep([record.id], initial)}
+                          size='small' type='link' danger>重置至已填表</Button>
                       },
                     ].map((v, i) => { return { ...v, key: i } })
                   }}>
@@ -228,7 +219,14 @@ export default function ResultOverview() {
             </Space>);
           }
         }]}
-        bordered title={(d) => `候选人列表 (本页 ${d.length} 项${filter ? ` / 筛选到 ${filteredCount} 项` : ''} / 共 ${count} 项)`} />
+        bordered title={(d) => <Space size='small'>
+          <Typography.Text strong style={{
+            color:
+              step === 0 ? 'gray'
+                : step > 0 ? '#00b8ff' :
+                  step === -50 ? 'green' : 'red'
+          }}>{getStepLabel(step)}</Typography.Text>
+          候选人列表 (本页 {d.length} 项{filter ? ` / 筛选到 ${filteredCount} 项` : ''} / 共 {count} 项)</Space>} />
     </Flex>
   </Card>);
 }

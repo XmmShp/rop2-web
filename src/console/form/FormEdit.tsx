@@ -153,7 +153,7 @@ export default function FormEdit() {
               const { message: errMsg } = await prom;
               if (errMsg) message.error(errMsg);
               else message.success('修改已保存');
-            }}>新增题目组</Button>
+            }}>新建题目组</Button>
         </Flex>
       </Flex>
     </Flex >);
@@ -229,7 +229,7 @@ const GroupCard = forwardRef<HTMLDivElement,
                   if (id > maxId) maxId = id;
                 }));
               await onEdit({ ...group, children: [...questions, { type: 'text', title: '新问题', id: maxId + 1 }] });
-            }}>新增问题</Button>
+            }}>新建问题</Button>
           <Tooltip title={<>
             指定须填写的下一个问题组。
             <br />

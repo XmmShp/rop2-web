@@ -4,7 +4,7 @@ import { Person } from '../result/ResultOverview';
 import { FormDetail } from './useForm';
 import { num } from '../../utils';
 import { getTitle } from '../../shared/FormQuestion';
-import { Depart, OrgInfo } from './useOrg';
+import { Depart } from './useOrg';
 
 export type FullResult = {
   form: number,

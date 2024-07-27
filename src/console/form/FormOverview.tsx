@@ -46,7 +46,7 @@ export default function FormOverview() {
               },
             });
           }}
-        >新增</Button>
+        >新建</Button>
       </Flex>
       <Search value={searchValue}
         onChange={({ target: { value } }) => setSearchValue(value)} />
