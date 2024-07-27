@@ -45,9 +45,10 @@ function formatTimeLeft(time: Dayjs, verb: string = '') {
   return `${time.diff(dayjs(), 'day')}天${hourDiff}小时后${verb}`;
 }
 
-export default function InterviewList({ interviews, departs, links = [] }: {
+export default function InterviewList({ interviews, departs, links = [], orgName }: {
   interviews: Interview[];
   departs: Depart[];
+  orgName: string;
   links?: {
     label: string,
     danger?: boolean, disabled?: boolean | ((curInterview: Interview) => boolean),
@@ -64,7 +65,7 @@ export default function InterviewList({ interviews, departs, links = [] }: {
           {curInterview.status !== 0 && ' (' + (interviewStatus[curInterview.status] ?? `未知状态${curInterview.status}`) + ')'}
         </div>
         <div className='location'>地点：{curInterview.location}</div>
-        {dep && <div>面试部门：{dep.name}</div>}
+        <div>面试部门：{dep?.name ?? orgName}</div>
         <div>报名人数：{curInterview.usedCapacity} / {curInterview.capacity}</div>
         <div className='operations'>
           {links.map((link, i) => {

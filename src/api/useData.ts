@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getApi } from './core';
 
-export type DataTuple<T> = [T, Promise<T> | null, (newValue: T, waitUntil?: Promise<unknown>) => void];
+export type DataTuple<T> = [T, Promise<T> | null, (newValue?: T, waitUntil?: Promise<unknown>) => void];
 /**React Hook，异步加载数据。返回一个数组，元素分别为：数据；加载Promise(加载完后设为null，可判真切换加载UI)；刷新函数。
  * 
  * 首次渲染时先返回默认值，避免阻塞渲染；同时发送GET请求，用响应对象调用`dataProcessor`(可返回Promise)，然后用(异步)返回值更新state。
@@ -52,11 +52,12 @@ export function useData<T>(
     setLoadPromise(promise);
     return abortCtrl.abort.bind(abortCtrl);
   }, [condition, forceReloadTimes, ...deps]);
-  return [data, loadPromise, (newValue: T, waitUntil) => {
-    setData(newValue);
+  return [data, loadPromise, (newValue, waitUntil) => {
+    if (newValue !== undefined)
+      setData(newValue);
     if (waitUntil)
       waitUntil.then(() => { setForceReloadTimes(forceReloadTimes + 1) })
     else
       setForceReloadTimes(forceReloadTimes + 1);
-  }];
+  }] satisfies DataTuple<T>;
 }
