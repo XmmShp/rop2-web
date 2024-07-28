@@ -49,12 +49,9 @@ export default function AdminManage() {
         if (!newAdminId) { message.error('学工号不能为空'); return false; }
         const newAdminNickname = vrefNickname.value.trim();
         if (!newAdminNickname) { message.error('昵称不能为空'); return false; }
-        const { message: errMsg } = await editAdmin(newAdminId, newAdminNickname, vrefLevel.value);
-        if (errMsg) {
-          message.error(errMsg);
-          return;
-        }
-        message.success('设置成功');
+        const { code } = await editAdmin(newAdminId, newAdminNickname, vrefLevel.value);
+        if (!code)
+          message.success('设置成功');
         reload(list);
       },
     });

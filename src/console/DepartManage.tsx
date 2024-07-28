@@ -31,12 +31,9 @@ export default function DepartManage() {
                   message.error('名称不能为空');
                   return;
                 }
-                const errMsg = await addDepart(newName);
-                if (errMsg) {
-                  message.error(errMsg);
-                  return;
-                }
-                message.success('新建成功');
+                const { code } = await addDepart(newName);
+                if (!code)
+                  message.success('新建成功');
                 reload(orgInfo);
               },
             });
@@ -88,12 +85,9 @@ export default function DepartManage() {
                         message.error('名称不能为空');
                         return;
                       }
-                      const errMsg = await renameDepart(record.id, newName);
-                      if (errMsg) {
-                        message.error(errMsg);
-                        return;
-                      }
-                      message.success('重命名成功');
+                      const { code } = await renameDepart(record.id, newName);
+                      if (!code)
+                        message.success('重命名成功');
                       reload(orgInfo);
                     }
                   });
@@ -108,12 +102,9 @@ export default function DepartManage() {
                   </Typography.Text></Flex>),
                   okButtonProps: { danger: true },
                   async onConfirm() {
-                    const errMsg = await deleteDepart(record.id);
-                    if (errMsg) {
-                      message.error(errMsg);
-                      return;
-                    }
-                    message.success('删除成功');
+                    const { code } = await deleteDepart(record.id);
+                    if (!code)
+                      message.success('删除成功');
                     reload(orgInfo);
                   }
                 })}>删除</Button>

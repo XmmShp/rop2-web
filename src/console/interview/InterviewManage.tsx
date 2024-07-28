@@ -104,7 +104,7 @@ export default function InterviewManage() {
                 }
                 const startAt = startTime;
                 const endAt = startTime.add(num(durationRef.value, 0), 'minute');
-                const { message: errMsg } = await pkgPost('/interview/add', {
+                const { code } = await pkgPost('/interview/add', {
                   formId,
                   depart: ivDepart,
                   step,
@@ -113,9 +113,7 @@ export default function InterviewManage() {
                   startAt,
                   endAt
                 })
-                if (errMsg)
-                  message.error(errMsg);
-                else
+                if (!code)
                   message.success('新建成功');
                 reload();
               }
@@ -127,20 +125,39 @@ export default function InterviewManage() {
       <InterviewList interviews={interviews} departs={departs} orgName={orgName}
         links={[{
           label: '查看报名表',
-          disabled(curInterview) {
-            return curInterview.usedCapacity <= 0;
-          },
+          disabled(curInterview) { return curInterview.usedCapacity <= 0 },
           onClick(curInterview) {
 
           },
         }, {
-          label: '冻结', danger: true, onClick: () => { }
+          label: '冻结',
+          onClick(curInterview) {
+            showModal({
+              title: '冻结面试',
+              content: (<Typography.Text>
+                确定要冻结这场面试吗？
+                <br />
+                冻结后，该面试场次将不再接受报名，但已报名的不受影响。
+                <br />
+                冻结后不可恢复。
+              </Typography.Text>),
+              async onConfirm() {
+                //TODO: freeze interview
+                message.success('冻结成功');
+              }
+            })
+          },
+          disabled(curInterview) { return curInterview.status === 20 },
         }, {
           label: '删除', danger: true,
           onClick(curInterview) {
             showModal({
               title: '删除面试',
-              content: `确定要删除这场面试吗？`,
+              content: (<Typography.Text>
+                确定要删除这场面试吗？
+                <br />
+                删除后，已报名该面试的候选人需重新报名。
+              </Typography.Text>),
               async onConfirm() {
                 //TODO: delete interview
                 message.success('删除成功');

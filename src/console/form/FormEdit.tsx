@@ -79,9 +79,8 @@ export default function FormEdit() {
                   const endAt = end ?? dayjs('2050-01-01T00:00:00.000Z');
                   const prom = editForm(form.id, { startAt, endAt });
                   reloadForm({ ...form, startAt, endAt }, prom);
-                  const { message: errMsg } = await prom;
-                  if (errMsg) message.error(errMsg);
-                  else message.success('开放时间已保存');
+                  const { code } = await prom;
+                  if (!code) message.success('开放时间已保存');
                 }} />
             </Flex>
           </Tooltip>
@@ -111,9 +110,8 @@ export default function FormEdit() {
               const newForm = { ...form, children: newChildren };
               const prom = editForm(form.id, { children: JSON.stringify(newChildren) });
               reloadForm(newForm, prom);
-              const { message: errMsg } = await prom;
-              if (errMsg) message.error(errMsg);
-              else message.success('修改已保存');
+              const { code } = await prom;
+              if (!code) message.success('修改已保存');
             }}
             onDelete={async () => await showModal({
               title: '删除问题组',
@@ -129,9 +127,8 @@ export default function FormEdit() {
                 const newForm = { ...form, children: newChildren };
                 const prom = editForm(form.id, { children: JSON.stringify(newChildren) });
                 reloadForm(newForm, prom);
-                const { message: errMsg } = await prom;
-                if (errMsg) message.error(errMsg);
-                else message.success('修改已保存');
+                const { code } = await prom;
+                if (!code) message.success('修改已保存');
               }
             })} />)}
 
@@ -150,9 +147,8 @@ export default function FormEdit() {
               const newForm = { ...form, children: newChildren };
               const prom = editForm(form.id, { children: JSON.stringify(newChildren) });
               reloadForm(newForm, prom);
-              const { message: errMsg } = await prom;
-              if (errMsg) message.error(errMsg);
-              else message.success('修改已保存');
+              const { code } = await prom;
+              if (!code) message.success('修改已保存');
             }}>新建题目组</Button>
         </Flex>
       </Flex>

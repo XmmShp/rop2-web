@@ -1,6 +1,7 @@
 import { base64 } from 'rfc4648';
 import { kvGet, kvSet } from '../store/kvCache';
 import { without } from '../utils';
+import { message } from '../App';
 
 //从环境变量读取api基路径(api基路径和前端基路径无关)。该值不能以/结尾
 const apiBase = import.meta.env.VITE_APIBASE ?? 'http://127.0.0.1:8080';
@@ -79,9 +80,15 @@ export async function postApi(
 
 /**发送POST请求。
  * 
- * 若收到响应，将其视为json解析并返回（无论其状态码是否为200）。
+ * 若收到响应，将其视为json解析并返回（无论其状态码是否为200）。  
+ * 
+ * 如果`code`或`message`不为空，则显示一条错误消息，返回值不变。
  */
 export async function pkgPost(...args: Parameters<typeof postApi>): Promise<{ code: number, message?: string }> {
   const resp = await postApi(...args);
-  return await resp.json();
+  const jsonObj = await resp.json();
+  const { code, message: errMsg } = jsonObj;
+  if (code || errMsg)
+    message.error(errMsg ?? '未知错误');
+  return jsonObj;
 }

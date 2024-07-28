@@ -36,12 +36,9 @@ export default function FormOverview() {
                   message.error('名称不能为空');
                   return;
                 }
-                const { message: errMsg } = await createForm(newName);
-                if (errMsg) {
-                  message.error(errMsg);
-                  return;
-                }
-                message.success('新建成功');
+                const { code } = await createForm(newName);
+                if (!code)
+                  message.success('新建成功');
                 reload(forms);
               },
             });
@@ -99,10 +96,8 @@ export default function FormOverview() {
                 </Typography.Text></Flex>),
                 okButtonProps: { danger: true },
                 async onConfirm() {
-                  //TODO 删除表单API
-                  const { message: errMsg } = await deleteForm(formId);
-                  if (errMsg) message.error(errMsg);
-                  else message.success('删除成功');
+                  const { code } = await deleteForm(formId);
+                  if (!code) message.success('删除成功');
                   reload(forms);
                 }
               })}>删除</Button>

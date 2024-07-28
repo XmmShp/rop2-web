@@ -116,10 +116,8 @@ export default function ApplyForm() {
                   message.error('请填写所有必填项');
                   return;
                 }
-                const { message: errMsg } = await saveResult(form.id, { phone }, intentDeparts, answer);
-                if (errMsg)
-                  message.error(errMsg);
-                else
+                const { code } = await saveResult(form.id, { phone }, intentDeparts, answer);
+                if (!code)
                   setCompleted(true);
               }}>
               {revealGroups.map((group) => {
