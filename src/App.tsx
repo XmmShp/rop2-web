@@ -99,13 +99,6 @@ const router = createBrowserRouter([{
         const { default: Component } = await import('./apply/ApplyForm.tsx');
         return { element: <Component /> }
       }
-    }, {
-      //TODO: 未用待删除
-      path: 'my/profile',
-      async lazy() {
-        const { default: Component } = await import('./my/Profile.tsx');
-        return { element: <Component /> }
-      }
     }
   ]
 }], {
