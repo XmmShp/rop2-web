@@ -1,10 +1,10 @@
 import dayjs, { Dayjs } from 'dayjs';
 import { DataTuple, useData } from '../../api/useData';
 import { useNavigate, useParams } from 'react-router-dom';
-import { kvGet } from '../../store/kvCache';
+import { kvGet, kvSet } from '../../store/kvCache';
 import { num } from '../../utils';
-import { useEffect } from 'react';
 import { message } from '../../App';
+import { useFormList } from './useFormList';
 
 export type Id = number;
 type QuestionType = 'name' | 'zjuid' | 'phone' | 'choice-depart' | 'text' | 'choice';
@@ -64,8 +64,23 @@ export type FormDetail = {
   endAt: Dayjs | null;
 }
 export function useFormId(): Id {
+  const [forms] = useFormList();
+  const navigate = useNavigate();
   const { formId: paramFormId } = useParams();
-  return num(paramFormId ?? kvGet('form'), -1);
+  const staticFormId = paramFormId ?? kvGet('form');
+  if (!staticFormId) {
+    if (forms.length === 0) {
+      navigate('/console/form');
+      message.error('表单不存在，请新建表单');
+      return -1;
+    }
+    else {
+      const latestFormId = forms[0].id;
+      kvSet('form', latestFormId.toString());
+      message.info('工作表单设置为：' + forms[0].name);
+      return latestFormId;
+    }
+  } else return num(staticFormId);
 }
 /**获取单个表单详情。支持管理员和候选人两种访问路径。 */
 export function useForm(type: 'admin' | 'applicant' = 'admin'): DataTuple<FormDetail> {
@@ -80,22 +95,22 @@ export function useForm(type: 'admin' | 'applicant' = 'admin'): DataTuple<FormDe
     endAt: null
   };
   const navigate = useNavigate();
-  if (formId < 0) {
-    useEffect(() => {
-      navigate('/console/form');
-      message.error('未指定表单，请先选择目前工作表单');
-    }, []);
-    return [defaultForm, Promise.resolve(defaultForm), () => { }];
-  } else
-    //React Hook调用顺序和数量必须恒定
-    useEffect(() => { }, []);
+  // if (formId < 0) {
+  //   useEffect(() => {
+  //     navigate('/console/form');
+  //     message.error('未指定表单，请先选择目前工作表单');
+  //   }, []);
+  //   return [defaultForm, Promise.resolve(defaultForm), () => { }];
+  // } else
+  //   //React Hook调用顺序和数量必须恒定
+  //   useEffect(() => { }, []);
   const apiPath = type === 'admin' ? '/form/detail' : '/applicant/form';
 
   const [form, loadPromise, reload] = useData<FormDetail>(apiPath,
     async (resp) => {
       if (resp.status == 404) {
         navigate('/console/form');
-        message.error('表单不存在');
+        message.error('表单不存在，请新建表单');
         return defaultForm;
       }
       const value = await resp.json();

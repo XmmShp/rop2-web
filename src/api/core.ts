@@ -2,22 +2,28 @@ import { base64 } from 'rfc4648';
 import { kvGet, kvSet } from '../store/kvCache';
 import { without } from '../utils';
 import { message } from '../App';
+import { redirectToLogin } from './auth';
 
 //从环境变量读取api基路径(api基路径和前端基路径无关)。该值不能以/结尾
 const apiBase = import.meta.env.VITE_APIBASE ?? 'http://127.0.0.1:8080';
+export function getApiUrl(route: '' | `/${string}` = '') {
+  return apiBase + route;
+}
 
-async function saveToken(token: string) {
+//保存token，同步函数
+export function saveToken(token: string) {
   kvSet('token', token);
   const [objB64,] = token.split(' ');
   const bytes = base64.parse(objB64, { loose: true });
   const decoder = new TextDecoder('utf-8');
   const objJson = decoder.decode(bytes);
-  const { at, nickname, level, zjuId } = JSON.parse(objJson) as {
+  const { at = 0, nickname = '', level = 0, zjuId } = JSON.parse(objJson) as {
     at: number,//登录组织id
     nickname: string,
     level: number,//权限级别
     zjuId: string,
   };
+  //没有管理权限的用户at nickname level均为默认值
   //以下字段仅供缓存(显示)使用，不作为凭据
   kvSet('at', at.toString());
   kvSet('nickname', nickname);
@@ -25,6 +31,7 @@ async function saveToken(token: string) {
   kvSet('zjuId', zjuId);
 }
 
+//fetch的封装，自动添加token，处理401(跳登录页)和token刷新
 async function innerFetch(...[url, config]: Parameters<typeof fetch>): ReturnType<typeof fetch> {
   const token = kvGet('token');
   const resp = await fetch(url, {
@@ -41,6 +48,8 @@ async function innerFetch(...[url, config]: Parameters<typeof fetch>): ReturnTyp
   const newToken = resp.headers.get('rop-refresh-token');
   if (newToken)
     saveToken(newToken)
+  if (resp.status === 401)
+    redirectToLogin();
   return resp;
 }
 
@@ -49,7 +58,7 @@ export async function getApi(
   params: Record<string, any> = {},
   fetchConfig: RequestInit = {}
 ): Promise<Response> {
-  let url = apiBase + pathname;
+  let url = getApiUrl(pathname);
   const paramsEntries = Object.entries(params);
   if (paramsEntries.length) {
     url += '?';
@@ -70,7 +79,7 @@ export async function postApi(
   body: Record<string, any>,
   fetchConfig: RequestInit = {}
 ): Promise<Response> {
-  return await innerFetch(apiBase + pathname, {
+  return await innerFetch(getApiUrl(pathname), {
     method: 'POST',
     body: JSON.stringify(body),
     headers: { 'content-type': 'application/json' },

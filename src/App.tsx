@@ -79,10 +79,8 @@ const router = createBrowserRouter([{
   path: '/',
   errorElement: <ErrorElement />,
   children: [
+    { index: true, element: <Navigate to='/console' /> },
     {
-      index: true,
-      element: <Navigate to='/console' />
-    }, {
       path: 'console',
       children: consoleRoutes,
       lazy: getConsoleLoader('ConsoleLayout', {
@@ -99,6 +97,7 @@ const router = createBrowserRouter([{
         return { element: <Component /> }
       }
     }, {
+      //TODO: 未用待删除
       path: 'my/profile',
       async lazy() {
         const { default: Component } = await import('./my/Profile.tsx');

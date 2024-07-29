@@ -5,11 +5,12 @@
   justify-content: flex-start;
   padding: 1em;
   gap: .4em;
+  word-break: break-all;
 
   .interview-card {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    justify-content: space-between;
     padding: .5em 1em;
     width: 18em;
     box-sizing: border-box;
@@ -18,12 +19,19 @@
     box-shadow: 0 0 10px 0 #0000001a;
     transition: all 0.3s;
 
-    .time-left {
-      color: var(--ant-color-text-secondary);
-      font-size: calc(.8 * var(--ant-font-size));
+    .info {
+      .time-left {
+        color: var(--ant-color-text-secondary);
+        font-size: calc(.8 * var(--ant-font-size));
+        border-bottom: 1px solid var(--ant-color-border);
+        margin-bottom: .4em;
+      }
+
+
     }
 
     .operations {
+      margin-top: .4em;
       align-self: flex-end;
     }
   }

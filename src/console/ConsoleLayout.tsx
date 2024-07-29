@@ -40,7 +40,7 @@ export default function ConsoleLayout({ routes }: { routes: (GetProp<typeof Menu
           onClick(info) {
             if (info.key === '退出') {
               logout();
-              //TODO 重定向登录etc
+              location.reload();//刷新，会跳转到登录页
             }
           }
         }}>

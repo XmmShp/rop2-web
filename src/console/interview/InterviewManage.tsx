@@ -1,4 +1,4 @@
-import { Button, Card, Checkbox, DatePicker, Flex, Form, Radio, Space, Tabs, Typography } from 'antd';
+import { Button, Card, DatePicker, Flex, Form, Radio, Space, Tabs, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { getStepLabel } from '../result/ResultOverview';
 import { useFilterDeparts, FilterDepartsComponent } from '../shared/FilterDeparts';
@@ -11,7 +11,7 @@ import { useData } from '../../api/useData';
 import { useFormId } from '../shared/useForm';
 import { num } from '../../utils';
 import { useState } from 'react';
-import { pkgPost, postApi } from '../../api/core';
+import { pkgPost } from '../../api/core';
 
 export const stepsWithInterview = [1, 2] as const;
 export default function InterviewManage() {
@@ -137,13 +137,14 @@ export default function InterviewManage() {
               content: (<Typography.Text>
                 确定要冻结这场面试吗？
                 <br />
-                冻结后，该面试场次将不再接受报名，但已报名的不受影响。
+                冻结后将停止报名，已报名的候选人不受影响。
                 <br />
                 冻结后不可恢复。
               </Typography.Text>),
               async onConfirm() {
-                //TODO: freeze interview
-                message.success('冻结成功');
+                const { code } = await pkgPost('/interview/freeze', { id: curInterview.id });
+                if (!code) message.success('冻结成功');
+                reload();
               }
             })
           },
@@ -159,8 +160,9 @@ export default function InterviewManage() {
                 删除后，已报名该面试的候选人需重新报名。
               </Typography.Text>),
               async onConfirm() {
-                //TODO: delete interview
-                message.success('删除成功');
+                const { code } = await pkgPost('/interview/delete', { id: curInterview.id });
+                if (!code) message.success('删除成功');
+                reload();
               }
             });
           },
