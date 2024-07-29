@@ -7,9 +7,14 @@ import { useOrg, Depart } from './useOrg';
 export function useFilterDeparts() {
   const [filterDeparts, setFilterDeparts] = useStoredState<Id[]>([], 'filterDeparts');
   const [orgInfo, orgInfoLoading] = useOrg();
+  const { departs } = orgInfo;
   useEffect(() => {//初始化(下载部门信息)后如果没有选择任何部门，自动全选
-    if (filterDeparts.length <= 0 && orgInfoLoading)
-      orgInfoLoading.then(({ departs: deps }) => setFilterDeparts(deps.map((d) => d.id)))
+    if (filterDeparts.length <= 0) {
+      if (orgInfoLoading)
+        orgInfoLoading.then(({ departs: deps }) => setFilterDeparts(deps.map((d) => d.id)));
+      else
+        setFilterDeparts(departs.map((d) => d.id));
+    }
   }, [orgInfoLoading]);
   return [filterDeparts, setFilterDeparts, orgInfo, orgInfoLoading] as const;
 }

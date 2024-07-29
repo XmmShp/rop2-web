@@ -63,7 +63,7 @@ export type FormDetail = {
   startAt: Dayjs | null;
   endAt: Dayjs | null;
 }
-export function useFormId(): Id {
+export function useFormId(isApplicant = false): Id {
   const [forms] = useFormList();
   const navigate = useNavigate();
   const { formId: paramFormId } = useParams();
@@ -82,9 +82,17 @@ export function useFormId(): Id {
     }
   } else return num(staticFormId);
 }
-/**获取单个表单详情。支持管理员和候选人两种访问路径。 */
-export function useForm(type: 'admin' | 'applicant' = 'admin'): DataTuple<FormDetail> {
-  const formId = useFormId();
+/**获取单个表单详情。支持管理员和候选人两种访问路径。
+ * 在没有ConsoleLayout包裹时，无法使用useFormList，需设置hasContext为false。
+ */
+export function useForm(type: 'admin' | 'applicant' = 'admin', hasContext = true): DataTuple<FormDetail> {
+  let formId;
+  if (type === 'applicant' || !hasContext) {
+    const params = useParams();
+    formId = num(params.formId, -1);
+  }
+  else
+    formId = useFormId();
   const defaultForm = {
     owner: -1,
     id: formId,
@@ -110,7 +118,7 @@ export function useForm(type: 'admin' | 'applicant' = 'admin'): DataTuple<FormDe
     async (resp) => {
       if (resp.status == 404) {
         navigate('/console/form');
-        message.error('表单不存在，请新建表单');
+        message.error('表单不存在，可能已被删除');
         return defaultForm;
       }
       const value = await resp.json();

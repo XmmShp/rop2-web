@@ -43,6 +43,9 @@ export const consoleRoutes = [
     icon: <FundViewOutlined />,
     lazy: getConsoleLoader('InterviewManage')
   }, {
+    path: 'interview/schedule/:interviewId',
+    lazy: getConsoleLoader('ScheduleList')
+  }, {
     label: '通知',
     path: 'message',
     icon: <MessageOutlined />,

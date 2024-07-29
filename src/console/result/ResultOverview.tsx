@@ -64,6 +64,7 @@ export default function ResultOverview() {
 
   return (<Card loading={!!orgInfoLoading}>
     <Flex vertical gap='middle'>
+      <Typography.Text>表单：{form.name}</Typography.Text>
       <FilterDepartsComponent {...{ departs, filterDeparts, setFilterDeparts }} />
       <Segmented block
         defaultValue={0}
@@ -181,7 +182,7 @@ export default function ResultOverview() {
                     placement: 'left',
                     size: 'large',
                     title: `${record.name}(${record.zjuId}) 的报名表`,
-                    children: <ResultDisplay form={form} person={record} departs={departs} />
+                    children: <ResultDisplay form={form} zjuId={record.zjuId} departs={departs} />
                   });
                 }}
               >查看简历</Button>

@@ -1,11 +1,10 @@
 import { Avatar, Dropdown, Flex, GetProp, Layout, Menu } from 'antd';
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { singleMatch, useNickname } from '../utils';
 import './ConsoleLayout.scss';
 import { logout } from '../api/auth';
 import { OrgContext, useOrgProvider } from './shared/useOrg';
 import { FormListContext, useFormListProvider } from './shared/useFormList';
-import { setActiveForm } from './form/FormOverview';
 
 export default function ConsoleLayout({ routes }: { routes: (GetProp<typeof Menu, 'items'>[number] & { key: string })[] }) {
   routes = routes.map(v => { return { ...v, key: v.key.replace(/\/:\w+\??$/, '') } });
@@ -31,10 +30,13 @@ export default function ConsoleLayout({ routes }: { routes: (GetProp<typeof Menu
     <Layout.Content className='main'>
       <Flex className='title-bar' align='center' justify='space-between'>
         <span className='title'>求是潮纳新开放系统V2</span>
-        {forms.length > 0 && <Link
+        {/* {forms.length > 0 && <Link
           onClick={() => { setActiveForm(forms[0].id) }}
-          className='current-activity' to={`/console/result?id=${forms[0].id}`}>{forms[0].name}
-        </Link>}
+          //显示最新纳新
+          className='current-activity' to={`/console/result?id=${forms[0].id}`}>
+          查看最近纳新报名表：
+          {forms[0].name}
+        </Link>} */}
         <Dropdown trigger={['click']} menu={{
           items: [{ label: '退出', }].map((v) => { return { ...v, key: v.label } }),
           onClick(info) {

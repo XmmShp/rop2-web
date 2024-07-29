@@ -10,5 +10,6 @@ import MessageManage from './MessageManage';
 import StageManage from './StageManage';
 import DepartManage from './DepartManage';
 import InterviewManage from './interview/InterviewManage';
+import ScheduleList from './interview/ScheduleList';
 
-export { ConsoleLayout, Dash, FormOverview, FormEdit, ResultOverview, AdminManage, MessageManage, StageManage, DepartManage, InterviewManage };
+export { ConsoleLayout, Dash, FormOverview, FormEdit, ResultOverview, AdminManage, MessageManage, StageManage, DepartManage, InterviewManage, ScheduleList };

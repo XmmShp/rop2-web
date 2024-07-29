@@ -58,6 +58,13 @@ export default function FormEdit() {
           setCurGroupIndex(curG);
         }}>
         <Flex className='form' vertical gap='middle'>
+          <Typography.Text type='secondary'>
+            您正在编辑问卷。
+            <br />
+            编辑部分区域时若无保存按钮，可使用回车保存。
+            <br />
+            报名者的姓名、学号通过浙大统一认证获取，无需在问卷中填写。
+          </Typography.Text>
           <Tooltip title={<>
             可随时修改开放时间和表单内容。
             <br />

@@ -25,7 +25,7 @@ export type Interview = {
   usedCapacity: number;
 };
 
-function formatPeriod(startAt: Dayjs, endAt: Dayjs) {
+export function formatPeriod(startAt: Dayjs, endAt: Dayjs) {
   //假定不跨天
   let result = '';
   if (startAt.year() !== dayjs().year())
@@ -42,7 +42,7 @@ function formatTimeLeft(time: Dayjs, verb: string = '') {
     return `即将${verb}`;
   if (hourDiff < 24)
     return `${hourDiff}小时后${verb}`;
-  return `${time.diff(dayjs(), 'day')}天${hourDiff}小时后${verb}`;
+  return `${time.diff(dayjs(), 'day')}天${hourDiff % 24}小时后${verb}`;
 }
 
 export default function InterviewList({ interviews, departs, links = [], orgName }: {

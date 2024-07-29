@@ -1,26 +1,20 @@
 import { Descriptions } from 'antd';
 import { useData } from '../../api/useData';
-import { Person } from '../result/ResultOverview';
 import { FormDetail } from './useForm';
 import { num } from '../../utils';
 import { getTitle } from '../../shared/FormQuestion';
 import { Depart } from './useOrg';
+import { ResultDetail } from '../../api/result';
 
-export type FullResult = {
-  form: number,
-  zjuId: string,
-  content: string, //json
-  createAt: string,
-  updateAt: string,
-}
-export default function ResultDisplay({ form, person: { name, zjuId, phone }, departs }: {
+
+export default function ResultDisplay({ form, zjuId, departs }: {
   form: FormDetail;
-  person: Person;
+  zjuId: string;
   departs: Depart[];
 }) {
   const formId = form.id;
-  const defaultResult: FullResult = { form: formId, zjuId, content: '{}', createAt: '', updateAt: '' };
-  const [[{ content }],] = useData<FullResult[]>('/result', resp => resp.json(), [defaultResult], { formId, target: [zjuId] }, [formId, zjuId]);
+  const defaultResult: ResultDetail = { content: '{}', name: '加载中', phone: '' };
+  const [{ content, name, phone },] = useData<ResultDetail>('/result', resp => resp.json(), defaultResult, { formId, target: zjuId }, [formId, zjuId]);
   function findQuestion(id: string) {
     const numId = num(id, NaN);
     return form.children.first(group => group.children.first(q => q.id === numId && q));

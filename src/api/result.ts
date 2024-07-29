@@ -5,7 +5,8 @@ export async function setIntents(formId: number, intentIds: number[], step: Step
   return await pkgPost('/result/set', { intentIds, step, formId });
 }
 
-export async function getResults(formId: number, zjuIds: string[]) {
-  let resp = await getApi('/result', { formId, target: zjuIds.join(',') });
-  return await resp.json();
-}
+export type ResultDetail = {
+  content: string, //json
+  name: string,
+  phone: string
+} 

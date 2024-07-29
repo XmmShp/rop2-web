@@ -106,6 +106,7 @@ function QuestionEditor({ question, onChange, groups, thisGroup }:
 export function DescEditor({ desc, onConfirm }: { desc: string, onConfirm: (newDesc: string) => Promise<void> }) {
   const [editing, setEditing] = useState<string | undefined>(undefined);
   const isEditing = typeof editing === 'string';
+  const hasDesc = desc.length > 0;
   return <Flex align={isEditing ? undefined : 'center'} gap='small' vertical={isEditing} >
     {isEditing
       ? <>
@@ -131,9 +132,9 @@ export function DescEditor({ desc, onConfirm }: { desc: string, onConfirm: (newD
         <Button style={{ flex: '0 0 auto' }}
           icon={<EditOutlined />} type='dashed'
           onClick={() => setEditing(desc)} />
-        <Typography.Text>
+        {hasDesc ? <Typography.Text>
           {desc}
-        </Typography.Text>
+        </Typography.Text> : <Typography.Text type='secondary'>编辑问卷简介</Typography.Text>}
       </>}
   </Flex>
 }

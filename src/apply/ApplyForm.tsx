@@ -32,7 +32,7 @@ export default function ApplyForm() {
   useEffect(() => {
     if (profilePromise?.then) profilePromise.then((prof) => setPhone(prof.phone));
   }, [profilePromise]);
-  const [form] = useForm(isPreview ? 'admin' : 'applicant');
+  const [form] = useForm(isPreview ? 'admin' : 'applicant', false);
   const [departs] = useData<Depart[]>('/applicant/org', (resp) => resp.json(), [], { id: form.owner }, [form.owner], form.owner > 0);
   const [completed, setCompleted] = useState(false);
   type AnswerMap = Record<string, unknown>;

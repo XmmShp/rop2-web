@@ -1,5 +1,5 @@
 # rop2-web
-求是潮rop项目的（可能）迭代。
+求是潮rop项目的迭代。
 
 ### 开发指南
 - `git clone`本仓库（可选参数`--depth 1`浅克隆）
@@ -21,6 +21,6 @@
 ### 部署到playground
 运行编译脚本前，先将环境变量VITE_APIBASE设为完整的API基路径且不以/结尾，如`http://127.0.0.1:8080`
 ```sh
-npm run build -- --base=/rop2
+npm run build -- --base=/rop
 ```
 将dist文件夹下所有文件使用scp或sftp上传到服务器，并正确修改nginx配置

@@ -17,11 +17,8 @@ function _FormQuestion<Q extends ValidQuestion>({ value, question, departs = [],
   const hasDesc = (question as any).desc?.trim().length > 0;
   const [validateStatus, setValidateStatus] = useState<'success' | 'warning' | 'error' | 'validating' | ''>('');
   function validate(newValue: ValueOf<Q>) {
-    if (!question.optional) {
-      if (!(newValue?.length)) {
-        setValidateStatus('error');
-      }
-    } else { setValidateStatus(''); }
+    if (!question.optional)
+      setValidateStatus(newValue?.length ? '' : 'error');
   }
   return <div ref={ref} className={'question-container' + (hasDesc ? ' with-desc' : '')}>
     <Form.Item className='form-item' key={question.id}
