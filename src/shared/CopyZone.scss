@@ -1,0 +1,15 @@
+pre.copy-zone {
+  user-select: all;
+  -webkit-user-drag: none;
+  padding: .2em 0.6em;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  background: rgba(150, 150, 150, 0.1);
+  border: 1px solid rgba(100, 100, 100, 0.2);
+  border-radius: 3px;
+  font-family: var(--ant-font-family-code);
+
+  &.inline {
+    display: inline-block;
+  }
+}

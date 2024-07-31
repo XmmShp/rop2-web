@@ -8,10 +8,11 @@ import { message } from '../../App';
 import { showModal, TempInput } from '../../shared/LightComponent';
 import { useData } from '../../api/useData';
 import { useForm } from '../shared/useForm';
-import { num } from '../../utils';
+import { basename, num } from '../../utils';
 import { useState } from 'react';
 import { pkgPost } from '../../api/core';
 import { useNavigate } from 'react-router-dom';
+import CopyZone from '../../shared/CopyZone';
 
 export const stepsWithInterview = [1, 2] as const;
 export default function InterviewManage() {
@@ -29,6 +30,9 @@ export default function InterviewManage() {
   return (<Card>
     <Flex vertical gap='middle'>
       <Typography.Text>表单：{form.name}</Typography.Text>
+      <Typography.Text>候选人选择面试链接：
+        <CopyZone inline text={`${location.origin}${basename}/status/${formId}`} />
+      </Typography.Text>
       <FilterDepartsComponent {...{ departs, filterDeparts, setFilterDeparts }} />
       <Tabs centered
         activeKey={String(step)}

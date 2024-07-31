@@ -32,8 +32,8 @@ export default function ApplyForm() {
   useEffect(() => {
     if (profilePromise?.then) profilePromise.then((prof) => setPhone(prof.phone));
   }, [profilePromise]);
-  const [form] = useForm(isPreview ? 'admin' : 'applicant', false);
-  const [departs] = useData<Depart[]>('/applicant/org', (resp) => resp.json(), [], { id: form.owner }, [form.owner], form.owner > 0);
+  const [form, formLoading] = useForm(isPreview ? 'admin' : 'applicant', false);
+  const [departs] = useData<Depart[]>('/applicant/org', (resp) => resp.json(), [], { id: form.owner }, [form.owner], !formLoading);
   const [completed, setCompleted] = useState(false);
   type AnswerMap = Record<string, unknown>;
   const [phone, setPhone] = useState(profilePhone);
@@ -41,7 +41,7 @@ export default function ApplyForm() {
   type RefMap = Record<string, React.RefObject<HTMLDivElement>>;
   const [refMap, setRefMap] = useState<RefMap>({});
   useEffect(() => {
-    if ('message' in form.children) return;
+    if ('message' in form.children) return;//表单异常，不需要初始化
     const newAnswerMap: AnswerMap = {};
     const newRefMap: RefMap = { phoneRef: createRef() };
     form.children.forEach(

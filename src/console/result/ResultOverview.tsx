@@ -9,6 +9,7 @@ import { setIntents } from '../../api/result';
 import { showDrawer } from '../../shared/LightComponent';
 import ResultDisplay from '../shared/ResultDisplay';
 import { useFilterDeparts, FilterDepartsComponent } from '../shared/FilterDeparts';
+import CopyZone from '../../shared/CopyZone';
 
 /**所在阶段。1~127=第n阶段(可重命名)； */
 export type StepType = number;
@@ -122,12 +123,11 @@ export default function ResultOverview() {
               try {
                 await navigator.clipboard.writeText(txt);
                 message.success('复制成功');
-                throw 1;
               } catch {
                 showDrawer({
                   title: '手动复制', children: <div>
                     <Typography.Text>因浏览器限制，请手动复制以下内容：</Typography.Text>
-                    <pre style={{ userSelect: 'all', padding: 'var(--ant-padding-xs)', border: '1px solid var(--ant-color-text-secondary)' }}>{txt}</pre>
+                    <CopyZone text={txt} />
                   </div>
                 })
               }

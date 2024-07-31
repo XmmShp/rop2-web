@@ -46,12 +46,12 @@ export const consoleRoutes = [
     path: 'interview/schedule/:interviewId',
     lazy: getConsoleLoader('ScheduleList')
   }, {
-    label: '通知',
+    // label: '通知', 没做先隐藏
     path: 'message',
     icon: <MessageOutlined />,
     lazy: getConsoleLoader('MessageManage')
   }, {
-    label: '阶段',
+    // label: '阶段',
     path: 'stage',
     icon: <FunnelPlotOutlined />,
     lazy: getConsoleLoader('StageManage')
@@ -97,6 +97,12 @@ const router = createBrowserRouter([{
       path: 'apply/:formId',
       async lazy() {
         const { default: Component } = await import('./apply/ApplyForm.tsx');
+        return { element: <Component /> }
+      }
+    }, {
+      path: 'status/:formId',
+      async lazy() {
+        const { default: Component } = await import('./status/StatusPage.tsx');
         return { element: <Component /> }
       }
     }

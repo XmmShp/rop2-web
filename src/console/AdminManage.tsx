@@ -26,22 +26,25 @@ export default function AdminManage() {
     { limit, offset, filter },
     [limit, offset, filter]);
   const { admins, count, filteredCount } = list;
-  function showEditModal(id: string, nickname: string, level: number) {
+  function showEditModal(id: string, nickname: string, level: number, type: 'add' | 'edit') {
+    const isAdd = type === 'add';
     const vrefId = { value: id };
     const vrefNickname = { value: nickname };
     const vrefLevel = { value: level };
+    const optionPairs: [string, string][] = Object.entries(levels).filter(([k]) => !Object.is(num(k, NaN), NaN));
+    if (!isAdd) optionPairs.push(['0', '无']);
     showModal({
-      title: '设置管理员',
+      title: `${isAdd ? '添加' : '修改'}管理员`,
       content: (<Form layout='vertical'>
         <Form.Item required label='学工号'>
-          <TempInput vref={vrefId} showCount maxLength={10} />
+          <TempInput disabled={!isAdd} vref={vrefId} showCount maxLength={10} />
         </Form.Item>
         <Form.Item required label='昵称'>
           <TempInput vref={vrefNickname} showCount maxLength={10} />
         </Form.Item>
         <Form.Item required label='权限'>
           <TempRadioGroup vref={vrefLevel}
-            options={Object.entries(levels).map(([k, v]) => { return { label: k === '_' ? '无' : v, value: num(k, 0) } })} />
+            options={optionPairs.map(([k, v]) => { return { label: v, value: num(k, 0) } })} />
         </Form.Item>
       </Form>),
       async onConfirm() {
@@ -63,7 +66,7 @@ export default function AdminManage() {
       </Typography.Text>
       <Flex wrap='wrap'>
         <Button icon={<PlusOutlined />} type='primary'
-          onClick={() => showEditModal('', '', 20)}
+          onClick={() => showEditModal('', '', 20, 'add')}
         >新建</Button>
       </Flex>
       <Search onChange={({ target: { value: searchValue } }) => setFilterDebounced(searchValue)} />
@@ -82,7 +85,7 @@ export default function AdminManage() {
           render(value, record, index) {
             return (<Space size={0}>
               <Button size='small' type='link'
-                onClick={() => showEditModal(record.zjuId, record.nickname, record.level)}
+                onClick={() => showEditModal(record.zjuId, record.nickname, record.level, 'edit')}
               >修改</Button>
             </Space>);
           }

@@ -64,9 +64,10 @@ export type FormDetail = {
   endAt: Dayjs | null;
 }
 export function useFormId(isApplicant = false): Id {
+  const { formId: paramFormId } = useParams();
+  if (isApplicant) return num(paramFormId, -1);
   const [forms] = useFormList();
   const navigate = useNavigate();
-  const { formId: paramFormId } = useParams();
   const staticFormId = paramFormId ?? kvGet('form');
   if (!staticFormId) {
     if (forms.length === 0) {
@@ -86,13 +87,7 @@ export function useFormId(isApplicant = false): Id {
  * 在没有ConsoleLayout包裹时，无法使用useFormList，需设置hasContext为false。
  */
 export function useForm(type: 'admin' | 'applicant' = 'admin', hasContext = true): DataTuple<FormDetail> {
-  let formId;
-  if (type === 'applicant' || !hasContext) {
-    const params = useParams();
-    formId = num(params.formId, -1);
-  }
-  else
-    formId = useFormId();
+  const formId = useFormId(type === 'applicant' || !hasContext);
   const defaultForm = {
     owner: -1,
     id: formId,
@@ -103,15 +98,6 @@ export function useForm(type: 'admin' | 'applicant' = 'admin', hasContext = true
     endAt: null
   };
   const navigate = useNavigate();
-  // if (formId < 0) {
-  //   useEffect(() => {
-  //     navigate('/console/form');
-  //     message.error('未指定表单，请先选择目前工作表单');
-  //   }, []);
-  //   return [defaultForm, Promise.resolve(defaultForm), () => { }];
-  // } else
-  //   //React Hook调用顺序和数量必须恒定
-  //   useEffect(() => { }, []);
   const apiPath = type === 'admin' ? '/form/detail' : '/applicant/form';
 
   const [form, loadPromise, reload] = useData<FormDetail>(apiPath,
