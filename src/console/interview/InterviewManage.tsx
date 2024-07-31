@@ -52,7 +52,7 @@ export default function InterviewManage() {
         <Space>{/**Space避免按钮被Flex水平拉伸 */}
           <Button icon={<PlusOutlined />} type='primary'
             onClick={() => {
-              let ivDepart = defaultDepart;
+              let ivDepart = departs[0]?.id ?? defaultDepart;
               const capacityRef = { value: '5' };
               const locationRef = { value: '' };
               let startTime = dayjs();
@@ -70,7 +70,8 @@ export default function InterviewManage() {
                     <Radio.Group
                       defaultValue={ivDepart}
                       onChange={(e) => ivDepart = e.target.value satisfies number}
-                      options={[{ id: defaultDepart, name: orgName }, ...departs].map(dep => {
+                      //注意，这里把默认部门关了
+                      options={departs.map(dep => {
                         return {
                           label: dep.name,
                           value: dep.id
@@ -99,6 +100,10 @@ export default function InterviewManage() {
                   </Form.Item>
                 </Form>),
                 async onConfirm() {
+                  if (ivDepart <= 0) {
+                    message.error('请选择面试部门');
+                    return false;
+                  }
                   const capacity = num(capacityRef.value, 0);
                   if (capacity <= 0) {
                     message.error('容量必须大于0');

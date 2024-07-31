@@ -50,6 +50,8 @@ async function innerFetch(...[url, config]: Parameters<typeof fetch>): ReturnTyp
     saveToken(newToken)
   if (resp.status === 401)
     redirectToLogin();
+  if (resp.status === 403)
+    redirectToLogin(); //TODO 优化403处理逻辑
   return resp;
 }
 

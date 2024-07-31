@@ -63,9 +63,9 @@ export type FormDetail = {
   startAt: Dayjs | null;
   endAt: Dayjs | null;
 }
-export function useFormId(isApplicant = false): Id {
+export function useFormId(avoidFormList = false): Id {
   const { formId: paramFormId } = useParams();
-  if (isApplicant) return num(paramFormId, -1);
+  if (avoidFormList) return num(paramFormId, -1);
   const [forms] = useFormList();
   const navigate = useNavigate();
   const staticFormId = paramFormId ?? kvGet('form');
@@ -84,7 +84,7 @@ export function useFormId(isApplicant = false): Id {
   } else return num(staticFormId);
 }
 /**获取单个表单详情。支持管理员和候选人两种访问路径。
- * 在没有ConsoleLayout包裹时，无法使用useFormList，需设置hasContext为false。
+ * 在没有ConsoleLayout包裹时，无法使用useFormList(从而自动设置最新formId)，需设置hasContext为false。
  */
 export function useForm(type: 'admin' | 'applicant' = 'admin', hasContext = true): DataTuple<FormDetail> {
   const formId = useFormId(type === 'applicant' || !hasContext);
