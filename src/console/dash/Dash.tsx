@@ -22,7 +22,7 @@ export default function Dash() {
       <br />
       <Typography.Text className='at'>{orgName}</Typography.Text>
     </Card>
-    <Card>
+    {/* <Card>
       <Flex vertical gap='small'>
         <Flex wrap='wrap' gap='large'>
           <Statistic title='活动' value={'正在进行的纳新名称'} />
@@ -73,6 +73,6 @@ export default function Dash() {
           </Flex>
         </Flex>
       </Card>
-    </Flex>
+    </Flex> */}
   </Flex>);
 }

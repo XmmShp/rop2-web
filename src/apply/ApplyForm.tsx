@@ -9,7 +9,8 @@ import { useSearchParams } from 'react-router-dom';
 import { saveResult } from '../api/applicant';
 import { message } from '../App';
 import { builtinPhoneQuestion } from '../console/form/FormEdit';
-import { num } from '../utils';
+import { basename, num } from '../utils';
+import CopyZone from '../shared/CopyZone';
 
 export function validate(question: ValidQuestion, value: unknown): boolean {
   if (!question.optional) {
@@ -84,6 +85,10 @@ export default function ApplyForm() {
   return (<Flex justify='center'
     className='apply'>
     <Card className='card'>
+      {isPreview && <Flex vertical>
+        <Typography.Text>您目前正处在预览模式。</Typography.Text>
+        <Typography.Text>候选人正常填表地址：<CopyZone inline text={`${location.origin}${basename}/apply/${form.id}`} /></Typography.Text>
+      </Flex>}
       {'message' in form.children
         ? /**问卷存在异常，只显示message */
         <Typography.Title level={4}>

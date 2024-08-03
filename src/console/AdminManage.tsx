@@ -32,7 +32,7 @@ export default function AdminManage() {
     const vrefNickname = { value: nickname };
     const vrefLevel = { value: level };
     const optionPairs: [string, string][] = Object.entries(levels).filter(([k]) => !Object.is(num(k, NaN), NaN));
-    if (!isAdd) optionPairs.push(['0', '无']);
+    if (!isAdd) optionPairs.unshift(['0', '无']);//权限从小到大排序，第一项为无(即删除)
     showModal({
       title: `${isAdd ? '添加' : '修改'}管理员`,
       content: (<Form layout='vertical'>

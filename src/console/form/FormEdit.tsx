@@ -11,6 +11,7 @@ import { showModal } from '../../shared/LightComponent';
 import dayjs from 'dayjs';
 import { useForm } from '../shared/useForm';
 import { editForm } from '../../api/form';
+import CopyZone from '../../shared/CopyZone';
 
 export const builtinPhoneQuestion = { type: 'text', title: '您的手机号', maxLine: 1, id: -1 } as const;
 export default function FormEdit() {
@@ -64,6 +65,8 @@ export default function FormEdit() {
             编辑部分区域时若无保存按钮，可使用回车保存。
             <br />
             报名者的姓名、学号通过浙大统一认证获取，无需在问卷中填写。
+            <br />
+            候选人正常填表地址：<CopyZone inline text={`${location.origin}${basename}/apply/${form.id}`} />
           </Typography.Text>
           <Tooltip title={<>
             可随时修改开放时间和表单内容。

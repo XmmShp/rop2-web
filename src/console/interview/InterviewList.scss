@@ -14,8 +14,8 @@
     width: 18em;
     box-sizing: border-box;
     border-radius: 5px;
-    background-color: #fff;
-    box-shadow: 0 0 10px 0 #0000001a;
+    border: var(--ant-line-width) var(--ant-line-type) var(--ant-color-border-secondary);
+    box-shadow: 0 0 4px 0 color-mix(in srgb, var(--ant-color-text) 15%, transparent);
     transition: all 0.3s;
 
     .info {
