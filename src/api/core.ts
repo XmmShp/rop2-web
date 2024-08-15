@@ -6,8 +6,9 @@ import { redirectToLogin } from './auth';
 
 //从环境变量读取api基路径(api基路径和前端基路径无关)。该值不能以/结尾
 const apiBase = import.meta.env.VITE_APIBASE ?? 'http://127.0.0.1:8080';
-export function getApiUrl(route: '' | `/${string}` = '') {
-  return apiBase + route;
+export function getApiUrl(route: '' | `/${string}` = '', params?: Record<string, string>) {
+  return apiBase + route +
+    (params ? '?' + new URLSearchParams(params).toString() : '')
 }
 
 //保存token，同步函数

@@ -4,6 +4,7 @@ import { ConfigProvider, theme, App as AntdApp } from 'antd';
 import { DashboardOutlined, ApartmentOutlined, FormOutlined, BarsOutlined, IdcardOutlined, FundViewOutlined, MessageOutlined, FunnelPlotOutlined } from '@ant-design/icons';
 import { basename, useDarkMode } from './utils';
 import { useAppProps } from 'antd/es/app/context';
+import { getApiUrl } from './api/core.ts';
 
 function getConsoleLoader<C extends keyof typeof import('./console/index.ts'), M extends typeof import('./console/index.ts')[C]>(comName: C, props: ComponentProps<M> = {} as any): LazyRouteFunction<RouteObject> {
   return async () => {
@@ -78,6 +79,24 @@ function ErrorElement() {
     <pre>{String(error)}</pre>
   </>;
 }
+function MultipleChoices() {
+  //TODO 优化UI
+  const search = new URLSearchParams(location.search);
+  const choices = JSON.parse(search.get('choices')!) as {
+    orgId: number,
+    orgName: string,
+  }[];
+  const sessionToken = search.get('SESSION_TOKEN')!;
+  const continueUrl = search.get('continue')!;
+  return (<div>
+    您在多个组织内具有管理权限。
+    <br />
+    请选择要登录的组织（登录后可点击右上角头像退出）：
+    {choices.map(({ orgId, orgName }) => <div key={orgId}>
+      <a href={getApiUrl('/loginByToken', { orgId: orgId.toString(), continue: continueUrl, SESSION_TOKEN: sessionToken })}>{orgName}</a>
+    </div>)}
+  </div>)
+}
 const router = createBrowserRouter([{
   path: '/',
   errorElement: <ErrorElement />,
@@ -105,6 +124,9 @@ const router = createBrowserRouter([{
         const { default: Component } = await import('./status/StatusPage.tsx');
         return { element: <Component /> }
       }
+    }, {
+      path: 'login/choice',
+      element: <MultipleChoices />
     }
   ]
 }], {

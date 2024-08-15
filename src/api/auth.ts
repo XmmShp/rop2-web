@@ -1,5 +1,5 @@
 import { kvClear } from '../store/kvCache';
-import { getApi, getApiUrl, postApi } from './core';
+import { getApi, getApiUrl } from './core';
 
 /**退出本次登录（由token生成时间确定） */
 export async function logout() {
@@ -11,7 +11,7 @@ export async function logout() {
 export function redirectToLogin() {
   const continueUrl = location.href;
 
-  const loginCallbackUrl = getApiUrl(`/loginByToken?continue=${encodeURIComponent(continueUrl)}`);
+  const loginCallbackUrl = getApiUrl('/loginByToken', { continue: continueUrl });
   const redirectUrl =
     `https://www.qsc.zju.edu.cn/passport/v4/zju/login?success=${encodeURIComponent(loginCallbackUrl)}`;
   location.href = redirectUrl;

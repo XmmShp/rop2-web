@@ -14,7 +14,9 @@ if (ropToken) {
   search.delete('ropToken');
   location.search = search.toString();
 } else {
-  if (!kvGet('token'))
+  if (!kvGet('token')
+    //部分页面不需要登录
+    && !/^\/login\/choice/.test(location.pathname))
     redirectToLogin();
   else
     ReactDOM.createRoot(document.getElementById('root') as HTMLDivElement).render(<React.StrictMode><MyApp /></React.StrictMode>)

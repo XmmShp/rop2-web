@@ -60,7 +60,7 @@ export default function FormEdit() {
         }}>
         <Flex className='form' vertical gap='middle'>
           <Typography.Text type='secondary'>
-            您正在编辑问卷。
+            您正在编辑问卷。请注意，同一份问卷不支持多人同时编辑。
             <br />
             编辑部分区域时若无保存按钮，可使用回车保存。
             <br />
@@ -69,9 +69,9 @@ export default function FormEdit() {
             候选人正常填表地址：<CopyZone inline text={`${location.origin}${basename}/apply/${form.id}`} />
           </Typography.Text>
           <Tooltip title={<>
-            可随时修改开放时间和表单内容。
+            可随时修改开放时间，问卷仅在开放时间内接受提交。
             <br />
-            编辑表单内容会对已提交的答卷产生不确定的影响。
+            面试等功能不受此处的开放时间影响。
           </>}>
             <Flex vertical>
               <Typography.Text>设置开放时间</Typography.Text>
