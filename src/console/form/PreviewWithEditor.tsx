@@ -204,12 +204,14 @@ export function CustomQuestionCommonEditor({ question, onChange }:
   return (<>
     <Flex align='center' gap='small'>
       <span className='prompt'>问题标题</span>
-      <Input value={question.title}
+      <Input.TextArea value={question.title}
+        autoSize={{ minRows: 1, maxRows: 3 }}
         onChange={({ target: { value } }) => onChange({ ...question, title: value })} />
     </Flex>
     <Flex align='center' gap='small'>
       <span className='prompt'>问题描述</span>
-      <Input value={question.desc}
+      <Input.TextArea value={question.desc}
+        autoSize={{ minRows: 1, maxRows: 3 }}
         onChange={({ target: { value } }) => onChange({ ...question, desc: value })} />
     </Flex>
     <Flex align='center' gap='small'>

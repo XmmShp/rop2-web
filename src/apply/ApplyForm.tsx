@@ -2,7 +2,7 @@ import { createRef, useEffect, useState } from 'react';
 import './ApplyForm.scss';
 import { Button, Card, Divider, Flex, Form, Result, Typography } from 'antd';
 import { ValueOf, FormQuestion } from '../shared/FormQuestion';
-import { QuestionGroup, useForm, ValidQuestion } from '../console/shared/useForm';
+import { FormDetail, QuestionGroup, useForm, ValidQuestion } from '../console/shared/useForm';
 import { useData } from '../api/useData';
 import { Depart } from '../console/shared/useOrg';
 import { useSearchParams } from 'react-router-dom';
@@ -19,6 +19,40 @@ export function validate(question: ValidQuestion, value: unknown): boolean {
     }
   }
   return true;
+}
+type AnswerMap = Record<string, unknown>;
+export function calcRevealGroups(form: FormDetail, newAnswer: AnswerMap) {
+  const knwonGroups = new Set<QuestionGroup>();
+  const calcQueue = ['1'];
+  const revealGroupsSet = new Set<QuestionGroup>();
+  let curGroup: string | undefined;
+  while (curGroup = calcQueue.shift()) {
+    const curGroupInst = form.children.find(g => g.id.toString() === curGroup);
+    if (!curGroupInst)
+      throw new Error(`Unable to find group by id ${curGroup}`);
+    if (knwonGroups.has(curGroupInst)) continue;
+    knwonGroups.add(curGroupInst);
+    revealGroupsSet.add(curGroupInst);
+    curGroupInst.children.forEach(ques => {
+      if ('choices' in ques) {
+        let selectedOptions = newAnswer[ques.id] as string[] | string;
+        if (!Array.isArray(selectedOptions)) selectedOptions = [selectedOptions];
+        selectedOptions?.forEach(o => {
+          const nextGroupId = ques.choices[o];
+          if (nextGroupId)
+            calcQueue.push(nextGroupId.toString());
+        });
+      }
+    });
+    if (curGroupInst.next)
+      calcQueue.push(curGroupInst.next.toString());
+  }
+  const newRevealGroups = [...revealGroupsSet];
+  // 把newRevealGroups按照forms的children的顺序排序，
+  // 保证表单设计时显示的顺序和填表的顺序一致
+  // 性能不好，但是数据量不大，先这样
+  newRevealGroups.sort((a, b) => form.children.findIndex(g => g.id === a.id) - form.children.findIndex(g => g.id === b.id));
+  return newRevealGroups;
 }
 export default function ApplyForm() {
   const [searchParams] = useSearchParams();
@@ -40,7 +74,6 @@ export default function ApplyForm() {
   }, [form.name])
   const [departs] = useData<Depart[]>('/applicant/org', (resp) => resp.json(), [], { id: form.owner }, [form.owner], !formLoading);
   const [completed, setCompleted] = useState(false);
-  type AnswerMap = Record<string, unknown>;
   const [phone, setPhone] = useState(profilePhone);
   const [answer, setAnswer] = useState<AnswerMap>({});
   type RefMap = Record<string, React.RefObject<HTMLDivElement>>;
@@ -55,43 +88,11 @@ export default function ApplyForm() {
         newRefMap[q.id] = createRef();
       }));
     setAnswer(newAnswerMap);
-    calcRevealGroups(newAnswerMap);
+    setRevealGroups(calcRevealGroups(form, newAnswerMap));
     setRefMap(newRefMap);
   }, [form.children]);
   const [revealGroups, setRevealGroups] = useState<QuestionGroup[]>([]);
-  function calcRevealGroups(newAnswer: AnswerMap) {
-    const knwonGroups = new Set<QuestionGroup>();
-    const calcQueue = ['1'];
-    const revealGroupsSet = new Set<QuestionGroup>();
-    let curGroup: string | undefined;
-    while (curGroup = calcQueue.shift()) {
-      const curGroupInst = form.children.find(g => g.id.toString() === curGroup);
-      if (!curGroupInst)
-        throw new Error(`Unable to find group by id ${curGroup}`);
-      if (knwonGroups.has(curGroupInst)) continue;
-      knwonGroups.add(curGroupInst);
-      revealGroupsSet.add(curGroupInst);
-      curGroupInst.children.forEach(ques => {
-        if ('choices' in ques) {
-          let selectedOptions = newAnswer[ques.id] as string[] | string;
-          if (!Array.isArray(selectedOptions)) selectedOptions = [selectedOptions];
-          selectedOptions?.forEach(o => {
-            const nextGroupId = ques.choices[o];
-            if (nextGroupId)
-              calcQueue.push(nextGroupId.toString());
-          });
-        }
-      });
-      if (curGroupInst.next)
-        calcQueue.push(curGroupInst.next.toString());
-    }
-    const newRevealGroups = [...revealGroupsSet];
-    // 把newRevealGroups按照forms的children的顺序排序，
-    // 保证表单设计时显示的顺序和填表的顺序一致
-    // 性能不好，但是数据量不大，先这样
-    newRevealGroups.sort((a, b) => form.children.findIndex(g => g.id === a.id) - form.children.findIndex(g => g.id === b.id));
-    setRevealGroups(newRevealGroups);
-  }
+
   return (<Flex justify='center'
     className='apply'>
     <Card className='card'>
@@ -155,7 +156,7 @@ export default function ApplyForm() {
                         const newAnswer = { ...answer, [ques.id]: v };
                         setAnswer(newAnswer);
                         if (ques.type === 'choice' || ques.type === 'choice-depart')
-                          calcRevealGroups(newAnswer);
+                          setRevealGroups(calcRevealGroups(form, newAnswer));
                       }}
                       departs={departs} />
                   ))}

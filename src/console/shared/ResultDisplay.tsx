@@ -5,6 +5,8 @@ import { num } from '../../utils';
 import { getTitle } from '../../shared/FormQuestion';
 import { Depart } from './useOrg';
 import { ResultDetail } from '../../api/result';
+import { useMemo } from 'react';
+import { calcRevealGroups } from '../../apply/ApplyForm';
 
 
 export default function ResultDisplay({ form, zjuId, departs }: {
@@ -19,10 +21,7 @@ export default function ResultDisplay({ form, zjuId, departs }: {
     result.content = JSON.parse(result.content);
     return result;
   }, defaultResult, { formId, target: zjuId }, [formId, zjuId]);
-  function findQuestion(id: string) {
-    const numId = num(id, NaN);
-    return form.children.first(group => group.children.first(q => q.id === numId && q));
-  }
+  const displayedGroups = useMemo(() => calcRevealGroups(form, content), [form, content]);
   return (<div>
     <Descriptions layout='vertical' size='small'
       column={12} colon={false} bordered
@@ -31,20 +30,27 @@ export default function ResultDisplay({ form, zjuId, departs }: {
         { label: '学号', children: zjuId, span: 4 },
         { label: '手机号', children: phone, span: 4 },
         //此处显示逻辑：根据设计时的题目组顺序、题目顺序，显示填写的内容
-        ...form.children.map(group =>
+        ...displayedGroups.map(group =>
           group.children.map(ques => {
             const quesId = ques.id.toString();
-            if (!(quesId in content)) return null;
-            let quesAnswer = String(content[quesId]);
-            if (ques.type === 'choice-depart')
-              quesAnswer = quesAnswer.split(',').map(v => departs.find(d => d.id === num(v, NaN))?.name ?? '未知部门').join(', ');
+            const rawAnswer = content[quesId];
+            let renderAnswer: string;
+            if (rawAnswer === undefined || rawAnswer === null || rawAnswer === '')
+              renderAnswer = '(未填写)';
+            else if (ques.type === 'choice-depart')
+              renderAnswer = (rawAnswer as string[]).map((v, i) => `[${i + 1}]` + (departs.find(d => d.id === num(v, NaN))?.name ?? '未知部门')).join('\n');
+            else renderAnswer = String(rawAnswer);
             return {
               label: `[${group.label}] ${getTitle(ques)}`,
-              children: quesAnswer,
-              span: 12
+              children: <span style={{ whiteSpace: 'pre-wrap' }}>{renderAnswer}</span>,
+              span: isShort(renderAnswer) && isShort(getTitle(ques)) ? 6 : 12
             };
           })
         ).flat().filter(obj => obj !== null),
       ]} />
   </div>);
+}
+
+function isShort(str: string) {
+  return /^[0-9a-z]{,16}$/.test(str) || (str.length < 8 && !str.includes('\n'));
 }

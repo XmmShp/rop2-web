@@ -75,7 +75,7 @@ function IntentStatus({ intent, formId, depart, departs }: {
               async onConfirm() {
                 //出错了会自己message.error
                 const { code } = await pkgPost('/applicant/interview/schedule', { formId, interviewId: curInterview.id });
-                if (!code) message.success('报名成功');
+                if (!code) message.success('报名成功~请记得准时参加面试哦！');
                 reloadIvs();
               }
             }
@@ -102,19 +102,25 @@ export default function StatusPage() {
         <Typography.Text>
           您在 <Typography.Text strong>{form.name}</Typography.Text> 各志愿的状态：
         </Typography.Text>
-        <Collapse
-          accordion={false} destroyInactivePanel={false}
-          collapsible='header'
-          items={intents.map(intent => {
-            const departId = intent.depart;
-            const depart = departs.find(d => d.id === departId);
-            if (!depart) return null;
-            return {
-              label: `【第${numSC(intent.order)}志愿】${depart.name}`, key: departId,
-              children: <IntentStatus intent={intent} formId={formId} depart={depart} departs={departs} />,
-              forceRender: true,
-            };
-          }).filter(v => v !== null)} />
+        {intents.length
+          ? <>
+            <Collapse
+              accordion={false} destroyInactivePanel={false}
+              collapsible='header'
+              items={intents.map(intent => {
+                const departId = intent.depart;
+                const depart = departs.find(d => d.id === departId);
+                if (!depart) return null;
+                return {
+                  label: `【第${numSC(intent.order)}志愿】${depart.name}`, key: departId,
+                  children: <IntentStatus intent={intent} formId={formId} depart={depart} departs={departs} />,
+                  forceRender: true,
+                };
+              }).filter(v => v !== null)} />
+          </>
+          : <Typography.Text>
+            <Typography.Text strong>未找到报名信息</Typography.Text>
+            。请确认您是否报名了该表单(ID: {formId})</Typography.Text>}
       </Flex>
     </Card>
   </Flex>);

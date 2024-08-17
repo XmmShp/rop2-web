@@ -1,4 +1,4 @@
-import { Form, Input, Select, Typography } from 'antd';
+import { Flex, Form, Input, Select, Typography } from 'antd';
 import { ChoiceDepartQuestion, ValidQuestion } from '../console/shared/useForm';
 import './FormQuestion.scss';
 import { Depart } from '../console/shared/useOrg';
@@ -22,13 +22,15 @@ function _FormQuestion<Q extends ValidQuestion>({ value, question, departs = [],
   }
   return <div ref={ref} className={'question-container' + (hasDesc ? ' with-desc' : '')}>
     <Form.Item className='form-item' key={question.id}
-      label={getTitle(question)}
+      label={<Flex vertical className='question'>
+        <Typography.Text className='ques-title'>{getTitle(question)}</Typography.Text>
+        {hasDesc && <Typography.Text type='secondary' className='desc'>
+          {(question as any).desc ?? ''}
+        </Typography.Text>}
+      </Flex>}
       required={!question.optional}
       validateStatus={validateStatus}
     >
-      {hasDesc && <Typography.Text type='secondary' className='desc'>
-        {(question as any).desc ?? ''}
-      </Typography.Text>}
       {
         (() => {
           switch (question.type) {
