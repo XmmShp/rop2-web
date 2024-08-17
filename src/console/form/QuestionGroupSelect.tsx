@@ -37,7 +37,7 @@ export default function QuestionGroupSelect({ groups, thisGroup, value, onChange
     value = -2;
   else if (value === null || !groups.some((gr: QuestionGroup) => gr.id === value))
     value = -1;
-  return (<Select title={title}
+  return (<Select title={title} showSearch={false}
     size={size} value={value}
     className='group-select'
     popupMatchSelectWidth={false}

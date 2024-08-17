@@ -15,7 +15,7 @@ function QuestionEditor({ question, onChange, groups, thisGroup }:
   return (<Flex vertical className='editing' gap='small'>
     <Flex align='center' gap='small'>
       问题类型
-      <Select
+      <Select showSearch={false}
         popupMatchSelectWidth={false}
         className='choice-type'
         value={question.type}
@@ -232,14 +232,14 @@ export function ChoiceQuestionEditor({ question, onChange, groups, thisGroup }:
       <Button size='small'
         onClick={() => onChange({
           ...question,
-          choices: Object.assign(choices, { [newUniqueLabel(entries.map(([label]) => label), '选项')]: null })
+          choices: { ...choices, [newUniqueLabel(entries.map(([label]) => label), '选项')]: null }
         })}>
         <PlusOutlined />
         添加选项
       </Button>
     </Flex>
     <Flex wrap='wrap' align='center' gap='small'>
-      {entries.map(([label, reveal]) => {
+      {entries.map(([label, reveal], editingIndex) => {
         const editingValue = { value: '' };
         return (<Flex align='center' key={label}
           className='choice-card'>
@@ -249,14 +249,26 @@ export function ChoiceQuestionEditor({ question, onChange, groups, thisGroup }:
               onEnd() {
                 if (entries.some(([oLabel]) => oLabel === editingValue.value))
                   message.error('选项名重复');
-                else onChange({ ...question, choices: Object.assign(choices, { [label]: undefined }, { [editingValue.value]: reveal }) });
+                else {
+                  //保持选项位置不变
+                  const newChoices: typeof choices = {};
+                  entries[editingIndex] = [editingValue.value, reveal];
+                  entries.forEach(([label, reveal]) => newChoices[label] = reveal);
+                  onChange({ ...question, choices: newChoices });
+                }
               }
             }}>{label}</Typography.Text>
           <Button type='link' size='small' onClick={() => {
             if (entries.length <= 1)
               message.error('至少保留1个选项');
-            else
-              onChange({ ...question, choices: Object.assign(choices, { [label]: undefined }) });
+            else {
+              const newChoices: typeof choices = {};
+              entries.forEach(([label, reveal], i) => {
+                if (i !== editingIndex)
+                  newChoices[label] = reveal
+              });
+              onChange({ ...question, choices: newChoices });
+            }
           }}><DeleteOutlined /></Button>
           <QuestionGroupSelect groups={groups} thisGroup={thisGroup} value={reveal}
             title='选中此选项后揭示的题目组'

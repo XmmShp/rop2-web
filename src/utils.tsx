@@ -176,4 +176,4 @@ export function accumulate<T>(array: T[], step: number, defaultElement?: T): T[]
     lastSlice.push(...new Array(step - lastSlice.length).fill(defaultElement));
   }
   return result;
-}
+} 

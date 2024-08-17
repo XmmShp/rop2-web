@@ -34,6 +34,10 @@ export default function ApplyForm() {
     if (profilePromise?.then) profilePromise.then((prof) => setPhone(prof.phone));
   }, [profilePromise]);
   const [form, formLoading] = useForm(isPreview ? 'admin' : 'applicant', false);
+  useEffect(() => {
+    if (form.name)
+      document.title = `${form.name} - 纳新开放系统`;
+  }, [form.name])
   const [departs] = useData<Depart[]>('/applicant/org', (resp) => resp.json(), [], { id: form.owner }, [form.owner], !formLoading);
   const [completed, setCompleted] = useState(false);
   type AnswerMap = Record<string, unknown>;

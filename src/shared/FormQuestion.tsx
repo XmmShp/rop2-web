@@ -39,6 +39,7 @@ function _FormQuestion<Q extends ValidQuestion>({ value, question, departs = [],
                 const departOptions = Object.entries(question.choices).filter(([, reveal]) => reveal !== undefined);
                 const maxCount = Math.min(question.maxSelection, departOptions.length);
                 return (<Select placeholder={`最多选择 ${maxCount} 项`}
+                  showSearch={false}
                   mode='multiple'
                   value={value as ValueOf<ChoiceDepartQuestion>}
                   onChange={(v: string[]) => {
@@ -78,6 +79,7 @@ function _FormQuestion<Q extends ValidQuestion>({ value, question, departs = [],
                 const maxCount = Math.min(question.maxSelection ?? options.length, options.length);
                 const allowMultiple = maxCount > 1;
                 return (<Select className='select'
+                  showSearch={false}
                   placeholder={allowMultiple ? `最多选择 ${maxCount} 项` : '选择 1 项'}
                   value={value as string[]}
                   onChange={(v: string[]) => {
