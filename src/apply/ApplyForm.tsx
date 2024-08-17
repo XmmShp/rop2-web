@@ -73,7 +73,8 @@ export default function ApplyForm() {
       revealGroupsSet.add(curGroupInst);
       curGroupInst.children.forEach(ques => {
         if ('choices' in ques) {
-          const selectedOptions = newAnswer[ques.id] as string[];
+          let selectedOptions = newAnswer[ques.id] as string[] | string;
+          if (!Array.isArray(selectedOptions)) selectedOptions = [selectedOptions];
           selectedOptions?.forEach(o => {
             const nextGroupId = ques.choices[o];
             if (nextGroupId)
@@ -84,7 +85,12 @@ export default function ApplyForm() {
       if (curGroupInst.next)
         calcQueue.push(curGroupInst.next.toString());
     }
-    setRevealGroups([...revealGroupsSet]);
+    const newRevealGroups = [...revealGroupsSet];
+    // 把newRevealGroups按照forms的children的顺序排序，
+    // 保证表单设计时显示的顺序和填表的顺序一致
+    // 性能不好，但是数据量不大，先这样
+    newRevealGroups.sort((a, b) => form.children.findIndex(g => g.id === a.id) - form.children.findIndex(g => g.id === b.id));
+    setRevealGroups(newRevealGroups);
   }
   return (<Flex justify='center'
     className='apply'>

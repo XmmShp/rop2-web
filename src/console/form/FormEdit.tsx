@@ -4,7 +4,7 @@ import { Button, Collapse, DatePicker, Flex, FloatButton, Grid, Tabs, Tooltip, T
 import './FormEdit.scss';
 import { QuestionGroup } from '../shared/useForm';
 import { DescEditor, PreviewWithEditor } from './PreviewWithEditor';
-import { ArrowRightOutlined, DeleteOutlined, EyeOutlined, LoginOutlined, PlusOutlined } from '@ant-design/icons';
+import { ArrowDownOutlined, ArrowRightOutlined, ArrowUpOutlined, DeleteOutlined, EyeOutlined, LoginOutlined, PlusOutlined } from '@ant-design/icons';
 import QuestionGroupSelect from './QuestionGroupSelect';
 import { message } from '../../App';
 import { showModal } from '../../shared/LightComponent';
@@ -65,6 +65,8 @@ export default function FormEdit() {
             编辑部分区域时若无保存按钮，可使用回车保存。
             <br />
             报名者的姓名、学号通过浙大统一认证获取，无需在问卷中填写。
+            <br />
+            侯选人界面中，显示出的题目组相对顺序和设计问卷时保持一致。
             <br />
             候选人正常填表地址：<CopyZone inline text={`${location.origin}${basename}/apply/${form.id}`} />
           </Typography.Text>
@@ -140,7 +142,22 @@ export default function FormEdit() {
                 const { code } = await prom;
                 if (!code) message.success('修改已保存');
               }
-            })} />)}
+            })}
+            onMove={async (delta) => {
+              const newChildren = moveElement(groups, index, delta);
+              const newForm = { ...form, children: newChildren };
+              const prom = editForm(form.id, { children: JSON.stringify(newChildren) });
+              reloadForm(newForm, prom);
+              const { code } = await prom;
+              if (!code) message.success('修改已保存');
+            }}
+            //第一个问题组位置固定，不可移动；
+            //其它题目组只要不是最前/最后一个(第一个题目组不计)，就可以上移/下移
+            showMove={[
+              index >= 2, //上移：当前至少是第三个题目组(计入入口题目组)
+              index >= 1 && index < groups.length - 1 //下移：不是入口，且不是最后一个
+            ]}
+          />)}
 
           <Button type='default' icon={<PlusOutlined />}
             onClick={async () => {
@@ -172,8 +189,11 @@ const GroupCard = forwardRef<HTMLDivElement,
     isEntry: boolean;
     onEdit: (newObj: QuestionGroup) => Promise<void>;
     onDelete: () => Promise<boolean>;
+    /**上下移问题组 */
+    onMove: (delta: number) => Promise<void>;
+    showMove: [boolean, boolean]
   }
->(function ({ group, isEntry, groups, onEdit, onDelete }, ref) {
+>(function ({ group, isEntry, groups, onEdit, onDelete, onMove, showMove: [showMoveUp, showMoveDown] }, ref) {
   const labelRef = useRef(group.label);
   const questions = group.children;
   return (<Collapse
@@ -204,6 +224,10 @@ const GroupCard = forwardRef<HTMLDivElement,
         }}>
           {group.label}
         </Typography.Text>
+        <Button disabled={!showMoveUp} type='link' size='small' icon={<ArrowUpOutlined />}
+          onClick={() => onMove(-1)} />
+        <Button disabled={!showMoveDown} type='link' size='small' icon={<ArrowDownOutlined />}
+          onClick={() => onMove(1)} />
         <Button disabled={isEntry} type='link' size='small' icon={<DeleteOutlined />}
           onClick={() => onDelete()} />
       </Flex>),

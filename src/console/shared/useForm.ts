@@ -103,6 +103,8 @@ export function useForm(type: 'admin' | 'applicant' = 'admin', hasContext = true
   const [form, loadPromise, reload] = useData<FormDetail>(apiPath,
     async (resp) => {
       if (resp.status == 404) {
+        if (type == 'applicant')
+          return { ...defaultForm, children: { message: '表单不存在' } };
         navigate('/console/form');
         message.error('表单不存在，可能已被删除');
         return defaultForm;
