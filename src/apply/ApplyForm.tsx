@@ -1,7 +1,7 @@
 import { createRef, useEffect, useState } from 'react';
 import './ApplyForm.scss';
 import { Button, Card, Divider, Flex, Form, Result, Typography } from 'antd';
-import { ValueOf, FormQuestion } from '../shared/FormQuestion';
+import { ValueOf, FormQuestion, parseChoices } from '../shared/FormQuestion';
 import { FormDetail, QuestionGroup, useForm, ValidQuestion } from '../console/shared/useForm';
 import { useData } from '../api/useData';
 import { Depart } from '../console/shared/useOrg';
@@ -35,10 +35,11 @@ export function calcRevealGroups(form: FormDetail, newAnswer: AnswerMap) {
     revealGroupsSet.add(curGroupInst);
     curGroupInst.children.forEach(ques => {
       if ('choices' in ques) {
+        const orderedChoices = parseChoices(ques.choices);
         let selectedOptions = newAnswer[ques.id] as string[] | string;
         if (!Array.isArray(selectedOptions)) selectedOptions = [selectedOptions];
-        selectedOptions?.forEach(o => {
-          const nextGroupId = ques.choices[o];
+        selectedOptions?.forEach(selectedCur => {
+          const nextGroupId = orderedChoices.find(({ label }) => label === selectedCur)?.reveal;
           if (nextGroupId)
             calcQueue.push(nextGroupId.toString());
         });

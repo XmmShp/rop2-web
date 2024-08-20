@@ -51,6 +51,7 @@ export default function ResultDisplay({ form, zjuId, departs }: {
   </div>);
 }
 
+//检测是否可缩小span。让学号、手机号、年级、性别等短文本span更小
 function isShort(str: string) {
-  return /^[0-9a-z]{,16}$/.test(str) || (str.length < 8 && !str.includes('\n'));
+  return /^[0-9a-zA-Z]{,16}$/.test(str) || (str.length <= 8 && !str.includes('\n'));
 }

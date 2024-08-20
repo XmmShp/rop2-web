@@ -1,9 +1,18 @@
 import { Flex, Form, Input, Select, Typography } from 'antd';
-import { ChoiceDepartQuestion, ValidQuestion } from '../console/shared/useForm';
+import { ChoiceDepartQuestion, ChoiceQuestion, Id, ValidQuestion } from '../console/shared/useForm';
 import './FormQuestion.scss';
 import { Depart } from '../console/shared/useOrg';
 import { forwardRef, useState } from 'react';
 
+export type OrderedChoices = {
+  label: string;
+  reveal: Id | null;
+}[];
+
+export function parseChoices(choices: (ChoiceDepartQuestion | ChoiceQuestion)['choices']): OrderedChoices {
+  if (Array.isArray(choices)) return choices.filter(({ reveal }) => reveal !== undefined)
+  else return Object.entries(choices).filter(([_, v]) => v !== undefined).map(([k, v]) => { return { label: k, reveal: v as Id | null } })
+}
 export function getTitle(question: ValidQuestion) {
   if (question.type === 'choice-depart') return '选择部门志愿';
   return question.title ?? '未知问题';
@@ -38,7 +47,7 @@ function _FormQuestion<Q extends ValidQuestion>({ value, question, departs = [],
               {
                 //null:显示选项，不reveal
                 //undefined：隐藏选项
-                const departOptions = Object.entries(question.choices).filter(([, reveal]) => reveal !== undefined);
+                const departOptions = parseChoices(question.choices);
                 const maxCount = Math.min(question.maxSelection, departOptions.length);
                 return (<Select placeholder={`最多选择 ${maxCount} 项`}
                   showSearch={false}
@@ -48,7 +57,7 @@ function _FormQuestion<Q extends ValidQuestion>({ value, question, departs = [],
                     onChange?.(v as ValueOf<Q>);
                     validate(v as ValueOf<Q>);
                   }}
-                  options={departOptions.map(([id, reveal]) => {
+                  options={departOptions.map(({ label: id, }) => {
                     let label = departs.find((d) => d.id.toString() === id)?.name;
                     if (!label) return null;
                     return {
@@ -76,7 +85,7 @@ function _FormQuestion<Q extends ValidQuestion>({ value, question, departs = [],
                   autoSize={{ minRows: 2, maxRows: maxLine }} />;
             case 'choice':
               {
-                const options = Object.entries(question.choices).filter(([, reveal]) => reveal !== undefined);
+                const options = parseChoices(question.choices)
                 //注意：maxSelection为空表示可以全选
                 const maxCount = Math.min(question.maxSelection ?? options.length, options.length);
                 const allowMultiple = maxCount > 1;
@@ -90,10 +99,7 @@ function _FormQuestion<Q extends ValidQuestion>({ value, question, departs = [],
                   }}
                   mode={allowMultiple ? 'multiple' : undefined}
                   maxCount={allowMultiple ? maxCount : undefined}
-                  options={options.map(([label, reveal]) => {
-                    //TODO 揭示题目组逻辑
-                    return { label, value: label };
-                  })} />);
+                  options={options.map(({ label }) => { return { label, value: label } })} />);
               }
             default:
               return (<>此问题暂时无法显示<br />{JSON.stringify(question)}</>);

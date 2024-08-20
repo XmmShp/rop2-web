@@ -2,7 +2,7 @@ import { ArrowDownOutlined, ArrowUpOutlined, DeleteOutlined, EditOutlined, PlusO
 import { Button, Checkbox, Flex, Form, Input, InputNumber, Select, Typography } from 'antd';
 import { useMemo, useState } from 'react';
 import { ChoiceQuestion, CustomQuestion, Id, QuestionGroup, ValidQuestion } from '../shared/useForm';
-import { FormQuestion } from '../../shared/FormQuestion';
+import { FormQuestion, parseChoices } from '../../shared/FormQuestion';
 import { newUniqueLabel } from '../../utils';
 import QuestionGroupSelect from './QuestionGroupSelect';
 import { message } from '../../App';
@@ -60,6 +60,7 @@ function QuestionEditor({ question, onChange, groups, thisGroup }:
     {(() => {
       switch (question.type) {
         case 'choice-depart':
+          const choiceEntries = parseChoices(question.choices);
           //TODO: 根据useDeparts属性选择性启用志愿选择题
           return (<>
             <Flex align='center' gap='small'>
@@ -67,18 +68,28 @@ function QuestionEditor({ question, onChange, groups, thisGroup }:
               <InputNumber maxLength={2} min={1} max={departs.length} value={question.maxSelection} onChange={(v) => onChange({ ...question, maxSelection: v ?? 1 })} />
             </Flex>
             <Flex wrap='wrap' gap='middle'>
-              {departs.map((dep) => {
+              {departs.map((dep, depIndex) => {
                 //对于某一部门，如choices对象上不存在该键(undefined)，则隐藏该部门(不可选择)
                 //如为null，表示可选择，不揭示任何问题组
                 //否则，为揭示的问题组id
-                let reveal = question.choices[dep.id];
+                const saved_reveal = choiceEntries.find(({ label }) => dep.id.toString() === label)?.reveal;
                 return (<Flex key={dep.id} gap='small' align='center'>
                   {dep.name}
                   <QuestionGroupSelect groups={groups} thisGroup={thisGroup}
-                    value={reveal}
+                    value={saved_reveal}
                     allowHide
                     onChange={(v) =>
-                      onChange({ ...question, choices: { ...question.choices, [dep.id]: v } })} />
+                      //当前部门(dep)的reveal修改，其他不变
+                      onChange({
+                        ...question,
+                        choices: departs.map((mappingDep, mappingDepIndex) => {
+                          return {
+                            label: mappingDep.id.toString(),
+                            reveal: mappingDepIndex === depIndex ? v :
+                              choiceEntries.find(({ label }) => mappingDep.id.toString() === label)?.reveal
+                          } as any
+                        })
+                      })} />
                 </Flex>);
               })}
             </Flex>
@@ -223,8 +234,7 @@ export function CustomQuestionCommonEditor({ question, onChange }:
 
 export function ChoiceQuestionEditor({ question, onChange, groups, thisGroup }:
   { question: ChoiceQuestion, onChange: (newObj: ChoiceQuestion) => void, groups: QuestionGroup[], thisGroup: Id }) {
-  const choices = question.choices;
-  const entries = Object.entries(choices).filter(([, reveal]) => reveal !== undefined);
+  const entries = parseChoices(question.choices);
   return (<>
     <Flex align='center' gap='small'>
       <span className='prompt'>最多选择项数</span>
@@ -234,14 +244,14 @@ export function ChoiceQuestionEditor({ question, onChange, groups, thisGroup }:
       <Button size='small'
         onClick={() => onChange({
           ...question,
-          choices: { ...choices, [newUniqueLabel(entries.map(([label]) => label), '选项')]: null }
+          choices: [...entries, { label: newUniqueLabel(entries.map(({ label }) => label), '选项'), reveal: null }]
         })}>
         <PlusOutlined />
         添加选项
       </Button>
     </Flex>
     <Flex wrap='wrap' align='center' gap='small'>
-      {entries.map(([label, reveal], editingIndex) => {
+      {entries.map(({ label, reveal }, editingIndex) => {
         const editingValue = { value: '' };
         return (<Flex align='center' key={label}
           className='choice-card'>
@@ -249,14 +259,12 @@ export function ChoiceQuestionEditor({ question, onChange, groups, thisGroup }:
             editable={{
               onChange(v) { editingValue.value = v },
               onEnd() {
-                if (entries.some(([oLabel]) => oLabel === editingValue.value))
+                if (entries.some(({ label: sth_label }) => sth_label === editingValue.value))
                   message.error('选项名重复');
                 else {
-                  //保持选项位置不变
-                  const newChoices: typeof choices = {};
-                  entries[editingIndex] = [editingValue.value, reveal];
-                  entries.forEach(([label, reveal]) => newChoices[label] = reveal);
-                  onChange({ ...question, choices: newChoices });
+                  //保持选项位置不变 
+                  entries[editingIndex] = { label: editingValue.value, reveal };
+                  onChange({ ...question, choices: [...entries] });
                 }
               }
             }}>{label}</Typography.Text>
@@ -264,18 +272,19 @@ export function ChoiceQuestionEditor({ question, onChange, groups, thisGroup }:
             if (entries.length <= 1)
               message.error('至少保留1个选项');
             else {
-              const newChoices: typeof choices = {};
-              entries.forEach(([label, reveal], i) => {
-                if (i !== editingIndex)
-                  newChoices[label] = reveal
-              });
-              onChange({ ...question, choices: newChoices });
+              entries.splice(editingIndex, 1);
+              onChange({ ...question, choices: entries });
             }
           }}><DeleteOutlined /></Button>
           <QuestionGroupSelect groups={groups} thisGroup={thisGroup} value={reveal}
             title='选中此选项后揭示的题目组'
             size='small'
-            onChange={(v) => onChange({ ...question, choices: Object.assign(choices, { [label]: v }) })} />
+            onChange={(v) => onChange({
+              ...question, choices: entries.map(({ label: mappinglabel, reveal: mappingReveal }) => {
+                if (mappinglabel === label) return { label, reveal: v }
+                else return { label: mappinglabel, reveal: mappingReveal }
+              })
+            })} />
         </Flex>);
       })}
     </Flex>

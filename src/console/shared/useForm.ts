@@ -5,6 +5,7 @@ import { kvGet, kvSet } from '../../store/kvCache';
 import { num } from '../../utils';
 import { message } from '../../App';
 import { useFormList } from './useFormList';
+import { OrderedChoices } from '../../shared/FormQuestion';
 
 export type Id = number;
 type QuestionType = 'name' | 'zjuid' | 'phone' | 'choice-depart' | 'text' | 'choice';
@@ -25,7 +26,7 @@ export interface ChoiceDepartQuestion extends Question {
   choices: {
     //选择对应id揭示的问题组
     [departId: string]: Id | null | undefined;
-  };
+  } | OrderedChoices;
 }
 export type BuiltinQuestion = ChoiceDepartQuestion;
 export interface CustomQuestion extends Question {
@@ -43,7 +44,7 @@ export interface ChoiceQuestion extends CustomQuestion {
   maxSelection?: number;
   choices: {
     [label: string]: Id | null;
-  };
+  } | OrderedChoices;
 }
 export type ValidQuestion = BuiltinQuestion | TextQuestion | ChoiceQuestion;
 export interface QuestionGroup {

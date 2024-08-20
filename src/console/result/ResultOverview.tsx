@@ -132,6 +132,7 @@ export default function ResultOverview() {
                 })
               }
             }}>复制手机号</Button>
+          <Button target='_blank' href='https://docs.qq.com/doc/DSGV2U215ZWtWZ3hS'>发送短信指南</Button>
         </Space>
       </DisabledContext.Provider>
       <Search onChange={({ target: { value } }) => debouncedSetFilter(value)} placeholder='筛选姓名/学号/手机号' />
@@ -224,7 +225,7 @@ export default function ResultOverview() {
                 : step > 0 ? '#00b8ff' :
                   step === -50 ? 'green' : 'red'
           }}>{getStepLabel(step)}</Typography.Text>
-          候选人列表 (本页 {d.length} 项{filter ? ` / 筛选到 ${filteredCount} 项` : ''} / 共 {count} 项)</Space>} />
+          候选人列表 (本页 {d.length} 项 / 本页 {new Set(d.map(d => d.zjuId)).size} 人{filter ? ` / 筛选到 ${filteredCount} 项` : ''} / 共 {count} 项)</Space>} />
     </Flex>
   </Card>);
 }

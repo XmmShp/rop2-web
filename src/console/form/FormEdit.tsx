@@ -13,6 +13,10 @@ import { useForm } from '../shared/useForm';
 import { editForm } from '../../api/form';
 import CopyZone from '../../shared/CopyZone';
 
+function serilizeFormChildren(newChildren: QuestionGroup[]): string {
+  return JSON.stringify(newChildren)
+}
+
 export const builtinPhoneQuestion = { type: 'text', title: '您的手机号', maxLine: 1, id: -1 } as const;
 export default function FormEdit() {
   const [form, , reloadForm] = useForm('admin');
@@ -137,7 +141,7 @@ export default function FormEdit() {
               async onConfirm() {
                 const newChildren = groups.toSpliced(index, 1);
                 const newForm = { ...form, children: newChildren };
-                const prom = editForm(form.id, { children: JSON.stringify(newChildren) });
+                const prom = editForm(form.id, { children: serilizeFormChildren(newChildren) });
                 reloadForm(newForm, prom);
                 const { code } = await prom;
                 if (!code) message.success('修改已保存');
@@ -146,7 +150,7 @@ export default function FormEdit() {
             onMove={async (delta) => {
               const newChildren = moveElement(groups, index, delta);
               const newForm = { ...form, children: newChildren };
-              const prom = editForm(form.id, { children: JSON.stringify(newChildren) });
+              const prom = editForm(form.id, { children: serilizeFormChildren(newChildren) });
               reloadForm(newForm, prom);
               const { code } = await prom;
               if (!code) message.success('修改已保存');
@@ -172,7 +176,7 @@ export default function FormEdit() {
               };
               const newChildren = [...groups, newGroup];
               const newForm = { ...form, children: newChildren };
-              const prom = editForm(form.id, { children: JSON.stringify(newChildren) });
+              const prom = editForm(form.id, { children: serilizeFormChildren(newChildren) });
               reloadForm(newForm, prom);
               const { code } = await prom;
               if (!code) message.success('修改已保存');
