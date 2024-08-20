@@ -81,6 +81,7 @@ export default function FormEdit() {
           </>}>
             <Flex vertical>
               <Typography.Text>设置开放时间</Typography.Text>
+              <Typography.Text type='secondary'>开放时间内候选人才可看到/提交问卷。开放时间内，候选人可重复提交问卷，其所有志愿也会重置到"已填表"阶段。</Typography.Text>
               <DatePicker.RangePicker showTime
                 value={[form.startAt && dayjs(form.startAt), form.endAt && dayjs(form.endAt)]}
                 allowEmpty={[true, true]}

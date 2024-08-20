@@ -10,6 +10,7 @@ import { showDrawer } from '../../shared/LightComponent';
 import ResultDisplay from '../shared/ResultDisplay';
 import { useFilterDeparts, FilterDepartsComponent } from '../shared/FilterDeparts';
 import CopyZone from '../../shared/CopyZone';
+import dayjs, { Dayjs } from 'dayjs';
 
 /**所在阶段。1~127=第n阶段(可重命名)； */
 export type StepType = number;
@@ -32,6 +33,12 @@ function getNextStep(n: number): number {
   return n + 1;
 }
 export type Person = { name: string, zjuId: string, phone: string, };
+function isStillOpen(startAt: Dayjs | null, endAt: Dayjs | null) {
+  const now = dayjs();
+  if (startAt && startAt.isAfter(now)) return false;
+  if (endAt && endAt.isBefore(now)) return false;
+  return true;
+}
 export default function ResultOverview() {
   const [filterDeparts, setFilterDeparts, { departs, org: { defaultDepart, name: orgName } }, orgInfoLoading] = useFilterDeparts();
 
@@ -89,7 +96,7 @@ export default function ResultOverview() {
           批量操作(已选中<strong>{selectedKeys.length}</strong>项)
           <Button onClick={() => {
             //TODO
-          }}>导出简历</Button>
+          }}>导出简历(TODO)</Button>
           <Dropdown.Button type='primary'
             onClick={() => setIntentsStep(selectedKeys, getNextStep(step))}
             menu={{
@@ -135,6 +142,8 @@ export default function ResultOverview() {
           <Button target='_blank' href='https://docs.qq.com/doc/DSGV2U215ZWtWZ3hS'>发送短信指南</Button>
         </Space>
       </DisabledContext.Provider>
+      {isStillOpen(form.startAt, form.endAt) &&
+        <Typography.Text>问卷目前尚在开放时间内。开放时间内，候选人可重新提交答卷，重置其所有志愿至"已填表"。请谨慎进行阶段操作。</Typography.Text>}
       <Search onChange={({ target: { value } }) => debouncedSetFilter(value)} placeholder='筛选姓名/学号/手机号' />
       <Table
         loading={!!loading}

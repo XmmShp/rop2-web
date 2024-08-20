@@ -2,7 +2,7 @@ import { Flex, Card, Typography, Collapse, Descriptions, message } from "antd";
 import { useData } from "../api/useData";
 import { Depart } from "../console/shared/useOrg";
 import { useForm } from "../console/shared/useForm";
-import { kvGet } from "../store/kvCache";
+import { kvGet, zjuIdKey } from "../store/kvCache";
 import { numSC } from "../utils";
 import { getStepLabel } from "../console/result/ResultOverview";
 import './StatusPage.scss';
@@ -98,7 +98,7 @@ export default function StatusPage() {
   return (<Flex justify='center' className='status'>
     <Card className='card'>
       <Flex vertical gap='4px'>
-        <Typography.Text>学号: {kvGet('zjuId')}</Typography.Text>
+        <Typography.Text>学号: {kvGet(zjuIdKey)}</Typography.Text>
         <Typography.Text>
           您在 <Typography.Text strong>{form.name}</Typography.Text> 各志愿的状态：
         </Typography.Text>

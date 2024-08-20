@@ -1,5 +1,5 @@
 import { base64 } from 'rfc4648';
-import { kvGet, kvSet } from '../store/kvCache';
+import { kvGet, kvSet, zjuIdKey } from '../store/kvCache';
 import { without } from '../utils';
 import { message } from '../App';
 import { redirectToLogin } from './auth';
@@ -29,7 +29,7 @@ export function saveToken(token: string) {
   kvSet('at', at.toString());
   kvSet('nickname', nickname);
   kvSet('level', level.toString());
-  kvSet('zjuId', zjuId);
+  kvSet(zjuIdKey, zjuId);
 }
 
 //fetch的封装，自动添加token，处理401(跳登录页)和token刷新

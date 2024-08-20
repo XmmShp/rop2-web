@@ -16,4 +16,17 @@
   .group:not(:first-child) .divider {
     margin: 2.4em 0 0;
   }
+
+  .success-subtitle {
+    margin: 2em;
+  }
+
+  .support {
+    display: block;
+    text-align: center;
+    font-size: calc(.89 * var(--ant-font-size));
+    // text-decoration: underline dashed 1px;
+    // text-decoration-color: initial;
+    // text-underline-offset: calc(.223 * var(--ant-font-size));
+  }
 }

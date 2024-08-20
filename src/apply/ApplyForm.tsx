@@ -1,4 +1,4 @@
-import { createRef, useEffect, useState } from 'react';
+import { createRef, useEffect, useMemo, useRef, useState } from 'react';
 import './ApplyForm.scss';
 import { Button, Card, Divider, Flex, Form, Result, Typography } from 'antd';
 import { ValueOf, FormQuestion, parseChoices } from '../shared/FormQuestion';
@@ -11,6 +11,7 @@ import { message } from '../App';
 import { builtinPhoneQuestion } from '../console/form/FormEdit';
 import { basename, num } from '../utils';
 import CopyZone from '../shared/CopyZone';
+import { kvGet, kvSet, zjuIdKey } from '../store/kvCache';
 
 export function validate(question: ValidQuestion, value: unknown): boolean {
   if (!question.optional) {
@@ -55,9 +56,13 @@ export function calcRevealGroups(form: FormDetail, newAnswer: AnswerMap) {
   newRevealGroups.sort((a, b) => form.children.findIndex(g => g.id === a.id) - form.children.findIndex(g => g.id === b.id));
   return newRevealGroups;
 }
+function getAnswerStoreKey(zjuId: string, formId: number) {
+  return `${zjuId}:f${formId}`;
+}
 export default function ApplyForm() {
   const [searchParams] = useSearchParams();
   const isPreview = typeof searchParams.get('preview') === 'string';
+  const zjuId = useMemo(() => kvGet(zjuIdKey)!, []);
 
   //管理员在预览模式下使用管理渠道获取表单详情（绕过开始&结束时间限制）
   const [{ phone: profilePhone }, profilePromise] = useData<{ phone: string }>('/applicant/profile', async (resp) => {
@@ -76,20 +81,43 @@ export default function ApplyForm() {
   const [departs] = useData<Depart[]>('/applicant/org', (resp) => resp.json(), [], { id: form.owner }, [form.owner], !formLoading);
   const [completed, setCompleted] = useState(false);
   const [phone, setPhone] = useState(profilePhone);
-  const [answer, setAnswer] = useState<AnswerMap>({});
+  const answerStoreKey = useMemo(() => getAnswerStoreKey(zjuId, form.id), [zjuId]);
+  const [answer, _setAnswer] = useState<AnswerMap>(() => {
+    //即使form还在fetch，id也是有效的；同时kvGet为同步函数
+    const cached = kvGet(answerStoreKey) ?? '{}';
+    console.log('using cached answer:', JSON.parse(cached))
+    return JSON.parse(cached) as AnswerMap;
+  });
+  const answerMapRef = useRef(answer);
+  function setAnswer(newAnswer: AnswerMap) {
+    console.log('set answer', newAnswer)
+    answerMapRef.current = newAnswer;
+    _setAnswer(newAnswer);
+  }
+  useEffect(() => {
+    function saveCurrentAnswer() {
+      kvSet(answerStoreKey, JSON.stringify(answerMapRef.current));
+    }
+    window.addEventListener('unload', saveCurrentAnswer);
+    const timer = setInterval(() => {
+    }, 3000); //每3s保存一次，同时unload时也会保存(不询问是否退出)
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('unload', saveCurrentAnswer);
+    }
+  }, [answerStoreKey]);
+
+  //保存html元素引用便于错误定位
   type RefMap = Record<string, React.RefObject<HTMLDivElement>>;
   const [refMap, setRefMap] = useState<RefMap>({});
   useEffect(() => {
     if ('message' in form.children) return;//表单异常，不需要初始化
-    const newAnswerMap: AnswerMap = {};
     const newRefMap: RefMap = { phoneRef: createRef() };
     form.children.forEach(
-      group => group.children.forEach(q => {
-        newAnswerMap[q.id] = ('choices' in q) ? [] : '';
-        newRefMap[q.id] = createRef();
-      }));
-    setAnswer(newAnswerMap);
-    setRevealGroups(calcRevealGroups(form, newAnswerMap));
+      group => group.children.forEach(q =>
+        newRefMap[q.id] = createRef()
+      ));
+    setRevealGroups(calcRevealGroups(form, answer));
     setRefMap(newRefMap);
   }, [form.children]);
   const [revealGroups, setRevealGroups] = useState<QuestionGroup[]>([]);
@@ -109,7 +137,7 @@ export default function ApplyForm() {
         : /**问卷children有效 */
         (completed
           ? /**已完成页面 */
-          <SuccessPage formName={form.name} />
+          <SuccessPage form={form} />
           : /**填表页面 */
           <Flex vertical gap='large'>
             <Typography.Title level={3} className='title'>
@@ -171,14 +199,17 @@ export default function ApplyForm() {
   </Flex>);
 }
 
-function SuccessPage({ formName }: { formName: string }) {
-  return (<Result
-    status='success'
-    title='提交成功'
-    subTitle={<>
-      感谢您参与{formName}。
-      {/* <br /> */}
-      {/* 我们将通过短信发送后续报名信息，请注意查收。 */}
-    </>}
-  />);
+function SuccessPage({ form }: { form: FormDetail }) {
+  return (<>
+    <Result
+      status='success'
+      title='提交成功'
+      subTitle={<div className='success-subtitle'>
+        感谢您参与{form.name}。
+        <br />
+        如需<a href={`${basename}/apply/${form.id}`}>修改答卷</a>，您可在问卷开放时间内返回此页，重新提交答卷。
+      </div>}
+    />
+    <Typography.Text type='secondary' className='support'>技术支持 求是潮纳新开放系统</Typography.Text>
+  </>);
 }
