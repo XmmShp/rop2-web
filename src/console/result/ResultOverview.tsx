@@ -18,13 +18,14 @@ const initial = 0;
 const accepted = -50;
 const rejected = -1;
 const invalid = -2;
-const stepLabels: { [k: string]: string } = {
-  [-2]: '已失效',
-  [-1]: '已拒绝',
-  [-50]: '已录取',
-  [0]: '已填表'
-};
+export const validSteps = [0, 1, 2, -50, -1, -2];
 export function getStepLabel(n: number): string {
+  const stepLabels: { [k: string]: string } = {
+    [-2]: '已失效',
+    [-1]: '已拒绝',
+    [-50]: '已录取',
+    [0]: '已填表'
+  };
   return stepLabels[n] ?? `阶段${numSC(n)}`
 }
 function getNextStep(n: number): number {
@@ -78,7 +79,7 @@ export default function ResultOverview() {
         defaultValue={0}
         value={step}
         onChange={setStep}
-        options={[0, 1, 2, -50, -1, -2].map(n => { return { label: getStepLabel(n), value: n } })} />
+        options={validSteps.map(n => { return { label: getStepLabel(n), value: n } })} />
       {/* <Radio.Group defaultValue='pend'>
         <Radio value='instance'>操作立即生效</Radio>
         <Radio value='pend'>操作在确认发送通知后生效</Radio>
@@ -151,6 +152,7 @@ export default function ResultOverview() {
           hideOnSinglePage: false,
           showSizeChanger: true,
           showQuickJumper: true,
+          total: count,//所有页合计
           onShowSizeChange(current, size) {
             setLimit(size);
             setOffset(Math.floor(offset / size) * size);

@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { kvGet, kvSet } from './store/kvCache';
 
 export function singleMatch(str: string, regexp: RegExp): string | null {
@@ -144,7 +144,22 @@ export function period(second: number) {
   return Math.floor(Date.now() / 1000 / second);
 }
 
+/**React Hook，每隔一定时间更新一次组件。返回值为已经过的周期数(初始调用时为0) */
+export function usePeriod(second: number): number {
+  const [count, _setCount] = useState(0);
+  function setCount(newCount: number) {
+    countRef.current = newCount;
+    _setCount(newCount);
+  }
+  const countRef = useRef(count);
+  useEffect(() => {
+    const timerId = setInterval(() => setCount(countRef.current + 1), second * 1000);
+    return () => clearInterval(timerId);
+  }, [second])
+  return count;
+}
 export function useNickname() {
+  /**每隔15s才查询localStorage(如果没有组件更新不会主动更新，与usePeriod不同) */
   return useMemo<string>(() => kvGet('nickname') ?? '未登录', [period(15)]);
 }
 

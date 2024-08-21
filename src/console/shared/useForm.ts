@@ -65,6 +65,11 @@ export type FormDetail = {
   startAt: Dayjs | null;
   endAt: Dayjs | null;
 }
+/**
+ * 获取当前表单id。若无法获取，返回-1。
+ * @param avoidFormList 是否避免useFormList。一个组件请保持为常量否则Hook报错。
+ * @returns 
+ */
 export function useFormId(avoidFormList = false): Id {
   const { formId: paramFormId } = useParams();
   if (avoidFormList) return num(paramFormId, -1);
