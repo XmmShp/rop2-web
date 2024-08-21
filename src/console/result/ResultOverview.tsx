@@ -6,7 +6,7 @@ import DisabledContext from 'antd/es/config-provider/DisabledContext';
 import Search from '../shared/Search';
 import { useData } from '../../api/useData';
 import { setIntents } from '../../api/result';
-import { showDrawer } from '../../shared/LightComponent';
+import { showDrawer, showModal } from '../../shared/LightComponent';
 import ResultDisplay from '../shared/ResultDisplay';
 import { useFilterDeparts, FilterDepartsComponent } from '../shared/FilterDeparts';
 import CopyZone from '../../shared/CopyZone';
@@ -47,10 +47,17 @@ export default function ResultOverview() {
   const [form] = useForm('admin');
 
   const [offset, setOffset] = useState(0);
+  function withResetOffset<F extends (...args: any[]) => any>(f: F): F {
+    return function () {
+      setOffset(0);
+      return f(...arguments);
+    } as any
+  }
   const [limit, setLimit] = useState(10);
   const [filter, setFilter] = useState('');
-  const debouncedSetFilter = debounce(setFilter, 250);
-  const [step, setStep] = useState<StepType>(0);
+  const debouncedSetFilter = debounce(withResetOffset(setFilter), 250);
+  const [step, _setStep] = useState<StepType>(0);
+  const setStep = withResetOffset(_setStep);
   type IntentOutline = {
     id: number,
     depart: number, order: number,
@@ -65,6 +72,7 @@ export default function ResultOverview() {
 
   const [selectedKeys, setSelectedKeys] = useState<number[]>([]);
   async function setIntentsStep(intentIds: number[], step: StepType): Promise<string | undefined> {
+    console.log('setIntentsStep', intentIds, step);
     setSelectedKeys([]);
     const msg = (await setIntents(form.id, intentIds, step)).message;
     reload(intentList);
@@ -95,11 +103,8 @@ export default function ResultOverview() {
       <DisabledContext.Provider value={selectedKeys.length <= 0}>
         <Space size='small'>
           批量操作(已选中<strong>{selectedKeys.length}</strong>项)
-          <Button onClick={() => {
-            //TODO
-          }}>导出简历(TODO)</Button>
           <Dropdown.Button type='primary'
-            onClick={() => setIntentsStep(selectedKeys, getNextStep(step))}
+            onClick={() => { setIntentsStep(selectedKeys, getNextStep(step)) }}
             menu={{
               items: [
                 {
@@ -111,15 +116,15 @@ export default function ResultOverview() {
             下一阶段
           </Dropdown.Button>
           <Dropdown.Button danger
-            onClick={() => setIntentsStep(selectedKeys, rejected)}
+            onClick={() => { setIntentsStep(selectedKeys, rejected) }}
             menu={{
               items: [
                 {
                   label: <Button
-                    onClick={() => setIntentsStep(selectedKeys, invalid)} type='link' size='small' danger>失效</Button>
+                    onClick={() => { setIntentsStep(selectedKeys, invalid) }} type='link' size='small' danger>失效</Button>
                 }, {
                   label: <Button
-                    onClick={() => setIntentsStep(selectedKeys, initial)} type='link' size='small' danger>重置至已填表</Button>
+                    onClick={() => { setIntentsStep(selectedKeys, initial) }} type='link' size='small' danger>重置至已填表</Button>
                 },
               ].map((v, i) => { return { ...v, key: i } })
             }}>
@@ -127,27 +132,41 @@ export default function ResultOverview() {
           </Dropdown.Button>
           <Button
             onClick={async () => {
-              const txt = selectedKeys.map(id => intents.find(i => i.id === id)?.phone).join('\n');
-              try {
-                await navigator.clipboard.writeText(txt);
-                message.success('复制成功');
-              } catch {
-                showDrawer({
-                  title: '手动复制', children: <div>
-                    <Typography.Text>因浏览器限制，请手动复制以下内容：</Typography.Text>
-                    <CopyZone text={txt} />
-                  </div>
-                })
+              const phones = selectedKeys.map(id => intents.find(i => i.id === id)?.phone);
+              async function copy() {
+                const txt = phones.join('\n');
+                try {
+                  await navigator.clipboard.writeText(txt);
+                  message.success('复制成功');
+                } catch {
+                  showDrawer({
+                    title: '手动复制', children: <div>
+                      <Typography.Text>因浏览器限制，请手动复制以下内容：</Typography.Text>
+                      <CopyZone text={txt} />
+                    </div>
+                  })
+                }
               }
+              if (phones.some((p, i) => phones.indexOf(p, i + 1) >= 0)) {
+                showModal({
+                  title: '发现重复手机号',
+                  content: <Typography.Text>
+                    您选择的 {phones.length} 项候选人中存在重复的手机号。
+                    <br />这可能是选中了多个部门导致的。
+                    <br />要继续复制吗？(重复的手机号将不做处理)
+                  </Typography.Text>,
+                  onConfirm: copy
+                })
+              } else await copy();
             }}>复制手机号</Button>
-          <Button target='_blank' href='https://docs.qq.com/doc/DSGV2U215ZWtWZ3hS'>发送短信指南</Button>
+          <Button disabled={false} target='_blank' href='https://docs.qq.com/doc/DSGV2U215ZWtWZ3hS'>群发短信指南</Button>
         </Space>
       </DisabledContext.Provider>
       {isStillOpen(form.startAt, form.endAt) &&
         <Typography.Text>问卷目前尚在开放时间内。开放时间内，候选人可重新提交答卷，重置其所有志愿至"已填表"。请谨慎进行阶段操作。</Typography.Text>}
       <Search onChange={({ target: { value } }) => debouncedSetFilter(value)} placeholder='筛选姓名/学号/手机号' />
       <Table
-        loading={!!loading}
+        loading={Boolean(loading)}
         pagination={{
           hideOnSinglePage: false,
           showSizeChanger: true,
@@ -157,7 +176,8 @@ export default function ResultOverview() {
             setLimit(size);
             setOffset(Math.floor(offset / size) * size);
           },
-          onChange(page) { setOffset((page - 1) * limit) }
+          onChange(page) { setOffset((page - 1) * limit) },
+          current: Math.floor(offset / limit) + 1,
         }}
         dataSource={intents}
         rowSelection={{
@@ -167,7 +187,7 @@ export default function ResultOverview() {
             setSelectedKeys(selectedRowKeys as number[]);
           },
         }}
-        rowKey={(obj) => obj.id}
+        rowKey={'id'}
         columns={[{
           dataIndex: 'name',
           title: '姓名'
@@ -199,27 +219,27 @@ export default function ResultOverview() {
                 }}
               >查看简历</Button>
               {step >= 0 && <><Dropdown.Button size='small' type='link'
-                onClick={() => setIntentsStep([record.id], getNextStep(step))}
+                onClick={() => { setIntentsStep([record.id], getNextStep(step)) }}
                 menu={{
                   items: [{
                     label: <Button
-                      onClick={() => setIntentsStep([record.id], accepted)}
+                      onClick={() => { setIntentsStep([record.id], accepted) }}
                       size='small' type='link'>直接录取</Button>
                   },].map((v, i) => { return { ...v, key: i } })
                 }}>
                 下一阶段
               </Dropdown.Button>
                 <Dropdown.Button danger size='small' type='link'
-                  onClick={() => setIntentsStep([record.id], rejected)}
+                  onClick={() => { setIntentsStep([record.id], rejected) }}
                   menu={{
                     items: [
                       {
                         label: <Button
-                          onClick={() => setIntentsStep([record.id], invalid)}
+                          onClick={() => { setIntentsStep([record.id], invalid) }}
                           size='small' type='link' danger>失效</Button>
                       }, {
                         label: <Button
-                          onClick={() => setIntentsStep([record.id], initial)}
+                          onClick={() => { setIntentsStep([record.id], initial) }}
                           size='small' type='link' danger>重置至已填表</Button>
                       },
                     ].map((v, i) => { return { ...v, key: i } })
@@ -236,7 +256,7 @@ export default function ResultOverview() {
                 : step > 0 ? '#00b8ff' :
                   step === -50 ? 'green' : 'red'
           }}>{getStepLabel(step)}</Typography.Text>
-          候选人列表 (本页 {d.length} 项 / 本页 {new Set(d.map(d => d.zjuId)).size} 人{filter ? ` / 筛选到 ${filteredCount} 项` : ''} / 共 {count} 项)</Space>} />
+          候选人列表 (本页 {d.length} 项{filter ? ` / 筛选到 ${filteredCount} 项` : ''} / 共 {count} 项)</Space>} />
     </Flex>
   </Card>);
 }

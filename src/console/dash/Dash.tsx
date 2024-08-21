@@ -88,7 +88,7 @@ export default function Dash() {
         <Flex wrap='wrap' gap='small'>
           {steps.map(
             ({ id, peopleCount, intentsCount, interviewDone, interviewCount }) =>
-            (<Card>
+            (<Card key={id}>
               <Flex vertical gap='small'>
                 <Flex wrap='wrap' gap='large'>
                   <Statistic title='阶段' value={getStepLabel(id)} />

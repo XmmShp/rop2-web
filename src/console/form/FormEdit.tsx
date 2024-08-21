@@ -1,4 +1,4 @@
-import { createRef, forwardRef, useMemo, useRef, useState } from 'react';
+import { createRef, forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import { basename, moveElement, newUniqueLabel, throwArgs } from '../../utils';
 import { Button, Checkbox, Collapse, DatePicker, Flex, FloatButton, Grid, Tabs, Tooltip, Typography } from 'antd';
 import './FormEdit.scss';
@@ -21,10 +21,23 @@ export const builtinPhoneQuestion = { type: 'text', title: '您的手机号', ma
 export default function FormEdit() {
   const [form, , reloadForm] = useForm('admin');
   const pageRef = useRef<HTMLDivElement>(null);
-  const groups = form.children;
+  const { children: groups } = form;
   const [curGroupIndex, setCurGroupIndex] = useState(-1);
   const refs = useMemo(() => groups.map(() => createRef<HTMLDivElement>()), [groups]);
   const { lg = false } = Grid.useBreakpoint();
+  useEffect(() => {
+    const cur = pageRef.current;
+    if (!cur) return;
+    function scrollHandler() {
+      const scrollTop = cur!.scrollTop;
+      const alignMargin = 1.2 * 14;//1.2em
+      const curG = refs.findLastIndex(r => r.current && r.current.offsetTop <= scrollTop + alignMargin) ?? -1;
+      if (curG !== curGroupIndex)
+        setCurGroupIndex(curG);
+    }
+    cur.addEventListener('scroll', scrollHandler, { passive: true });
+    return () => cur.removeEventListener('scroll', scrollHandler);
+  }, [pageRef.current, refs])
 
   const editingTitle = useRef(form.name);//由于antd的可编辑文本特性，此处使用useRef而非useState
   return (
@@ -55,13 +68,7 @@ export default function FormEdit() {
             }
           }} />
       </Flex>
-      <Flex className='page' vertical ref={pageRef}
-        onScroll={() => {
-          const scrollTop = pageRef.current!.scrollTop;
-          const alignMargin = 1.2 * 14;//1.2em
-          const curG = refs.findLastIndex(r => r.current!.offsetTop <= scrollTop + alignMargin) ?? -1;
-          setCurGroupIndex(curG);
-        }}>
+      <Flex className='page' vertical ref={pageRef}>
         <Flex className='form' vertical gap='middle'>
           <Typography.Text type='secondary'>
             您正在编辑问卷。请注意，同一份问卷不支持多人同时编辑。
@@ -82,7 +89,11 @@ export default function FormEdit() {
             <Flex vertical>
               <Typography.Text>设置开放时间</Typography.Text>
               <Typography.Text type='secondary'>开放时间内候选人才可看到/提交问卷。开放时间内，候选人可重复提交问卷，其所有志愿也会重置到"已填表"阶段。</Typography.Text>
-              <DatePicker.RangePicker showTime
+              <DatePicker.RangePicker
+                showTime={{
+                  format: 'HH:mm',
+                  minuteStep: 5
+                }}
                 value={[form.startAt && dayjs(form.startAt), form.endAt && dayjs(form.endAt)]}
                 allowEmpty={[true, true]}
                 placeholder={['即刻起', '长期有效']}
@@ -269,9 +280,9 @@ const GroupCard = forwardRef<HTMLDivElement,
           <Checkbox checked={group.hideSeparator ?? false}
             onChange={async ({ target: { checked } }) => { await onEdit({ ...group, hideSeparator: checked }) }}>隐藏组标题和分隔符</Checkbox>
           <Tooltip title={<>
-            指定须填写的下一个问题组。
+            指定须填写的下一问题组。
             <br />
-            相当于无条件的<strong>揭示</strong>另一问题组。
+            即，如果当前组被显示，那么下一问题组也会显示出来。
           </>}>
             <Flex gap='small'>
               <ArrowRightOutlined />
