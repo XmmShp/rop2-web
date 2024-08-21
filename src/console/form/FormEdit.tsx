@@ -1,6 +1,6 @@
 import { createRef, forwardRef, useMemo, useRef, useState } from 'react';
 import { basename, moveElement, newUniqueLabel, throwArgs } from '../../utils';
-import { Button, Collapse, DatePicker, Flex, FloatButton, Grid, Tabs, Tooltip, Typography } from 'antd';
+import { Button, Checkbox, Collapse, DatePicker, Flex, FloatButton, Grid, Tabs, Tooltip, Typography } from 'antd';
 import './FormEdit.scss';
 import { QuestionGroup } from '../shared/useForm';
 import { DescEditor, PreviewWithEditor } from './PreviewWithEditor';
@@ -122,6 +122,23 @@ export default function FormEdit() {
           {groups.map((group, index) => <GroupCard key={group.id}
             ref={refs[index]}
             isEntry={1 === group.id} group={group} groups={groups}
+            onAppendGroup={async () => {
+              let maxGroupId = 0;
+              groups.forEach(({ id }) => {
+                if (id > maxGroupId) maxGroupId = id;
+              })
+              const newGroup: QuestionGroup = {
+                id: maxGroupId + 1,
+                children: [],
+                label: newUniqueLabel(groups.map(gr => gr.label), '问题组')
+              };
+              const newChildren = groups.toSpliced(index + 1, 0, newGroup);
+              const newForm = { ...form, children: newChildren };
+              const prom = editForm(form.id, { children: serilizeFormChildren(newChildren) });
+              reloadForm(newForm, prom);
+              const { code } = await prom;
+              if (!code) message.success('修改已保存');
+            }}
             onEdit={async (newObj) => {
               const newChildren = groups.with(index, newObj);
               const newForm = { ...form, children: newChildren };
@@ -163,25 +180,6 @@ export default function FormEdit() {
               index >= 1 && index < groups.length - 1 //下移：不是入口，且不是最后一个
             ]}
           />)}
-
-          <Button type='default' icon={<PlusOutlined />}
-            onClick={async () => {
-              let maxGroupId = 0;
-              groups.forEach(({ id }) => {
-                if (id > maxGroupId) maxGroupId = id;
-              })
-              const newGroup: QuestionGroup = {
-                id: maxGroupId + 1,
-                children: [],
-                label: newUniqueLabel(groups.map(gr => gr.label), '问题组')
-              };
-              const newChildren = [...groups, newGroup];
-              const newForm = { ...form, children: newChildren };
-              const prom = editForm(form.id, { children: serilizeFormChildren(newChildren) });
-              reloadForm(newForm, prom);
-              const { code } = await prom;
-              if (!code) message.success('修改已保存');
-            }}>新建题目组</Button>
         </Flex>
       </Flex>
     </Flex >);
@@ -196,9 +194,10 @@ const GroupCard = forwardRef<HTMLDivElement,
     onDelete: () => Promise<boolean>;
     /**上下移问题组 */
     onMove: (delta: number) => Promise<void>;
-    showMove: [boolean, boolean]
+    showMove: [boolean, boolean],
+    onAppendGroup: () => Promise<void>;
   }
->(function ({ group, isEntry, groups, onEdit, onDelete, onMove, showMove: [showMoveUp, showMoveDown] }, ref) {
+>(function ({ group, isEntry, groups, onEdit, onDelete, onMove, showMove: [showMoveUp, showMoveDown], onAppendGroup }, ref) {
   const labelRef = useRef(group.label);
   const questions = group.children;
   return (<Collapse
@@ -265,6 +264,10 @@ const GroupCard = forwardRef<HTMLDivElement,
                 }));
               await onEdit({ ...group, children: [...questions, { type: 'text', title: '新问题', id: maxId + 1 }] });
             }}>新建问题</Button>
+          <Button icon={<PlusOutlined />}
+            onClick={async () => await onAppendGroup()}>追加问题组</Button>
+          <Checkbox checked={group.hideSeparator ?? false}
+            onChange={async ({ target: { checked } }) => { await onEdit({ ...group, hideSeparator: checked }) }}>隐藏组标题和分隔符</Checkbox>
           <Tooltip title={<>
             指定须填写的下一个问题组。
             <br />

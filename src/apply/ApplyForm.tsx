@@ -166,11 +166,11 @@ export default function ApplyForm() {
                   setCompleted(true);
               }}>
               {revealGroups.map((group) => {
-                const { children, label, id: groupId } = group;
+                const { children, label, id: groupId, hideSeparator = false } = group;
                 const isEntry = groupId === 1;
                 return (<Flex key={label} vertical gap='middle'
                   className='group'>
-                  <Divider className='divider' orientation='center'>{label}</Divider>
+                  {hideSeparator ? <></> : <Divider className='divider' orientation='center'>{label}</Divider>}
                   {isEntry && <FormQuestion
                     ref={refMap['phoneRef']}
                     question={builtinPhoneQuestion}

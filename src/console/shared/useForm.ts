@@ -52,6 +52,7 @@ export interface QuestionGroup {
   label: string;
   children: ValidQuestion[];
   next?: Id;
+  hideSeparator?: boolean;
 }
 
 export type FormDetail = {
