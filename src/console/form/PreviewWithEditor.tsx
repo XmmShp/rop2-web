@@ -6,12 +6,12 @@ import { FormQuestion, parseChoices } from '../../shared/FormQuestion';
 import { newUniqueLabel } from '../../utils';
 import QuestionGroupSelect from './QuestionGroupSelect';
 import { message } from '../../App';
-import { useOrg } from '../shared/useOrg';
+import { useOrgFromContext } from '../shared/useOrg';
 import { DisabledContextProvider } from 'antd/es/config-provider/DisabledContext';
 
 function QuestionEditor({ question, onChange, groups, thisGroup }:
   { question: ValidQuestion, onChange: (newObj: ValidQuestion) => void, groups: QuestionGroup[], thisGroup: Id }) {
-  const [{ departs }] = useOrg();
+  const [{ departs }] = useOrgFromContext();
   return (<Flex vertical className='editing' gap='small'>
     <Flex align='center' gap='small'>
       问题类型
@@ -166,7 +166,7 @@ export function PreviewWithEditor(
   const quesIndex = group.children.indexOf(question);
   const isFirst = quesIndex == 0;
   const isLast = quesIndex == group.children.length - 1;
-  const [{ departs }] = useOrg();
+  const [{ departs }] = useOrgFromContext();
   return <>
     {isEditing
       ? <Flex vertical gap='small'>

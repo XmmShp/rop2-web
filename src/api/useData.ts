@@ -16,13 +16,13 @@ export function useData<T>(
   initialState: T | (() => T),
   params: Record<string, any> = {},
   deps: React.DependencyList = [],
-  condition = true, //对于有顺序的请求，可以等待前一个请求完成(condition为false时不发送本请求)
+  paramsValid = true, //对于有顺序的请求，可以等待前一个请求完成(paramsValid为false时不发送请求，但保持加载状态)
 ): DataTuple<T> {
   const [data, setData] = useState<T>(initialState);
-  const [loadPromise, setLoadPromise] = useState<Promise<T> | null>(null);
+  const [loadPromise, setLoadPromise] = useState<Promise<T> | null>(() => new Promise(() => { }));
   const [forceReloadTimes, setForceReloadTimes] = useState(0);
   useEffect(() => {
-    if (!condition) {
+    if (!paramsValid) {
       setLoadPromise(new Promise(() => { }));
       return;
     }
@@ -51,7 +51,7 @@ export function useData<T>(
     });
     setLoadPromise(promise);
     return abortCtrl.abort.bind(abortCtrl);
-  }, [condition, forceReloadTimes, ...deps]);
+  }, [paramsValid, forceReloadTimes, ...deps]);
   return [data, loadPromise, (newValue, waitUntil) => {
     if (newValue !== undefined)
       setData(newValue);

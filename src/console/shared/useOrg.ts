@@ -13,6 +13,8 @@ export type OrgInfo = {
     useDeparts: number;//TODO 解析&使用该属性
   };
   departs: Depart[];
+  /**生成此OrgInfo的响应状态码，未请求时为0 */
+  respStatus: number;
 };
 
 
@@ -20,13 +22,16 @@ const defaultOrg = {
   org: { defaultDepart: -1, name: '加载中', useDeparts: 0 },
   departs: []
 };
-export function useOrgProvider(): DataTuple<OrgInfo> {
-  const v = useData<OrgInfo>('/org', async (resp) => await resp.json(), defaultOrg);
+export function useOrg(): DataTuple<OrgInfo> {
+  const v = useData<OrgInfo>('/org', async (resp) => {
+    const result = resp.status >= 400 ? defaultOrg : await resp.json();
+    return { ...result, respStatus: resp.status };
+  }, { ...defaultOrg, respStatus: 0 });
   v[0].departs = v[0].departs.filter(d => d.id !== v[0].org.defaultDepart);
   return v;
 }
 /**使用Context传递的组织信息。 */
-export function useOrg(): DataTuple<OrgInfo> {
+export function useOrgFromContext(): DataTuple<OrgInfo> {
   const v = useContext(OrgContext);
   return v;
 }

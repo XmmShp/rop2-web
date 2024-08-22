@@ -16,7 +16,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         hashCharacters: 'base64',
-        assetFileNames: 'assets/[name]-[hash:4][extname]',
+        assetFileNames: 'assets/[name]-[hash:8][extname]',
         chunkFileNames: '[name]-[hash:6].js',
         manualChunks: {
           react: ['react-router-dom', 'react-dom', 'react'],

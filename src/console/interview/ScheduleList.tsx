@@ -4,7 +4,7 @@ import { useData } from '../../api/useData';
 import dayjs from 'dayjs';
 import { formatPeriod } from './InterviewList';
 import { useForm } from '../shared/useForm';
-import { useOrg } from '../shared/useOrg';
+import { useOrgFromContext } from '../shared/useOrg';
 import ResultDisplay from '../shared/ResultDisplay';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 
@@ -18,7 +18,7 @@ export default function ScheduleList() {
   }, { startAt: dayjs(), endAt: dayjs() } as const, { id: interviewId }, [interviewId]);
   const [scheduledIds] = useData<string[]>('/interview/schedule', async (resp) => resp.json(), [], { id: interviewId }, [interviewId]);
   const [form] = useForm('admin');
-  const [{ departs }] = useOrg();
+  const [{ departs }] = useOrgFromContext();
   const navigate = useNavigate();
   return (<Card>
     <Flex vertical gap='small'>

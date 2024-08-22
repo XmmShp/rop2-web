@@ -1,12 +1,13 @@
 .card {
   margin: 1em 1%;
-  padding: 0 min(3%, 3em) 2em;
+  padding: 2em min(3%, 3em);
   flex: 1 1 auto;
   max-width: min(95%, 54em);
   white-space: pre-wrap;
 
   .title {
     text-align: center;
+    margin: .8em;
   }
 
   .divider {

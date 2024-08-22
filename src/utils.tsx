@@ -146,14 +146,14 @@ export function period(second: number) {
 
 /**React Hook，每隔一定时间更新一次组件。返回值为已经过的周期数(初始调用时为0) */
 export function usePeriod(second: number): number {
-  const [count, _setCount] = useState(0);
-  function setCount(newCount: number) {
-    countRef.current = newCount;
-    _setCount(newCount);
-  }
+  const [count, setCount] = useState(0);
   const countRef = useRef(count);
   useEffect(() => {
-    const timerId = setInterval(() => setCount(countRef.current + 1), second * 1000);
+    const timerId = setInterval(() => {
+      const newCount = countRef.current + 1;
+      setCount(newCount);
+      countRef.current = newCount;
+    }, second * 1000);
     return () => clearInterval(timerId);
   }, [second])
   return count;
@@ -180,15 +180,9 @@ export function debounce<A extends any[]>(f: (...args: A) => void, wait: number)
 
 export const throwArgs = (...args: any[]) => { throw args };
 
-export function accumulate<T>(array: T[], step: number, defaultElement?: T): T[][] {
-  const result: T[][] = [];
-  let i = 0;
-  for (i = 0; i < array.length; i += step) {
-    result.push(array.slice(i, i + step));
-  }
-  if (i > array.length && defaultElement !== undefined) {
-    const lastSlice = result[result.length - 1];
-    lastSlice.push(...new Array(step - lastSlice.length).fill(defaultElement));
-  }
-  return result;
-} 
+export function pathname(): string {
+  const p = location.pathname;
+  if (p.startsWith(basename)) return p.slice(basename.length);
+  console.error('basename不匹配', p, basename);
+  return p;
+}

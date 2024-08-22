@@ -8,12 +8,12 @@ import { showModal, TempInput } from '../../shared/LightComponent';
 import { message } from '../../App';
 import dayjs from 'dayjs';
 import { createForm, deleteForm } from '../../api/form';
-import { useFormList } from '../shared/useFormList';
+import { useFormListFromContext } from '../shared/useFormList';
 
 export function setActiveForm(formId: number) { kvSet('form', formId.toString()); }
 
 export default function FormOverview() {
-  const [forms, loadingPromise, reload] = useFormList();
+  const [forms, loadingPromise, reload] = useFormListFromContext();
   const [searchValue, setSearchValue] = useState('');
   return (<Card>
     <Flex vertical gap='small'>

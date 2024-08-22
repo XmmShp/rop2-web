@@ -1,7 +1,7 @@
 import { FundViewOutlined, HourglassOutlined, TeamOutlined } from '@ant-design/icons';
 import { Card, Flex, Statistic, Typography } from 'antd';
 import { useNickname, usePeriod } from '../../utils';
-import { useOrg } from '../shared/useOrg';
+import { useOrgFromContext } from '../shared/useOrg';
 import './Dash.scss';
 import { useForm } from '../shared/useForm';
 import dayjs, { Dayjs } from 'dayjs';
@@ -41,7 +41,7 @@ export default function Dash() {
   else greeting = '晚上好';
 
   const nickname = useNickname();
-  const [{ org: { name: orgName } }] = useOrg();
+  const [{ org: { name: orgName } }] = useOrgFromContext();
   const [form] = useForm('admin', true);
 
   type StepStatistics = {

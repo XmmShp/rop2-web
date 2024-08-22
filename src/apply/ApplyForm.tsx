@@ -12,6 +12,7 @@ import { builtinPhoneQuestion } from '../console/form/FormEdit';
 import { basename, num } from '../utils';
 import CopyZone from '../shared/CopyZone';
 import { kvGet, kvSet, zjuIdKey } from '../store/kvCache';
+import { getLoginRedirectUrl } from '../api/auth';
 
 export function validate(question: ValidQuestion, value: unknown): boolean {
   if (!question.optional) {
@@ -64,21 +65,21 @@ export default function ApplyForm() {
   const isPreview = typeof searchParams.get('preview') === 'string';
   const zjuId = useMemo(() => kvGet(zjuIdKey)!, []);
 
-  //管理员在预览模式下使用管理渠道获取表单详情（绕过开始&结束时间限制）
-  const [{ phone: profilePhone }, profilePromise] = useData<{ phone: string }>('/applicant/profile', async (resp) => {
-    const profile = await resp.json();
+  const [{ phone: profilePhone, respStatus }, profilePromise] = useData<{ phone: string, respStatus: number }>('/applicant/profile', async (resp) => {
+    const profile = resp.status >= 400 ? {} : await resp.json();
     profile.phone ??= '';
-    return profile;
-  }, { phone: '' }, {}, []);
+    return { ...profile, respStatus: resp.status };
+  }, { phone: '', respStatus: 0 }, {}, []);
   useEffect(() => {
     if (profilePromise?.then) profilePromise.then((prof) => setPhone(prof.phone));
   }, [profilePromise]);
-  const [form, formLoading] = useForm(isPreview ? 'admin' : 'applicant', false);
+  //管理员在预览模式下使用管理渠道获取表单详情（绕过开始&结束时间限制）
+  const [form, formLoading] = useForm(isPreview ? 'admin' : 'applicant', false, true);
   useEffect(() => {
     if (form.name)
       document.title = `${form.name} - 纳新开放系统`;
   }, [form.name])
-  const [departs] = useData<Depart[]>('/applicant/org', (resp) => resp.json(), [], { id: form.owner }, [form.owner], !formLoading);
+  const [departs] = useData<Depart[]>('/applicant/org', (resp) => resp.json(), [], { id: form.owner }, [form.owner], !formLoading && form.owner > 0);
   const [completed, setCompleted] = useState(false);
   const [phone, setPhone] = useState(profilePhone);
   const answerStoreKey = useMemo(() => getAnswerStoreKey(zjuId, form.id), [zjuId]);
@@ -122,79 +123,89 @@ export default function ApplyForm() {
   }, [form.children]);
   const [revealGroups, setRevealGroups] = useState<QuestionGroup[]>([]);
 
+  useEffect(() => {
+    if (respStatus === 401)
+      location.href = getLoginRedirectUrl();
+  }, [respStatus === 401]);
+
   return (<Flex justify='center'
     className='apply'>
     <Card className='card'>
-      {isPreview && <Flex vertical>
-        <Typography.Text>您目前正处在预览模式。</Typography.Text>
-        <Typography.Text>候选人正常填表地址：<CopyZone inline text={`${location.origin}${basename}/apply/${form.id}`} /></Typography.Text>
-      </Flex>}
-      {'message' in form.children
-        ? /**问卷存在异常，只显示message */
-        <Typography.Title level={4}>
-          {form.children.message as string}
-        </Typography.Title>
-        : /**问卷children有效 */
-        (completed
-          ? /**已完成页面 */
-          <SuccessPage form={form} />
-          : /**填表页面 */
-          <Flex vertical gap='large'>
-            <Typography.Title level={3} className='title'>
-              {form.name}
+      {respStatus === 401
+        ? <>您需要登录后方可填写表单哦~
+          <br /><a href={getLoginRedirectUrl()} target='_self'>如未自动跳转，请点击此处</a></>
+        : (<>
+          {isPreview && <Flex vertical>
+            <Typography.Text>您目前正在预览该表单。</Typography.Text>
+            <Typography.Text>候选人正常填表地址：<CopyZone inline text={`${location.origin}${basename}/apply/${form.id}`} /></Typography.Text>
+          </Flex>}
+          {'message' in form.children
+            ? /**问卷存在异常，只显示message */
+            <Typography.Title level={4}>
+              {form.children.message as string}
             </Typography.Title>
-            {form.desc.length > 0 && <Typography.Text>
-              {form.desc}
-            </Typography.Text>}
-            <Form layout='vertical'
-              onFinish={async (v) => {
-                const choiceDepartQuestion = form.children.first(
-                  (g) => g.children.first(
-                    (q) => q.type === 'choice-depart' && q
-                  )
-                );
-                const intentDeparts = choiceDepartQuestion ? (answer[choiceDepartQuestion.id] as string[]).map(id => num(id)) : [];
-                const failedQues = revealGroups.first(rg => rg.children.first(q => validate(q, answer[q.id]) ? false : q));
-                if (failedQues) {
-                  const quesEle = refMap[failedQues.id]?.current!;
-                  quesEle.scrollIntoView();
-                  message.error('请填写所有必填项');
-                  return;
-                }
-                const { code } = await saveResult(form.id, { phone }, intentDeparts, answer);
-                if (!code)
-                  setCompleted(true);
-              }}>
-              {revealGroups.map((group) => {
-                const { children, label, id: groupId, hideSeparator = false } = group;
-                const isEntry = groupId === 1;
-                return (<Flex key={label} vertical gap='middle'
-                  className='group'>
-                  {hideSeparator ? <></> : <Divider className='divider' orientation='center'>{label}</Divider>}
-                  {isEntry && <FormQuestion
-                    ref={refMap['phoneRef']}
-                    question={builtinPhoneQuestion}
-                    value={phone}
-                    onChange={(v) => setPhone(v as string)} />}
-                  {children.map(ques => (
-                    <FormQuestion
-                      ref={refMap[ques.id]}
-                      question={ques} key={ques.id}
-                      value={answer[ques.id] as ValueOf<typeof ques>}
-                      onChange={(v) => {
-                        const newAnswer = { ...answer, [ques.id]: v };
-                        setAnswer(newAnswer);
-                        if (ques.type === 'choice' || ques.type === 'choice-depart')
-                          setRevealGroups(calcRevealGroups(form, newAnswer));
-                      }}
-                      departs={departs} />
-                  ))}
-                </Flex>)
-              })}
-              <Button type='primary' htmlType='submit'>提交</Button>
-            </Form>
-          </Flex>)
-      }
+            : /**问卷children有效 */
+            (completed
+              ? /**已完成页面 */
+              <SuccessPage form={form} />
+              : /**填表页面 */
+              <Flex vertical gap='large'>
+                <Typography.Title level={3} className='title'>
+                  {form.name}
+                </Typography.Title>
+                {form.desc.length > 0 && <Typography.Text>
+                  {form.desc}
+                </Typography.Text>}
+                {formLoading ? <></> : <Form layout='vertical'
+                  onFinish={async (v) => {
+                    const choiceDepartQuestion = form.children.first(
+                      (g) => g.children.first(
+                        (q) => q.type === 'choice-depart' && q
+                      )
+                    );
+                    const intentDeparts = choiceDepartQuestion ? (answer[choiceDepartQuestion.id] as string[]).map(id => num(id)) : [];
+                    const failedQues = revealGroups.first(rg => rg.children.first(q => validate(q, answer[q.id]) ? false : q));
+                    if (failedQues) {
+                      const quesEle = refMap[failedQues.id]?.current!;
+                      quesEle.scrollIntoView();
+                      message.error('请填写所有必填项');
+                      return;
+                    }
+                    const { code } = await saveResult(form.id, { phone }, intentDeparts, answer);
+                    if (!code)
+                      setCompleted(true);
+                  }}>
+                  {revealGroups.map((group) => {
+                    const { children, label, id: groupId, hideSeparator = false } = group;
+                    const isEntry = groupId === 1;
+                    return (<Flex key={label} vertical gap='middle'
+                      className='group'>
+                      {hideSeparator ? <></> : <Divider className='divider' orientation='center'>{label}</Divider>}
+                      {isEntry && <FormQuestion
+                        ref={refMap['phoneRef']}
+                        question={builtinPhoneQuestion}
+                        value={phone}
+                        onChange={(v) => setPhone(v as string)} />}
+                      {children.map(ques => (
+                        <FormQuestion
+                          ref={refMap[ques.id]}
+                          question={ques} key={ques.id}
+                          value={answer[ques.id] as ValueOf<typeof ques>}
+                          onChange={(v) => {
+                            const newAnswer = { ...answer, [ques.id]: v };
+                            setAnswer(newAnswer);
+                            if (ques.type === 'choice' || ques.type === 'choice-depart')
+                              setRevealGroups(calcRevealGroups(form, newAnswer));
+                          }}
+                          departs={departs} />
+                      ))}
+                    </Flex>)
+                  })}
+                  <Button type='primary' htmlType='submit'>提交</Button>
+                </Form>}
+              </Flex>)
+          }
+        </>)}
     </Card>
   </Flex>);
 }

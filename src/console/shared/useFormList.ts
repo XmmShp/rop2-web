@@ -11,10 +11,13 @@ export type FormOutline = {
 };
 export type FormList = FormOutline[];
 
-export function useFormListProvider(): DataTuple<FormList> {
-  return useData<FormList>('/form/list', async (resp) => await resp.json(), []);
-}
 export function useFormList(): DataTuple<FormList> {
+  return useData<FormList>('/form/list', async (resp) => {
+    if (resp.status === 403) return []; //确保不报错，403错误在GET /org中处理
+    return await resp.json()
+  }, []);
+}
+export function useFormListFromContext(): DataTuple<FormList> {
   const v = useContext(FormListContext);
   return v;
 }

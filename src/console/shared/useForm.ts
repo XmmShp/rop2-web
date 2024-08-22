@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { kvGet, kvSet } from '../../store/kvCache';
 import { num } from '../../utils';
 import { message } from '../../App';
-import { useFormList } from './useFormList';
+import { useFormListFromContext } from './useFormList';
 import { OrderedChoices } from '../../shared/FormQuestion';
 
 export type Id = number;
@@ -73,7 +73,7 @@ export type FormDetail = {
 export function useFormId(avoidFormList = false): Id {
   const { formId: paramFormId } = useParams();
   if (avoidFormList) return num(paramFormId, -1);
-  const [forms] = useFormList();
+  const [forms] = useFormListFromContext();
   const navigate = useNavigate();
   const staticFormId = paramFormId ?? kvGet('form');
   if (!staticFormId) {
@@ -93,14 +93,14 @@ export function useFormId(avoidFormList = false): Id {
 /**获取单个表单详情。支持管理员和候选人两种访问路径。
  * 在没有ConsoleLayout包裹时，无法使用useFormList(从而自动设置最新formId)，需设置hasContext为false。
  */
-export function useForm(type: 'admin' | 'applicant' = 'admin', hasContext = true): DataTuple<FormDetail> {
+export function useForm(type: 'admin' | 'applicant' = 'admin', hasContext = true, handle401 = false): DataTuple<FormDetail> {
   const formId = useFormId(type === 'applicant' || !hasContext);
   const defaultForm = {
     owner: -1,
     id: formId,
-    name: '加载中',
+    name: '加载中……',
     desc: '',
-    children: [{ id: 1, label: 'loading', children: [] } satisfies QuestionGroup],
+    children: [{ id: 1, label: 'loading', children: [], hideSeparator: true } satisfies QuestionGroup],
     startAt: null,
     endAt: null
   };
@@ -116,6 +116,8 @@ export function useForm(type: 'admin' | 'applicant' = 'admin', hasContext = true
         message.error('表单不存在，可能已被删除');
         return defaultForm;
       }
+      if (resp.status == 401 && handle401)
+        return defaultForm;
       const value = await resp.json();
       value.children = JSON.parse(value.children);
       if (value.startAt) value.startAt = dayjs(value.startAt);
