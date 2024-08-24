@@ -1,13 +1,16 @@
 import { FundViewOutlined, HourglassOutlined, TeamOutlined } from '@ant-design/icons';
-import { Card, Flex, Statistic, Typography } from 'antd';
+import { Card, Flex, Skeleton, Statistic, Typography } from 'antd';
 import { useNickname, usePeriod } from '../../utils';
 import { useOrgFromContext } from '../shared/useOrg';
 import './Dash.scss';
-import { useForm } from '../shared/useForm';
 import dayjs, { Dayjs } from 'dayjs';
 import { useData } from '../../api/useData';
 import { getStepLabel, StepType, validSteps } from '../result/ResultOverview';
 import { stepsWithInterview } from '../interview/InterviewManage';
+import { FormListContext } from '../ConsoleLayout';
+import { useContext, useMemo } from 'react';
+import { defaultForm, useFormId } from '../shared/useForm';
+import { message } from '../../App';
 
 function padZero(n: number): string { return Math.floor(n).toFixed(0).padStart(2, '0'); }
 function countdownText(now: Dayjs, futureMoment: Dayjs): string {
@@ -39,10 +42,22 @@ export default function Dash() {
   else if (hour <= 13) greeting = '中午好';
   else if (hour <= 18) greeting = '下午好';
   else greeting = '晚上好';
+  const [fromList] = useContext(FormListContext);
+  const formId = useFormId();
+  const form = useMemo<{ id: number, name: string, startAt: Dayjs | null, endAt: Dayjs | null }>(() => {
+    const findResult = fromList.find(({ id }) => id === formId);
+    if (!findResult) return defaultForm;
+    if (findResult.startAt) findResult.startAt = dayjs(findResult.startAt) as any;
+    if (findResult.endAt) findResult.endAt = dayjs(findResult.endAt) as any;
+    return {
+      ...findResult,
+      startAt: findResult.startAt ? dayjs(findResult.startAt) : null,
+      endAt: findResult.endAt ? dayjs(findResult.endAt) : null
+    };
+  }, [fromList, formId]);
 
   const nickname = useNickname();
   const [{ org: { name: orgName } }] = useOrgFromContext();
-  const [form] = useForm('admin', true);
 
   type StepStatistics = {
     steps: {
@@ -55,6 +70,10 @@ export default function Dash() {
     peopleCount: number
   };
   const [{ steps, peopleCount }, statisticLoading] = useData<StepStatistics>('/form/statistic', async (resp) => {
+    if (resp.status === 404 || resp.status === 403) {
+      message.error(`表单不存在(ID: ${formId})`);
+      return { steps: [], peopleCount: 0 };
+    }
     const { steps, peopleCount } = await resp.json() as StepStatistics;
     const stepsWithStatistic = [...new Set([...stepsWithInterview, ...validSteps])];
     const newSteps = [
@@ -63,14 +82,15 @@ export default function Dash() {
         ?? { id: stepId, peopleCount: 0, intentsCount: 0, interviewDone: 0, interviewCount: 0 }),
       ...steps.filter(({ id }) => !stepsWithStatistic.includes(id))];
     return { steps: newSteps, peopleCount };
-  }, { steps: [], peopleCount: 0 }, { id: form.id }, [form.id]);
+  }, { steps: [], peopleCount: 0 }, { id: formId }, [formId], formId > 0);
   return (<Flex vertical gap='small'>
     <Card>
       <Typography.Text className='welcome'>{greeting}，{nickname}</Typography.Text>
       <br />
       <Typography.Text className='at'>{orgName}</Typography.Text>
     </Card>
-    {statisticLoading ? <></>
+    {statisticLoading
+      ? <Skeleton active loading />
       : (<>
         <Card>
           <Flex vertical gap='small'>
@@ -85,7 +105,7 @@ export default function Dash() {
             </Flex>
           </Flex>
         </Card>
-        <Flex wrap='wrap' gap='small'>
+        <Flex wrap='wrap' gap='small' align='flex-start'>
           {steps.map(
             ({ id, peopleCount, intentsCount, interviewDone, interviewCount }) =>
             (<Card key={id}>

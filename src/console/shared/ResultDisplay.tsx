@@ -21,7 +21,7 @@ export default function ResultDisplay({ form, zjuId, departs }: {
     result.content = JSON.parse(result.content);
     return result;
   }, defaultResult, { formId, target: zjuId }, [formId, zjuId]);
-  const displayedGroups = useMemo(() => calcRevealGroups(form, content), [form, content]);
+  const displayedGroups = useMemo(() => calcRevealGroups(form.children, content), [form, content]);
   return (<div>
     <Descriptions layout='vertical' size='small'
       column={12} colon={false} bordered

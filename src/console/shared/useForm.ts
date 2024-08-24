@@ -1,11 +1,9 @@
 import dayjs, { Dayjs } from 'dayjs';
 import { DataTuple, useData } from '../../api/useData';
-import { useNavigate, useParams } from 'react-router-dom';
-import { kvGet, kvSet } from '../../store/kvCache';
-import { num } from '../../utils';
+import { useNavigate } from 'react-router-dom';
 import { message } from '../../App';
-import { useFormListFromContext } from './useFormList';
 import { OrderedChoices } from '../../shared/FormQuestion';
+import { createContext, useContext } from 'react';
 
 export type Id = number;
 type QuestionType = 'name' | 'zjuid' | 'phone' | 'choice-depart' | 'text' | 'choice';
@@ -70,61 +68,43 @@ export type FormDetail = {
  * @param avoidFormList 是否避免useFormList。一个组件请保持为常量否则Hook报错。
  * @returns 
  */
-export function useFormId(avoidFormList = false): Id {
-  const { formId: paramFormId } = useParams();
-  if (avoidFormList) return num(paramFormId, -1);
-  const [forms] = useFormListFromContext();
-  const navigate = useNavigate();
-  const staticFormId = paramFormId ?? kvGet('form');
-  if (!staticFormId) {
-    if (forms.length === 0) {
-      navigate('/console/form');
-      message.error('表单不存在，请新建表单');
-      return -1;
-    }
-    else {
-      const latestFormId = forms[0].id;
-      kvSet('form', latestFormId.toString());
-      message.info('工作表单设置为：' + forms[0].name);
-      return latestFormId;
-    }
-  } else return num(staticFormId);
+export function useFormId(): Id {
+  return useContext(FormIdContext);
 }
-/**获取单个表单详情。支持管理员和候选人两种访问路径。
- * 在没有ConsoleLayout包裹时，无法使用useFormList(从而自动设置最新formId)，需设置hasContext为false。
- */
-export function useForm(type: 'admin' | 'applicant' = 'admin', hasContext = true, handle401 = false): DataTuple<FormDetail> {
-  const formId = useFormId(type === 'applicant' || !hasContext);
-  const defaultForm = {
-    owner: -1,
-    id: formId,
-    name: '加载中……',
-    desc: '',
-    children: [{ id: 1, label: 'loading', children: [], hideSeparator: true } satisfies QuestionGroup],
-    startAt: null,
-    endAt: null
-  };
-  const navigate = useNavigate();
-  const apiPath = type === 'admin' ? '/form/detail' : '/applicant/form';
 
-  const [form, loadPromise, reload] = useData<FormDetail>(apiPath,
+export const defaultForm = {
+  owner: -1,
+  id: -1,
+  name: '加载中……',
+  desc: '',
+  children: [{ id: 1, label: 'loading', children: [], hideSeparator: true } satisfies QuestionGroup],
+  startAt: null,
+  endAt: null
+};
+/**以管理员权限获取单个表单详情。 */
+export function useForm(): DataTuple<FormDetail> {
+  const formId = useFormId();
+  //仅有id正确的默认表单
+  const defaultFormWithId = { ...defaultForm, id: formId };
+  const navigate = useNavigate();
+
+  const [form, loadPromise, reload] = useData<FormDetail>(
+    '/form/detail',
     async (resp) => {
       if (resp.status == 404) {
-        if (type == 'applicant')
-          return { ...defaultForm, children: { message: '表单不存在' } };
         navigate('/console/form');
-        message.error('表单不存在，可能已被删除');
-        return defaultForm;
+        message.error(`表单不存在，可能已被删除(ID:${formId})`);
+        return defaultFormWithId;
       }
-      if (resp.status == 401 && handle401)
-        return defaultForm;
       const value = await resp.json();
       value.children = JSON.parse(value.children);
       if (value.startAt) value.startAt = dayjs(value.startAt);
       if (value.endAt) value.endAt = dayjs(value.endAt);
       return value;
     },
-    defaultForm,
-    { id: formId }, [formId]);
+    defaultFormWithId,
+    { id: formId }, [formId], formId > 0);
   return [form, loadPromise, reload];
 }
+
+export const FormIdContext = createContext<number>(-1);

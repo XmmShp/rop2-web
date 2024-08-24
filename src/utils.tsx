@@ -136,7 +136,7 @@ export function useStoredState<T>(initer: T | (() => T), storeKey: string) {
 }
 
 /**保证不以/结尾的basename，如/rop2。如果直接在根目录部署，返回空字符串 */
-export const basename: string = import.meta.env.BASE_URL.replace(/\/$/, '');
+export const basename: string = import.meta.env.BASE_URL.replace(/\/+$/, '');
 //`import.meta.env.BASE_URL`在编译时会被vite静态替换
 
 /**返回一个数，该数每经过`second`秒后自增1(需要重新调用此函数获取)。 */
@@ -185,4 +185,11 @@ export function pathname(): string {
   if (p.startsWith(basename)) return p.slice(basename.length);
   console.error('basename不匹配', p, basename);
   return p;
+}
+
+export function useReloader(): { (): void, count: number } {
+  const [count, setCount] = useState(0);
+  const result = () => setCount(count + 1);
+  result.count = count;
+  return result;
 }

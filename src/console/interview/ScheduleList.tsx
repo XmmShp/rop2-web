@@ -17,7 +17,7 @@ export default function ScheduleList() {
     return obj;
   }, { startAt: dayjs(), endAt: dayjs() } as const, { id: interviewId }, [interviewId]);
   const [scheduledIds] = useData<string[]>('/interview/schedule', async (resp) => resp.json(), [], { id: interviewId }, [interviewId]);
-  const [form] = useForm('admin');
+  const [form] = useForm();
   const [{ departs }] = useOrgFromContext();
   const navigate = useNavigate();
   return (<Card>

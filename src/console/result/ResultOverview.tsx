@@ -1,4 +1,4 @@
-import { Button, Card, Dropdown, Flex, message, Segmented, Space, Table, Typography } from 'antd';
+import { Alert, Button, Card, Dropdown, Flex, message, Segmented, Space, Table, Typography } from 'antd';
 import { debounce, numSC } from '../../utils';
 import { useState } from 'react';
 import { useForm } from '../shared/useForm';
@@ -44,7 +44,7 @@ export default function ResultOverview() {
   const [filterDeparts, setFilterDeparts, { departs, org: { defaultDepart, name: orgName } }, orgInfoLoading] = useFilterDeparts();
 
   //使用表单的问题来生成简历
-  const [form] = useForm('admin');
+  const [form] = useForm();
 
   const [offset, setOffset] = useState(0);
   function withResetOffset<F extends (...args: any[]) => any>(f: F): F {
@@ -81,7 +81,6 @@ export default function ResultOverview() {
 
   return (<Card loading={!!orgInfoLoading}>
     <Flex vertical gap='middle'>
-      <Typography.Text>表单：{form.name}</Typography.Text>
       <FilterDepartsComponent {...{ departs, filterDeparts, setFilterDeparts }} />
       <Segmented block
         defaultValue={0}
@@ -163,7 +162,11 @@ export default function ResultOverview() {
         </Space>
       </DisabledContext.Provider>
       {isStillOpen(form.startAt, form.endAt) &&
-        <Typography.Text>问卷目前尚在开放时间内。开放时间内，候选人可重新提交答卷，重置其所有志愿至"已填表"。请谨慎进行阶段操作。</Typography.Text>}
+        <Alert showIcon type='warning' message='问卷目前尚在开放时间内。候选人可重新提交答卷，重置其所有志愿至"已填表"。请谨慎进行阶段操作。' />}
+      {filterDeparts.length > 1 &&
+        <Alert showIcon type='warning' message={`您正在查看来自多个部门的候选人(已选中 ${filterDeparts.length} 个部门)。`} />}
+      {filterDeparts.length === 0 &&
+        <Alert showIcon type='error' message='您没有选择任何部门，请先选择至少一个部门。' />}
       <Search onChange={({ target: { value } }) => debouncedSetFilter(value)} placeholder='筛选姓名/学号/手机号' />
       <Table
         loading={Boolean(loading)}

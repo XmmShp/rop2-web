@@ -1,19 +1,17 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { Flex, Typography, Button, Table, Space, Card } from 'antd';
 import { basename } from '../../utils';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import Search from '../shared/Search';
 import { kvSet } from '../../store/kvCache';
 import { showModal, TempInput } from '../../shared/LightComponent';
 import { message } from '../../App';
 import dayjs from 'dayjs';
 import { createForm, deleteForm } from '../../api/form';
-import { useFormListFromContext } from '../shared/useFormList';
-
-export function setActiveForm(formId: number) { kvSet('form', formId.toString()); }
+import { FormListContext } from '../ConsoleLayout';
 
 export default function FormOverview() {
-  const [forms, loadingPromise, reload] = useFormListFromContext();
+  const [forms, loadingPromise, reload] = useContext(FormListContext);
   const [searchValue, setSearchValue] = useState('');
   return (<Card>
     <Flex vertical gap='small'>
@@ -69,17 +67,14 @@ export default function FormOverview() {
           //注：这里的href是antd的属性，与react-router无关，不会自动处理basename
           return (<Space size={0}>
             <Button size='small' type='link'
-              onClick={() => { setActiveForm(formId); }}
               href={`${basename}/console/form/edit/${formId}`} >
               编辑
             </Button>
             <Button size='small' type='link'
-              onClick={() => { setActiveForm(formId); }}
               href={`${basename}/console/result/${formId}`} >
               结果
             </Button>
             <Button size='small' type='link'
-              onClick={() => { setActiveForm(formId); }}
               href={`${basename}/apply/${formId}?preview=1`} target='_blank'>
               预览
             </Button>

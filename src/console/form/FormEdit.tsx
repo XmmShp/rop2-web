@@ -19,7 +19,7 @@ function serilizeFormChildren(newChildren: QuestionGroup[]): string {
 
 export const builtinPhoneQuestion = { type: 'text', title: '您的手机号', maxLine: 1, id: -1 } as const;
 export default function FormEdit() {
-  const [form, , reloadForm] = useForm('admin');
+  const [form, , reloadForm] = useForm();
   const pageRef = useRef<HTMLDivElement>(null);
   const { children: groups } = form;
   const [curGroupIndex, setCurGroupIndex] = useState(-1);

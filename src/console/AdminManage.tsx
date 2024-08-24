@@ -79,7 +79,7 @@ export default function AdminManage() {
           dataIndex: 'nickname'
         }, {
           title: '权限',
-          render(value, record, index) { return describeLevel(record.level) }
+          render(value, record, index) { return <Typography.Text type={record.level >= 20 ? 'success' : undefined}>{describeLevel(record.level)}</Typography.Text> }
         }, {
           title: '操作',
           render(value, record, index) {

@@ -1,4 +1,4 @@
-import { Button, Card, DatePicker, Flex, Form, Radio, Space, Tabs, Typography } from 'antd';
+import { Alert, Button, Card, DatePicker, Flex, Form, Radio, Space, Tabs, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { getStepLabel } from '../result/ResultOverview';
 import { useFilterDeparts, FilterDepartsComponent } from '../shared/FilterDeparts';
@@ -18,7 +18,7 @@ export const stepsWithInterview = [1, 2] as const;
 export default function InterviewManage() {
   const navigate = useNavigate();
   const [filterDeparts, setFilterDeparts, { departs, org: { name: orgName, defaultDepart } }, orgInfoLoading] = useFilterDeparts();
-  const [form] = useForm('admin');
+  const [form] = useForm();
   const formId = form.id;
   const [step, setStep] = useState(1);
   const [interviews, interviewsLoading, reload] = useData('/interview', async (resp) => {
@@ -29,11 +29,14 @@ export default function InterviewManage() {
   }, [], { formId, step, depart: [defaultDepart, ...filterDeparts].join(',') }, [formId, step, filterDeparts, orgInfoLoading], !orgInfoLoading);
   return (<Card>
     <Flex vertical gap='middle'>
-      <Typography.Text>表单：{form.name}</Typography.Text>
       <Typography.Text>候选人选择面试链接：
         <CopyZone inline text={`${location.origin}${basename}/status/${formId}`} />
       </Typography.Text>
       <FilterDepartsComponent {...{ departs, filterDeparts, setFilterDeparts }} />
+      {filterDeparts.length > 1 &&
+        <Alert showIcon type='warning' message={`您正在查看来自多个部门的面试(已选中 ${filterDeparts.length} 个部门)。`} />}
+      {filterDeparts.length === 0 &&
+        <Alert showIcon type='error' message='您没有选择任何部门，请先选择至少一个部门。' />}
       <Tabs centered
         activeKey={String(step)}
         onChange={(k) => setStep(num(k, 1))}

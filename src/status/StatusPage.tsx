@@ -1,15 +1,20 @@
-import { Flex, Card, Typography, Collapse, Descriptions, message } from "antd";
+import { Flex, Card, Typography, Collapse, Descriptions, message, Skeleton } from "antd";
 import { useData } from "../api/useData";
 import { Depart } from "../console/shared/useOrg";
-import { useForm } from "../console/shared/useForm";
+import { defaultForm, useForm } from "../console/shared/useForm";
 import { kvGet, zjuIdKey } from "../store/kvCache";
-import { numSC } from "../utils";
+import { num, numSC } from "../utils";
 import { getStepLabel } from "../console/result/ResultOverview";
 import './StatusPage.scss';
 import InterviewList, { formatPeriod, Interview } from "../console/interview/InterviewList";
 import dayjs, { Dayjs } from "dayjs";
 import { pkgPost } from "../api/core";
 import { showModal } from "../shared/LightComponent";
+import { useParams } from "react-router-dom";
+import { useEffect, useMemo } from "react";
+import CopyZone from "../shared/CopyZone";
+import { base64url } from "rfc4648";
+import { getLoginRedirectUrl } from "../api/auth";
 
 type Intent = {
   depart: number;
@@ -88,40 +93,67 @@ function IntentStatus({ intent, formId, depart, departs }: {
 }
 
 export default function StatusPage() {
+  useEffect(() => { document.title = `面试选择 - 纳新开放系统` }, [])
+  const { formId: paramsformId } = useParams();
+  if (!paramsformId) return <>404 Not Found</>;
+  const formId = num(paramsformId);
+
   //这里的form可能已经结束，children无效，但是name等仍然有效
-  const [form, formLoading] = useForm('applicant', false);
-  const { id: formId, owner } = form;
+  const [{ owner, name, respStatus }, formLoading] =
+    useData<{ name: string, owner: number, respStatus: number }>('/form/detail',
+      async (resp) => {
+        if (resp.status === 401)
+          location.href = getLoginRedirectUrl();
+        return { ...(resp.status === 200 ? await resp.json() : defaultForm), respStatus: resp.status };
+      }, { ...defaultForm, respStatus: 0 }, { id: formId }, [formId], formId > 0);
+  const zjuId = useMemo(() => kvGet(zjuIdKey)!, []);
 
   //虽然form的实际数据(owner)需要等待useForm加载，但是formId是有效的，故intents获取不需要等待useForm
   const [intents] = useData<Intent[]>('/applicant/status', async (resp) => resp.json(), [], { formId }, [formId]);
-  const [departs] = useData<Depart[]>('/applicant/org', (resp) => resp.json(), [], { id: owner }, [owner], !formLoading);
+  const [departs, departsLoading] = useData<Depart[]>('/applicant/org', (resp) => resp.json(), [], { id: owner }, [owner], !formLoading && owner > 0);
   return (<Flex justify='center' className='status'>
     <Card className='card'>
-      <Flex vertical gap='4px'>
-        <Typography.Text>学号: {kvGet(zjuIdKey)}</Typography.Text>
-        <Typography.Text>
-          您在 <Typography.Text strong>{form.name}</Typography.Text> 各志愿的状态：
-        </Typography.Text>
-        {intents.length
-          ? <>
-            <Collapse
-              accordion={false} destroyInactivePanel={false}
-              collapsible='header'
-              items={intents.map(intent => {
-                const departId = intent.depart;
-                const depart = departs.find(d => d.id === departId);
-                if (!depart) return null;
-                return {
-                  label: `【第${numSC(intent.order)}志愿】${depart.name}`, key: departId,
-                  children: <IntentStatus intent={intent} formId={formId} depart={depart} departs={departs} />,
-                  forceRender: true,
-                };
-              }).filter(v => v !== null)} />
-          </>
-          : <Typography.Text>
-            <Typography.Text strong>未找到报名信息</Typography.Text>
-            。请确认您是否报名了该表单(ID: {formId})</Typography.Text>}
-      </Flex>
+      {respStatus === 401
+        ? <>您需要登录后方可填写表单哦~
+          <br /><a href={getLoginRedirectUrl()} target='_self'>如未自动跳转，请点击此处</a></>
+        : (formLoading || departsLoading
+          ? <Skeleton active loading />
+          : (respStatus === 200
+            ? <Flex vertical gap='4px'>
+              <Typography.Text>您的学号: {zjuId}</Typography.Text>
+              <Typography.Text>
+                您在 <Typography.Text strong>{name}</Typography.Text> 各志愿的状态：
+              </Typography.Text>
+              {intents.length
+                ? <>
+                  <Collapse
+                    accordion={false} destroyInactivePanel={false}
+                    collapsible='header'
+                    items={intents.map(intent => {
+                      const departId = intent.depart;
+                      const depart = departs.find(d => d.id === departId);
+                      if (!depart) return null;
+                      return {
+                        label: `【第${numSC(intent.order)}志愿】${depart.name}`, key: departId,
+                        children: <IntentStatus intent={intent} formId={formId} depart={depart} departs={departs} />,
+                        forceRender: true,
+                      };
+                    }).filter(v => v !== null)} />
+                </>
+                : <>
+                  <Typography.Text>
+                    <Typography.Text strong>未找到您在该表单下的报名信息</Typography.Text>。请确认您是否点击了正确的链接(ID: {formId})。
+                    <br />如有疑问，请联系您报名的组织的管理员。
+                  </Typography.Text>
+                </>
+              }
+            </Flex>
+            : (respStatus === 404
+              ? <Typography.Title level={4}>表单不存在，请确认链接是否正确(ID: {formId})</Typography.Title>
+              : <Typography.Title level={4}>表单加载失败(Status: {respStatus})</Typography.Title>
+            )
+          )
+        )}
     </Card>
   </Flex>);
 }
