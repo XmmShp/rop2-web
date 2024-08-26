@@ -4,7 +4,7 @@ import { useStoredState } from '../../utils';
 import { Id } from './useForm';
 import { useOrgFromContext, Depart } from './useOrg';
 
-export function useFilterDeparts() {
+export function useFilterDeparts(setHook?: (newValue: Id[]) => void) {
   const [filterDeparts, setFilterDeparts] = useStoredState<Id[]>([], 'filterDeparts');
   const [orgInfo, orgInfoLoading] = useOrgFromContext();
   const { departs } = orgInfo;
@@ -16,7 +16,10 @@ export function useFilterDeparts() {
         setFilterDeparts(departs.map((d) => d.id));
     }
   }, [orgInfoLoading]);
-  return [filterDeparts, setFilterDeparts, orgInfo, orgInfoLoading] as const;
+  return [filterDeparts, (ids: Id[]) => {
+    setFilterDeparts(ids);
+    setHook?.(ids);
+  }, orgInfo, orgInfoLoading] as const;
 }
 
 export function FilterDepartsComponent({ filterDeparts, setFilterDeparts, departs }: {

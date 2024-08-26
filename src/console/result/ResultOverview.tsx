@@ -41,11 +41,6 @@ function isStillOpen(startAt: Dayjs | null, endAt: Dayjs | null) {
   return true;
 }
 export default function ResultOverview() {
-  const [filterDeparts, setFilterDeparts, { departs, org: { defaultDepart, name: orgName } }, orgInfoLoading] = useFilterDeparts();
-
-  //使用表单的问题来生成简历
-  const [form] = useForm();
-
   const [offset, setOffset] = useState(0);
   function withResetOffset<F extends (...args: any[]) => any>(f: F): F {
     return function () {
@@ -53,6 +48,12 @@ export default function ResultOverview() {
       return f(...arguments);
     } as any
   }
+  const [filterDeparts, setFilterDeparts, { departs, org: { defaultDepart, name: orgName } }, orgInfoLoading]
+    = useFilterDeparts(() => setOffset(0));
+
+  //使用表单的问题来生成简历
+  const [form] = useForm();
+
   const [limit, setLimit] = useState(10);
   const [filter, setFilter] = useState('');
   const debouncedSetFilter = debounce(withResetOffset(setFilter), 250);
