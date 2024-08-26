@@ -3,7 +3,7 @@ import { kvGet, kvSet, zjuIdKey } from '../store/kvCache';
 import { without } from '../utils';
 import { message } from '../App';
 
-//从环境变量读取api基路径(api基路径和前端基路径无关)。该值不能以/结尾
+/**从环境变量读取api基路径(api基路径和前端基路径无关)。该值不能以/结尾 */
 const apiBase = import.meta.env.VITE_APIBASE ?? 'http://127.0.0.1:8080';
 export function getApiUrl(route: '' | `/${string}` = '', params?: Record<string, string>) {
   return apiBase + route +
@@ -31,12 +31,13 @@ export function saveToken(token: string) {
   kvSet(zjuIdKey, zjuId);
 }
 
+export const tokenKey = 'rop-token';
 //fetch的封装，自动添加token，处理401(跳登录页)和token刷新
 async function innerFetch(...[url, config]: Parameters<typeof fetch>): ReturnType<typeof fetch> {
   const token = kvGet('token');
   const resp = await fetch(url, {
     headers: {
-      ...(token ? { 'rop-token': token } : {}),
+      ...(token ? { [tokenKey]: token } : {}),
       ...(config?.headers) ?? {},
     },
     credentials: 'omit',

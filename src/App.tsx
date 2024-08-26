@@ -93,7 +93,7 @@ function MultipleChoices() {
     <br />
     请选择要登录的组织（登录后可点击右上角头像退出）：
     {choices.map(({ orgId, orgName }) => <div key={orgId}>
-      <a href={getApiUrl('/loginByToken', { orgId: orgId.toString(), continue: continueUrl, SESSION_TOKEN: sessionToken })}>{orgName}</a>
+      <a href={getApiUrl('/loginByPassportToken', { orgId: orgId.toString(), continue: continueUrl, SESSION_TOKEN: sessionToken })}>{orgName}</a>
     </div>)}
   </div>)
 }

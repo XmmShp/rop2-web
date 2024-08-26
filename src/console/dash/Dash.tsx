@@ -56,7 +56,7 @@ export default function Dash() {
     };
   }, [fromList, formId]);
 
-  const nickname = useNickname();
+  const nickname = useNickname()!;//Dash组件加载时必定已登录
   const [{ org: { name: orgName } }] = useOrgFromContext();
 
   type StepStatistics = {

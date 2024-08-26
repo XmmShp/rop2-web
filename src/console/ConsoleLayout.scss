@@ -20,8 +20,7 @@
 
     .title-bar {
       flex: 0 0 auto;
-      top: 0;
-      z-index: 20;
+      z-index: 20; //确保阴影显示在content上
       padding: 1em 1.6em;
       background-color: var(--ant-layout-light-sider-bg);
       box-shadow: 0 1px 6px color-mix(in srgb, var(--ant-color-text) 15%, transparent);

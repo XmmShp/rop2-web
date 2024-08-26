@@ -1,6 +1,6 @@
 import { Avatar, Dropdown, Flex, GetProp, Layout, Menu, Skeleton, Space, Typography } from 'antd';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { num, singleMatch, useNickname, useReloader } from '../utils';
+import { basename, num, singleMatch, useNickname, useReloader } from '../utils';
 import './ConsoleLayout.scss';
 import { getLoginRedirectUrl, logout } from '../api/auth';
 import { OrgContext, useOrg } from './shared/useOrg';
@@ -34,10 +34,12 @@ export default function ConsoleLayout({ routes }: { routes: (GetProp<typeof Menu
   const sub = singleMatch(pathname, /\/console\/(.+)/) ?? '';
   const navigate = useNavigate();
   const nickname = useNickname();
-  const formListTuple = useData<FormList>('/form/list', async (resp) => {
-    if (resp.status !== 200) return []; //确保不报错，403错误在useOrg时处理
-    else return await resp.json()
-  }, [])
+  const formListTuple = useData<FormList & { respStatus: number }>('/form/list', async (resp) => {
+    const formListRespStatus = resp.status; //确保不报错，403错误在useOrg时处理 
+    return Object.assign(
+      formListRespStatus === 200 ? await resp.json() : [],
+      { respStatus: resp.status });
+  }, Object.assign([], { respStatus: 0 }));
   const [formList, formListLoading] = formListTuple;
   const orgDataTuple = useOrg(); //TODO: 根据useDeparts选择性渲染
   const [{ org: { useDeparts }, respStatus }, orgLoading] = orgDataTuple;
@@ -51,24 +53,32 @@ export default function ConsoleLayout({ routes }: { routes: (GetProp<typeof Menu
   const { formId: paramsFormId } = useParams();
   const activeFormId = useMemo(() => {
     const staticFormId = kvGet('form');
-    if (paramsFormId) {
-      if (paramsFormId !== staticFormId)
+
+    if (paramsFormId) //如果url中有formId，优先使用url中的formId，同时kvSet
+      if (paramsFormId !== staticFormId) {
         kvSet('form', paramsFormId);
-      return num(paramsFormId);
-    }
-    if (staticFormId) return num(staticFormId);
-    if (respStatus !== 200) return -1;//401,403等
-    if (!formList.length) {
+        return num(paramsFormId);
+      }
+      else return num(paramsFormId);
+
+    if (staticFormId) //否则，如果localStorage中有formId，使用之
+      return num(staticFormId);
+
+    if (formList.respStatus !== 200) //无法静态获知formId，先过滤0,401,403等
+      return -1;
+
+    if (!formList.length) { //如果表单列表为空，跳转到表单管理
       if (sub !== 'form')
         navigate('/console/form');
       message.error('表单不存在，请新建表单');
       return -1;
-    } else {
-      const latestForm = formList[0];
-      kvSet('form', latestForm.id.toString());
-      message.info('工作表单设置为：' + latestForm.name);
-      return latestForm.id;
     }
+
+    //否则，使用最新的表单(+message提示)
+    const latestForm = formList[0];
+    kvSet('form', latestForm.id.toString());
+    message.info('工作表单设置为：' + latestForm.name);
+    return latestForm.id;
   }, [formList, formListLoading, reloader.count]);
   const activeFormName = useMemo(() => formList?.find(f => f.id === activeFormId)?.name ?? '', [formList, activeFormId]);
 
@@ -85,7 +95,7 @@ export default function ConsoleLayout({ routes }: { routes: (GetProp<typeof Menu
     <Layout.Content className='main'>
       <Flex className='title-bar' align='center' justify='space-between'>
         <span className='title'>求是潮纳新开放系统V2</span>
-        <Dropdown trigger={['hover']}
+        <Dropdown className='current-activity' trigger={['hover']}
           menu={{
             selectable: true,
             selectedKeys: [activeFormId.toString()],
@@ -99,32 +109,31 @@ export default function ConsoleLayout({ routes }: { routes: (GetProp<typeof Menu
             </Space>
           </Typography.Link>
         </Dropdown>
-        <Dropdown trigger={['click']} menu={{
+        {nickname ? <Dropdown trigger={['click']} menu={{
           items: [{ label: '退出', }].map((v) => { return { ...v, key: v.label } }),
-          onClick(info) {
-            if (info.key === '退出') {
-              logout();
-              location.reload();
-            }
+          async onClick(info) {
+            if (info.key === '退出')
+              await logout();
           }
         }}>
-          <Flex className='user-area' align='center' >
+          <Flex className='user-area' align='center'>
             <Avatar className='avatar'>{nickname}</Avatar>
             <span className='username'>{nickname}</span>
           </Flex>
         </Dropdown>
+          : <div style={{ width: 0, height: 0, overflow: 'hidden' }}>_未登录占位符_</div>}
       </Flex>
       <div className='content'>
         <OrgContext.Provider value={orgDataTuple}>
           <FormIdContext.Provider value={activeFormId}>
-            <FormListContext.Provider value={formListTuple}>
+            <FormListContext.Provider value={formListTuple as DataTuple<FormList>}>
               {orgLoading
                 ? <Skeleton active loading /> //未加载完组织信息时不渲染
                 : (respStatus === 403
                   ? <>
                     您似乎没有访问此页面的权限。
                     <br />访问纳新系统后台需要组织管理员为您授权。
-                    <br />如果您已有相应权限，请尝试<a href='.' onClick={async () => { await logout(); location.reload() }}>重新登录</a>。
+                    <br />如果您已有相应权限，请尝试<a href={`${basename}/console`} onClick={async () => { await logout(); location.href = getLoginRedirectUrl() }}>重新登录</a>。
                   </>
                   : (respStatus === 401
                     ? <> 您需要<a href={getLoginRedirectUrl()}>统一认证登录</a>后才能访问纳新系统后台。</>

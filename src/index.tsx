@@ -2,13 +2,13 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import MyApp from './App';
 import './index.scss';
-import { saveToken } from './api/core';
+import { saveToken, tokenKey } from './api/core';
 
 const search = new URLSearchParams(location.search);
-const ropToken = search.get('ropToken');
+const ropToken = search.get(tokenKey);
 if (ropToken?.length) {
   saveToken(ropToken);
-  search.delete('ropToken');
+  search.delete(tokenKey);
   location.search = search.toString();//更新search会刷新页面
 } else
   //未登录时跳转到登录页的逻辑由各页面自行处理。无论登录与否都渲染App

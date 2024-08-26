@@ -160,7 +160,7 @@ export function usePeriod(second: number): number {
 }
 export function useNickname() {
   /**每隔15s才查询localStorage(如果没有组件更新不会主动更新，与usePeriod不同) */
-  return useMemo<string>(() => kvGet('nickname') ?? '未登录', [period(15)]);
+  return useMemo<string | null>(() => kvGet('nickname'), [period(15)]);
 }
 
 /**尝试用简体中文表示一个整数，对于0~10返回零~十，其它返回数字toString */
