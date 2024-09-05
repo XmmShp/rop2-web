@@ -55,7 +55,7 @@ export default function InterviewManage() {
         <Space>{/**Space避免按钮被Flex水平拉伸 */}
           <Button icon={<PlusOutlined />} type='primary'
             onClick={() => {
-              let ivDepart = departs[0]?.id ?? defaultDepart;
+              let ivDepart = filterDeparts.length === 1 ? filterDeparts[0] : -1;
               const capacityRef = { value: '5' };
               const locationRef = { value: '' };
               let startTime = dayjs();

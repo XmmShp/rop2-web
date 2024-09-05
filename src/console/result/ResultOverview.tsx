@@ -11,6 +11,7 @@ import ResultDisplay from '../shared/ResultDisplay';
 import { useFilterDeparts, FilterDepartsComponent } from '../shared/FilterDeparts';
 import CopyZone from '../../shared/CopyZone';
 import dayjs, { Dayjs } from 'dayjs';
+import { stepsWithInterview } from '../interview/InterviewManage';
 
 /**所在阶段。1~127=第n阶段(可重命名)； */
 export type StepType = number;
@@ -61,7 +62,9 @@ export default function ResultOverview() {
   const setStep = withResetOffset(_setStep);
   type IntentOutline = {
     id: number,
-    depart: number, order: number,
+    depart: number,
+    order: number,
+    interviewTime?: string,
   } & Person
   type IntentList = { intents: IntentOutline[], count: number, filteredCount: number }
   const [intentList, loading, reload] = useData<IntentList>('/result/intents', async (resp) => {
@@ -208,7 +211,14 @@ export default function ResultOverview() {
             const depName = depId === defaultDepart ? orgName : departs.find((d) => d.id === record.depart)?.name ?? `未知(${depId})`;
             return `[${record.order}]${depName}`;
           },
-        }, {
+        }, ...(stepsWithInterview.includes(step as any) ? [{
+          title: '面试时间',
+          render(value: never, record: IntentOutline, index: never) {
+            if (!record.interviewTime) return ''
+            const time = dayjs(record.interviewTime);
+            return time.format('MM/DD HH:mm');
+          }
+        }] : []), {
           title: '单独操作',
           render(value, record) {
             return (<Space size={0}>
