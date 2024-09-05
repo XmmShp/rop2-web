@@ -46,7 +46,7 @@ async function innerFetch(...[url, config]: Parameters<typeof fetch>): ReturnTyp
     referrerPolicy: 'origin-when-cross-origin',
     ...without(config ?? {} as any, ['headers'])
   });
-  const newToken = resp.headers.get('rop-refresh-token');
+  const newToken = resp.headers.get(tokenKey);
   if (newToken)
     saveToken(newToken)
   return resp;

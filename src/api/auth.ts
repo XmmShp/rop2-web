@@ -6,7 +6,10 @@ const keepCheckerRegex = new RegExp(`${scopedKeyPrefix}\\d+:f\\d+`);
 const keepChecker = (k: string) => keepCheckerRegex.test(k);
 /**退出本次登录（由token生成时间确定） */
 export async function logout(): Promise<void> {
-  navigator.sendBeacon(getApiUrl('/logout'), JSON.stringify({ token: kvGet('token') }));//先用token发起请求，再删除本地token信息
+  navigator.sendBeacon(getApiUrl('/logout'), JSON.stringify({
+    //此处键名不同于tokenKey
+    token: kvGet('token')
+  }));//先用token发起请求，再删除本地token信息
   kvClear(keepChecker);
   //注意：zjuam会限制service，localhost等不在白名单内的域名会被跳转到其的固定地址 
   location.href =
