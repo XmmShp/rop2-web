@@ -1,7 +1,6 @@
-import { base64 } from 'rfc4648';
-import { kvGet, kvSet, zjuIdKey } from '../store/kvCache';
 import { without } from '../utils';
 import { message } from '../App';
+import { tokenHeaderKey, saveToken, getToken } from './auth';
 
 /**从环境变量读取api基路径(api基路径和前端基路径无关)。该值不能以/结尾 */
 const apiBase = import.meta.env.VITE_APIBASE ?? 'http://127.0.0.1:8080';
@@ -10,34 +9,12 @@ export function getApiUrl(route: '' | `/${string}` = '', params?: Record<string,
     (params ? '?' + new URLSearchParams(params).toString() : '')
 }
 
-//保存token，同步函数
-export function saveToken(token: string) {
-  kvSet('token', token);
-  const [objB64,] = token.split(' ');
-  const bytes = base64.parse(objB64, { loose: true });
-  const decoder = new TextDecoder('utf-8');
-  const objJson = decoder.decode(bytes);
-  const { at = 0, nickname = '', level = 0, zjuId } = JSON.parse(objJson) as {
-    at: number,//登录组织id
-    nickname: string,
-    level: number,//权限级别
-    zjuId: string,
-  };
-  //没有管理权限的用户at nickname level均为默认值
-  //以下字段仅供缓存(显示)使用，不作为凭据
-  kvSet('at', at.toString());
-  kvSet('nickname', nickname);
-  kvSet('level', level.toString());
-  kvSet(zjuIdKey, zjuId);
-}
-
-export const tokenKey = 'rop-token';
 //fetch的封装，自动添加token，处理401(跳登录页)和token刷新
 async function innerFetch(...[url, config]: Parameters<typeof fetch>): ReturnType<typeof fetch> {
-  const token = kvGet('token');
+  const token = getToken();
   const resp = await fetch(url, {
     headers: {
-      ...(token ? { [tokenKey]: token } : {}),
+      ...(token ? { [tokenHeaderKey]: token } : {}),
       ...(config?.headers) ?? {},
     },
     credentials: 'omit',
@@ -46,7 +23,7 @@ async function innerFetch(...[url, config]: Parameters<typeof fetch>): ReturnTyp
     referrerPolicy: 'origin-when-cross-origin',
     ...without(config ?? {} as any, ['headers'])
   });
-  const newToken = resp.headers.get(tokenKey);
+  const newToken = resp.headers.get(tokenHeaderKey);
   if (newToken)
     saveToken(newToken)
   return resp;

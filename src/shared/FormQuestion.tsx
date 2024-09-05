@@ -1,4 +1,4 @@
-import { Flex, Form, Input, Select, Typography } from 'antd';
+import { Flex, Form, GetProps, Input, Select, Typography } from 'antd';
 import { ChoiceDepartQuestion, ChoiceQuestion, Id, ValidQuestion } from '../console/shared/useForm';
 import './FormQuestion.scss';
 import { Depart } from '../console/shared/useOrg';
@@ -19,10 +19,14 @@ export function getTitle(question: ValidQuestion) {
 }
 export type ValueOf<Q extends ValidQuestion> = Q extends { choices: Record<infer K extends string, any> } ? K[] : string;
 export const FormQuestion = forwardRef(_FormQuestion);
-function _FormQuestion<Q extends ValidQuestion>({ value, question, departs = [], onChange }
-  : {
-    value?: ValueOf<Q>, question: Q, departs?: Depart[], onChange?: (value: ValueOf<Q>) => void,
-  }, ref: React.Ref<HTMLDivElement>) {
+function _FormQuestion<Q extends ValidQuestion>(
+  { value, question, departs = [], onChange,
+    ...otherProps //disabled, readOnly, etc.
+  }
+    : {
+      defaultValue?: never, //防止不同输入组件的参数类型并集出错
+      value?: ValueOf<Q>, question: Q, departs?: Depart[], onChange?: (value: ValueOf<Q>) => void,
+    } & (GetProps<typeof Input> & GetProps<typeof Input.TextArea> & GetProps<typeof Select>), ref: React.Ref<HTMLDivElement>) {
   const hasDesc = (question as any).desc?.trim().length > 0;
   const [validateStatus, setValidateStatus] = useState<'success' | 'warning' | 'error' | 'validating' | ''>('');
   function validate(newValue: ValueOf<Q>) {
@@ -74,7 +78,8 @@ function _FormQuestion<Q extends ValidQuestion>({ value, question, departs = [],
                     onChange?.(value as ValueOf<Q>);
                     validate(value as ValueOf<Q>);
                   }}
-                  value={value} required={!question.optional} />;
+                  value={value} required={!question.optional}
+                  {...otherProps} />;
               else
                 return <Input.TextArea
                   onInput={({ currentTarget: { value } }) => {
@@ -82,7 +87,8 @@ function _FormQuestion<Q extends ValidQuestion>({ value, question, departs = [],
                     validate(value as ValueOf<Q>);
                   }}
                   value={value} required={!question.optional}
-                  autoSize={{ minRows: 2, maxRows: maxLine }} />;
+                  autoSize={{ minRows: 2, maxRows: maxLine }}
+                  {...otherProps} />;
             case 'choice':
               {
                 const options = parseChoices(question.choices)
@@ -99,7 +105,8 @@ function _FormQuestion<Q extends ValidQuestion>({ value, question, departs = [],
                   }}
                   mode={allowMultiple ? 'multiple' : undefined}
                   maxCount={allowMultiple ? maxCount : undefined}
-                  options={options.map(({ label }) => { return { label, value: label } })} />);
+                  options={options.map(({ label }) => { return { label, value: label } })}
+                  {...otherProps} />);
               }
             default:
               return (<>此问题暂时无法显示<br />{JSON.stringify(question)}</>);

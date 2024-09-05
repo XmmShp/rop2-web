@@ -1,12 +1,12 @@
 import { Avatar, Dropdown, Flex, GetProp, Layout, Menu, Skeleton, Space, Typography } from 'antd';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { basename, num, singleMatch, useNickname, useReloader } from '../utils';
+import { num, singleMatch, useNickname, useReloader } from '../utils';
 import './ConsoleLayout.scss';
 import { getLoginRedirectUrl, logout } from '../api/auth';
 import { OrgContext, useOrg } from './shared/useOrg';
 import { createContext, useMemo } from 'react';
 import { DownOutlined } from '@ant-design/icons';
-import { kvGet, kvSet } from '../store/kvCache';
+import { kvGet, kvSet, zjuIdKey } from '../store/kvCache';
 import { message } from '../App';
 import { FormIdContext } from './shared/useForm';
 import { DataTuple, useData } from '../api/useData';
@@ -43,6 +43,7 @@ export default function ConsoleLayout({ routes }: { routes: (GetProp<typeof Menu
   const [formList, formListLoading] = formListTuple;
   const orgDataTuple = useOrg(); //TODO: 根据useDeparts选择性渲染
   const [{ org: { useDeparts }, respStatus }, orgLoading] = orgDataTuple;
+  const zjuId = useMemo(() => kvGet(zjuIdKey), []);
   const reloader = useReloader();
   consoleLayoutUpdater = (newFormId: number) => {
     //把/console/result/:formId重定向到/console/result/newFormId
@@ -111,9 +112,9 @@ export default function ConsoleLayout({ routes }: { routes: (GetProp<typeof Menu
         </Dropdown>
         {nickname ? <Dropdown trigger={['click']} menu={{
           items: [{ label: '退出', }].map((v) => { return { ...v, key: v.label } }),
-          async onClick(info) {
+          onClick(info) {
             if (info.key === '退出')
-              await logout();
+              logout();
           }
         }}>
           <Flex className='user-area' align='center'>
@@ -131,9 +132,9 @@ export default function ConsoleLayout({ routes }: { routes: (GetProp<typeof Menu
                 ? <Skeleton active loading /> //未加载完组织信息时不渲染
                 : (respStatus === 403
                   ? <>
-                    您似乎没有访问此页面的权限。
+                    您似乎没有访问此页面的权限。(学号：{zjuId})
                     <br />访问纳新系统后台需要组织管理员为您授权。
-                    <br />如果您已有相应权限，请尝试<a href={`${basename}/console`} onClick={async () => { await logout(); location.href = getLoginRedirectUrl() }}>重新登录</a>。
+                    <br />如果您已有相应权限，请尝试<a onClick={() => { logout(getLoginRedirectUrl()) }}>重新登录</a>。
                   </>
                   : (respStatus === 401
                     ? <> 您需要<a href={getLoginRedirectUrl()}>统一认证登录</a>后才能访问纳新系统后台。</>
