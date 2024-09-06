@@ -178,7 +178,7 @@ export default function ResultOverview() {
           hideOnSinglePage: false,
           showSizeChanger: true,
           showQuickJumper: true,
-          total: count,//所有页合计
+          total: filteredCount,//所有页合计
           onShowSizeChange(current, size) {
             setLimit(size);
             setOffset(Math.floor(offset / size) * size);

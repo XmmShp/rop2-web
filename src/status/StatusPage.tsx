@@ -1,7 +1,7 @@
 import { Flex, Card, Typography, Collapse, Descriptions, message, Skeleton } from "antd";
 import { useData } from "../api/useData";
 import { Depart } from "../console/shared/useOrg";
-import { defaultForm, useForm } from "../console/shared/useForm";
+import { defaultForm } from "../console/shared/useForm";
 import { kvGet, zjuIdKey } from "../store/kvCache";
 import { num, numSC } from "../utils";
 import { getStepLabel } from "../console/result/ResultOverview";
@@ -100,7 +100,7 @@ export default function StatusPage() {
 
   //这里的form可能已经结束，children无效，但是name等仍然有效
   const [{ owner, name, respStatus }, formLoading] =
-    useData<{ name: string, owner: number, respStatus: number }>('/form/detail',
+    useData<{ name: string, owner: number, respStatus: number }>('/applicant/form',
       async (resp) => {
         if (resp.status === 401)
           location.href = getLoginRedirectUrl();
