@@ -1,4 +1,4 @@
-import { Alert, Button, Card, Dropdown, Flex, message, Segmented, Space, Table, Typography } from 'antd';
+import { Alert, Button, Card, Checkbox, Dropdown, Flex, message, Segmented, Space, Table, Typography } from 'antd';
 import { debounce, numSC } from '../../utils';
 import { useState } from 'react';
 import { useForm } from '../shared/useForm';
@@ -59,6 +59,8 @@ export default function ResultOverview() {
   const [filter, setFilter] = useState('');
   const debouncedSetFilter = debounce(withResetOffset(setFilter), 250);
   const [step, _setStep] = useState<StepType>(0);
+  const hasInterview = stepsWithInterview.includes(step as any);
+  const [copyPhonesWithoutInterviewOnly, setCopyPhonesWithoutInterviewOnly] = useState(true);
   const setStep = withResetOffset(_setStep);
   type IntentOutline = {
     id: number,
@@ -134,34 +136,21 @@ export default function ResultOverview() {
             拒绝
           </Dropdown.Button>
           <Button
-            onClick={async () => {
-              const phones = selectedKeys.map(id => intents.find(i => i.id === id)?.phone);
-              async function copy() {
-                const txt = phones.join('\n');
-                try {
-                  await navigator.clipboard.writeText(txt);
-                  message.success('复制成功');
-                } catch {
-                  showDrawer({
-                    title: '手动复制', children: <div>
-                      <Typography.Text>因浏览器限制，请手动复制以下内容：</Typography.Text>
-                      <CopyZone text={txt} />
-                    </div>
-                  })
-                }
-              }
-              if (phones.some((p, i) => phones.indexOf(p, i + 1) >= 0)) {
-                showModal({
-                  title: '发现重复手机号',
-                  content: <Typography.Text>
-                    您选择的 {phones.length} 项候选人中存在重复的手机号。
-                    <br />这可能是选中了多个部门导致的。
-                    <br />要继续复制吗？(重复的手机号将不做处理)
-                  </Typography.Text>,
-                  onConfirm: copy
-                })
-              } else await copy();
-            }}>复制手机号</Button>
+            onClick={() =>
+              copyPhones(selectedKeys.map(k => {
+                const intent = intents.find(i => i.id === k);
+                if (copyPhonesWithoutInterviewOnly && hasInterview && intent?.interviewTime)
+                  return null;
+                return intent?.phone;
+              }))}>
+            复制手机号
+          </Button>
+          {hasInterview &&
+            <Checkbox disabled={false}
+              checked={copyPhonesWithoutInterviewOnly}
+              onChange={({ target: { checked: v } }) => setCopyPhonesWithoutInterviewOnly(v)}>
+              仅复制无面试者手机号
+            </Checkbox>}
           <Button disabled={false} target='_blank' href='https://docs.qq.com/doc/DSGV2U215ZWtWZ3hS'>群发短信指南</Button>
         </Space>
       </DisabledContext.Provider>
@@ -211,7 +200,7 @@ export default function ResultOverview() {
             const depName = depId === defaultDepart ? orgName : departs.find((d) => d.id === record.depart)?.name ?? `未知(${depId})`;
             return `[${record.order}]${depName}`;
           },
-        }, ...(stepsWithInterview.includes(step as any) ? [{
+        }, ...(hasInterview ? [{
           title: '面试时间',
           render(value: never, record: IntentOutline, index: never) {
             if (!record.interviewTime) return ''
@@ -273,4 +262,33 @@ export default function ResultOverview() {
           候选人列表 (本页 {d.length} 项{filter ? ` / 筛选到 ${filteredCount} 项` : ''} / 共 {count} 项)</Space>} />
     </Flex>
   </Card>);
+
+  async function copyPhones(phones: (string | undefined | null)[]) {
+    phones = phones.filter(p => Boolean(p));
+    async function copy() {
+      const txt = phones.join('\n');
+      try {
+        await navigator.clipboard.writeText(txt);
+        message.success(`复制成功(共 ${phones.length} 项)`);
+      } catch {
+        showDrawer({
+          title: '手动复制', children: <div>
+            <Typography.Text>因浏览器限制，请手动复制以下内容：</Typography.Text>
+            <CopyZone text={txt} />
+          </div>
+        });
+      }
+    }
+    if (phones.some((p, i) => phones.indexOf(p, i + 1) >= 0)) {
+      showModal({
+        title: '发现重复手机号',
+        content: <Typography.Text>
+          您选择的 {phones.length} 项候选人中存在重复的手机号。
+          <br />这可能是选中了多个部门导致的。
+          <br />要继续复制吗？(重复的手机号将不做处理)
+        </Typography.Text>,
+        onConfirm: copy
+      });
+    } else await copy();
+  }
 }
