@@ -16,11 +16,12 @@ export default function ResultDisplay({ form, zjuId, departs }: {
 }) {
   const formId = form.id;
   const defaultResult: ResultDetail = { content: {}, name: '加载中', phone: '' };
-  const [{ content, name, phone },] = useData<ResultDetail>('/result', async resp => {
+  // GET /result API
+  // 提供formId和target两个参数，target为以,分隔的学号列表
+  const [[{ content, name, phone }],] = useData<ResultDetail[]>('/result', async resp => {
     const result = await resp.json();
-    result.content = JSON.parse(result.content);
-    return result;
-  }, defaultResult, { formId, target: zjuId }, [formId, zjuId]);
+    return result.map((r: any) => { return { ...r, content: JSON.parse(r.content) } })
+  }, [defaultResult], { formId, target: zjuId }, [formId, zjuId]);
   const displayedGroups = useMemo(() => calcRevealGroups(form.children, content), [form, content]);
   return (<div>
     <Descriptions layout='vertical' size='small'
