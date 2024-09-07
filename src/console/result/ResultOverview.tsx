@@ -154,8 +154,6 @@ export default function ResultOverview() {
           <Button disabled={false} target='_blank' href='https://docs.qq.com/doc/DSGV2U215ZWtWZ3hS'>群发短信指南</Button>
         </Space>
       </DisabledContext.Provider>
-      {isStillOpen(form.startAt, form.endAt) &&
-        <Alert showIcon type='warning' message='问卷目前尚在开放时间内。候选人可重新提交答卷，重置其所有志愿至"已填表"。请谨慎进行阶段操作。' />}
       {filterDeparts.length > 1 &&
         <Alert showIcon type='warning' message={`您正在查看来自多个部门的候选人(已选中 ${filterDeparts.length} 个部门)。`} />}
       {filterDeparts.length === 0 &&
