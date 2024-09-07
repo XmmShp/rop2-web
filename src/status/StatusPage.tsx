@@ -68,7 +68,7 @@ function IntentStatus({ intent, formId, depart, departs,
         return <></> //所在阶段不需要面试
       if (!Array.isArray(ivs)) //如果ivs不是数组，说明已安排面试，返回的是唯一面试信息；
         return (<Flex vertical>
-          <Typography.Text>您已经在此阶段报名面试。</Typography.Text>
+          <Typography.Text>您已经在此阶段报名面试。(ID: {ivs.id})</Typography.Text>
           <Typography.Text>面试时间：{formatPeriod(ivs.startAt, ivs.endAt)}</Typography.Text>
           <Typography.Text>面试地点：{ivs.location}</Typography.Text>
         </Flex>)

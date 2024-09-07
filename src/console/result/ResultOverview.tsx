@@ -5,13 +5,14 @@ import { useForm } from '../shared/useForm';
 import DisabledContext from 'antd/es/config-provider/DisabledContext';
 import Search from '../shared/Search';
 import { useData } from '../../api/useData';
-import { setIntents } from '../../api/result';
+import { ResultDetail, setIntents } from '../../api/result';
 import { showDrawer, showModal } from '../../shared/LightComponent';
-import ResultDisplay from '../shared/ResultDisplay';
+import ResultDisplay, { formatAnswer, formatQuestionTitle } from '../shared/ResultDisplay';
 import { useFilterDeparts, FilterDepartsComponent } from '../shared/FilterDeparts';
 import CopyZone from '../../shared/CopyZone';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import { stepsWithInterview } from '../interview/InterviewManage';
+import { getApi } from '../../api/core';
 
 /**所在阶段。1~127=第n阶段(可重命名)； */
 export type StepType = number;
@@ -35,22 +36,36 @@ function getNextStep(n: number): number {
   return n + 1;
 }
 export type Person = { name: string, zjuId: string, phone: string, };
-function isStillOpen(startAt: Dayjs | null, endAt: Dayjs | null) {
-  const now = dayjs();
-  if (startAt && startAt.isAfter(now)) return false;
-  if (endAt && endAt.isBefore(now)) return false;
-  return true;
+function toCsv(data: string[][]): string {
+  return data.map((row) =>
+    row.map(
+      (cell) =>//用双引号包裹每个值，值中的每个双引号用两个双引号代替
+        `"${cell.replace(/"/g, '""')}"`
+    ).join(',')
+  ).join('\r\n')
+}
+function downloadBlob(blob: Blob, download: string) {
+  const blobUrl = URL.createObjectURL(blob)
+  const eleA = document.createElement('a')
+  eleA.href = blobUrl
+  eleA.download = download
+  eleA.style.display = 'hidden'
+  document.body.appendChild(eleA)
+  eleA.click()
+  eleA.remove()
 }
 export default function ResultOverview() {
   const [offset, setOffset] = useState(0);
+  //把指定的函数包装成一个新函数，调用时会重置offset和selectedKeys
   function withResetOffset<F extends (...args: any[]) => any>(f: F): F {
     return function () {
       setOffset(0);
+      setSelectedKeys([]);
       return f(...arguments);
     } as any
   }
   const [filterDeparts, setFilterDeparts, { departs, org: { defaultDepart, name: orgName } }, orgInfoLoading]
-    = useFilterDeparts(() => setOffset(0));
+    = useFilterDeparts(withResetOffset(() => { }));
 
   //使用表单的问题来生成简历
   const [form] = useForm();
@@ -108,6 +123,57 @@ export default function ResultOverview() {
       <DisabledContext.Provider value={selectedKeys.length <= 0}>
         <Space size='small'>
           批量操作(已选中<strong>{selectedKeys.length}</strong>项)
+          <Button onClick={async () => {
+            //导出的是志愿(姓名/学号/手机号/部门)+答卷
+            //有性能优化空间，但眼下暂不考虑
+
+            /**要查询答卷的学号 */
+            const zjuIdsToQuery = new Set()
+            /**选中的志愿对象数组(选中id=>选中对象) */
+            const selectedIntents = selectedKeys.map(k => {
+              const intent = intents.find(i => i.id === k)!
+              zjuIdsToQuery.add(intent.zjuId)
+              return intent
+            })
+            /**查询到的答卷 */
+            const results = (await (await getApi(
+              '/result',
+              { formId: form.id, target: [...zjuIdsToQuery].join(',') }
+            )).json())
+              .map((r: any) => { return { ...r, content: JSON.parse(r.content) } }) as ResultDetail[]
+
+            type Column = { title: string, format(intent: IntentOutline, resultDetail: ResultDetail): string }
+            /**生成的csv每列的定义(标题+格式化方法) */
+            const cols: Column[] = [
+              { title: '学号', format(intent) { return intent.zjuId } },
+              { title: '姓名', format(intent) { return intent.name } },
+              { title: '手机号', format(intent) { return intent.phone } },
+              { title: '志愿部门', format(intent) { return formatIntentDepart(intent) } },
+              { title: '面试时间', format(intent) { return formatInterviewTime(intent) } },
+              ...form.children.map(
+                group => group.children.map(
+                  ques => {
+                    return {
+                      title: formatQuestionTitle(group, ques),
+                      format(_: never, resultDetail: ResultDetail) { return formatAnswer(ques, resultDetail.content[ques.id], departs, '') }
+                    }
+                  }
+                )
+              ).flat()
+            ]
+
+            const finalRows: string[][] = [cols.map(c => c.title)]
+            selectedIntents.forEach(
+              curIntent => {
+                const curResult = results.find(r => r.zjuId === curIntent.zjuId)!
+                finalRows.push(cols.map(c => c.format(curIntent, curResult)))
+              }
+            )
+
+            const csvText = toCsv(finalRows)
+            const blob = new Blob([new Uint8Array([0xef, 0xbb, 0xbf]).buffer, csvText], { type: 'text/csv', endings: 'transparent' })
+            downloadBlob(blob, `ROP报名表-${dayjs().format('YYYY_MM_DD_HHmm')}.csv`)
+          }}>导出CSV</Button>
           <Dropdown.Button type='primary'
             onClick={() => { setIntentsStep(selectedKeys, getNextStep(step)) }}
             menu={{
@@ -194,16 +260,12 @@ export default function ResultOverview() {
         }, {
           title: '志愿部门',
           render(value, record, index) {
-            const depId = record.depart;
-            const depName = depId === defaultDepart ? orgName : departs.find((d) => d.id === record.depart)?.name ?? `未知(${depId})`;
-            return `[${record.order}]${depName}`;
+            return formatIntentDepart(record);
           },
         }, ...(hasInterview ? [{
           title: '面试时间',
           render(value: never, record: IntentOutline, index: never) {
-            if (!record.interviewTime) return ''
-            const time = dayjs(record.interviewTime);
-            return time.format('MM/DD HH:mm');
+            return formatInterviewTime(record);
           }
         }] : []), {
           title: '单独操作',
@@ -260,6 +322,18 @@ export default function ResultOverview() {
           候选人列表 (本页 {d.length} 项{filter ? ` / 筛选到 ${filteredCount} 项` : ''} / 共 {count} 项)</Space>} />
     </Flex>
   </Card>);
+
+  /**将志愿显示为 `[志愿序号] 部门名` */
+  function formatIntentDepart(intent: IntentOutline) {
+    const depId = intent.depart;
+    const depName = depId === defaultDepart ? orgName : departs.find((d) => d.id === intent.depart)?.name ?? `未知(${depId})`;
+    return `[${intent.order}]${depName}`;
+  }
+  function formatInterviewTime(intent: IntentOutline) {
+    if (!intent.interviewTime) return ''
+    const time = dayjs(intent.interviewTime);
+    return time.format('MM/DD HH:mm');
+  }
 
   async function copyPhones(phones: (string | undefined | null)[]) {
     phones = phones.filter(p => Boolean(p));

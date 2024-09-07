@@ -1,6 +1,6 @@
 import { Descriptions } from 'antd';
 import { useData } from '../../api/useData';
-import { FormDetail } from './useForm';
+import { FormDetail, QuestionGroup, ValidQuestion } from './useForm';
 import { num } from '../../utils';
 import { getTitle } from '../../shared/FormQuestion';
 import { Depart } from './useOrg';
@@ -8,14 +8,33 @@ import { ResultDetail } from '../../api/result';
 import { useMemo } from 'react';
 import { calcRevealGroups } from '../../apply/ApplyForm';
 
-
+/**将问题标题按 `[问题组名] 问题` 格式化 */
+export function formatQuestionTitle(group: QuestionGroup, question: ValidQuestion): string {
+  return `[${group.label}] ${getTitle(question)}`
+}
+/**将部门选择等题目的id答案转换为人类可读字符串 */
+export function formatAnswer(question: ValidQuestion, answer: unknown, departs: Depart[], defaultValue = ''): string {
+  if (answer === undefined || answer === null || answer === '')
+    return defaultValue
+  else if (question.type === 'choice-depart')
+    return (answer as string[])
+      .map((v, i) => {
+        const answerId = num(v, NaN)
+        return `[${i + 1}]`
+          + (departs.find(d => d.id === answerId)?.name
+            ?? `未知部门(ID: ${v})`)
+      })
+      .join('\n')
+  else
+    return String(answer)
+}
 export default function ResultDisplay({ form, zjuId, departs }: {
   form: FormDetail;
   zjuId: string;
   departs: Depart[];
 }) {
   const formId = form.id;
-  const defaultResult: ResultDetail = { content: {}, name: '加载中', phone: '' };
+  const defaultResult: ResultDetail = { content: {}, name: '加载中', phone: '', zjuId };
   // GET /result API
   // 提供formId和target两个参数，target为以,分隔的学号列表
   const [[{ content, name, phone }],] = useData<ResultDetail[]>('/result', async resp => {
@@ -35,14 +54,9 @@ export default function ResultDisplay({ form, zjuId, departs }: {
           group.children.map(ques => {
             const quesId = ques.id.toString();
             const rawAnswer = content[quesId];
-            let renderAnswer: string;
-            if (rawAnswer === undefined || rawAnswer === null || rawAnswer === '')
-              renderAnswer = '(未填写)';
-            else if (ques.type === 'choice-depart')
-              renderAnswer = (rawAnswer as string[]).map((v, i) => `[${i + 1}]` + (departs.find(d => d.id === num(v, NaN))?.name ?? '未知部门')).join('\n');
-            else renderAnswer = String(rawAnswer);
+            const renderAnswer = formatAnswer(ques, rawAnswer, departs, '(未填写)')
             return {
-              label: `[${group.label}] ${getTitle(ques)}`,
+              label: formatQuestionTitle(group, ques),
               children: <span style={{ whiteSpace: 'pre-wrap' }}>{renderAnswer}</span>,
               span: isShort(renderAnswer) && isShort(getTitle(ques)) ? 6 : 12
             };
