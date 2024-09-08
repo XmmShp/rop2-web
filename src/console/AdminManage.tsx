@@ -15,7 +15,12 @@ export type AdminList = { admins: AdminProfile[]; count: number; filteredCount: 
 function describeLevel(level: number) { return levels[level] || levels['_'].replace('{}', level.toString()) }
 export default function AdminManage() {
   const [filter, setFilter] = useState('');
-  const setFilterDebounced = debounce(setFilter, 250);//节流，避免每个字符都查一次服务器
+  const setFilterDebounced = debounce(//节流，避免每个字符都查一次服务器
+    (f) => {
+      setFilter(f);
+      setOffset(0); //修改filter时同时重置offset
+    }
+    , 250);
   const [limit, setLimit] = useState(10);
   const [offset, setOffset] = useState(0);
   const [list, loading, reload] = useData<AdminList>('/admin', async (resp) => {

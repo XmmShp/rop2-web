@@ -54,6 +54,7 @@ function downloadBlob(blob: Blob, download: string) {
   eleA.click()
   eleA.remove()
 }
+const pageSizeOptions = [10, 50, 500];
 export default function ResultOverview() {
   const [offset, setOffset] = useState(0);
   //把指定的函数包装成一个新函数，调用时会重置offset和selectedKeys
@@ -70,7 +71,7 @@ export default function ResultOverview() {
   //使用表单的问题来生成简历
   const [form] = useForm();
 
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(pageSizeOptions[0]);
   const [filter, setFilter] = useState('');
   const debouncedSetFilter = debounce(withResetOffset(setFilter), 250);
   const [step, _setStep] = useState<StepType>(0);
@@ -232,6 +233,8 @@ export default function ResultOverview() {
           showSizeChanger: true,
           showQuickJumper: true,
           total: filteredCount,//所有页合计
+          pageSizeOptions,
+          pageSize: limit,
           onShowSizeChange(current, size) {
             setLimit(size);
             setOffset(Math.floor(offset / size) * size);
