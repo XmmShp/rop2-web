@@ -9,7 +9,7 @@ export function getApiUrl(route: '' | `/${string}` = '', params?: Record<string,
     (params ? '?' + new URLSearchParams(params).toString() : '')
 }
 
-//fetch的封装，自动添加token，处理401(跳登录页)和token刷新
+/**fetch的封装，禁用缓存、自动添加token、负责token刷新。不检查HTTP状态码，将fetch结果原样返回(包括401/403)。 */
 async function innerFetch(...[url, config]: Parameters<typeof fetch>): ReturnType<typeof fetch> {
   const token = getToken();
   const resp = await fetch(url, {
@@ -24,8 +24,7 @@ async function innerFetch(...[url, config]: Parameters<typeof fetch>): ReturnTyp
     ...without(config ?? {} as any, ['headers'])
   });
   const newToken = resp.headers.get(tokenHeaderKey);
-  if (newToken)
-    saveToken(newToken)
+  if (newToken) saveToken(newToken);
   return resp;
 }
 
@@ -71,9 +70,14 @@ export async function postApi(
  */
 export async function pkgPost(...args: Parameters<typeof postApi>): Promise<{ code: number, message?: string }> {
   const resp = await postApi(...args);
-  const jsonObj = await resp.json();
-  const { code, message: errMsg } = jsonObj;
-  if (code || errMsg)
-    message.error(errMsg ?? '未知错误');
-  return jsonObj;
+  try {
+    const jsonObj = await resp.json();
+    const { code, message: errMsg } = jsonObj;
+    if (code || errMsg)
+      message.error(errMsg ?? '未知错误');
+    return jsonObj;
+  } catch (e) {
+    message.error('网络错误')
+  }
+  return { code: -1, message: '__pkgPost错误' }
 }

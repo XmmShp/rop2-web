@@ -153,7 +153,7 @@ export default function FormEdit() {
             onEdit={async (newObj) => {
               const newChildren = groups.with(index, newObj);
               const newForm = { ...form, children: newChildren };
-              const prom = editForm(form.id, { children: JSON.stringify(newChildren) });
+              const prom = editForm(form.id, { children: serilizeFormChildren(newChildren) });
               reloadForm(newForm, prom);
               const { code } = await prom;
               if (!code) message.success('修改已保存');

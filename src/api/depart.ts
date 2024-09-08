@@ -1,3 +1,5 @@
+/**增删改部门的API */
+
 import { pkgPost } from './core';
 
 export async function addDepart(name: string) {
