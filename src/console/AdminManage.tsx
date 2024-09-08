@@ -53,8 +53,7 @@ export default function AdminManage() {
         const newAdminNickname = vrefNickname.value.trim();
         if (!newAdminNickname) { message.error('昵称不能为空'); return false; }
         const { code } = await editAdmin(newAdminId, newAdminNickname, vrefLevel.value);
-        if (!code)
-          message.success('设置成功');
+        if (!code) message.success('管理员修改成功');
         reload(list);
       },
     });

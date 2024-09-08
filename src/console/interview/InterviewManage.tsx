@@ -136,8 +136,7 @@ export default function InterviewManage() {
                     startAt,
                     endAt
                   })
-                  if (!code)
-                    message.success('新建成功');
+                  if (!code) message.success('新建面试成功');
                   reload();
                 }
               });
@@ -163,7 +162,7 @@ export default function InterviewManage() {
                 </Typography.Text>),
                 async onConfirm() {
                   const { code } = await pkgPost('/interview/freeze', { id: curInterview.id });
-                  if (!code) message.success('冻结成功');
+                  if (!code) message.success('冻结面试成功');
                   reload();
                 }
               })
@@ -177,11 +176,13 @@ export default function InterviewManage() {
                 content: (<Typography.Text>
                   确定要删除这场面试吗？
                   <br />
-                  删除后，已报名该面试的候选人需重新报名。
+                  删除后，已报名该面试的候选人需重新报名其他面试场次。
+                  <br />
+                  删除后无法恢复。
                 </Typography.Text>),
                 async onConfirm() {
                   const { code } = await pkgPost('/interview/delete', { id: curInterview.id });
-                  if (!code) message.success('删除成功');
+                  if (!code) message.success('删除面试成功');
                   reload();
                 }
               });

@@ -118,16 +118,16 @@ export default function FormEdit() {
               const newForm = { ...form, name: editingTitle.current };
               const prom = editForm(form.id, { name: editingTitle.current });
               reloadForm(newForm, prom);
-              await prom;
-              message.success('标题已保存');
+              const { code } = await prom;
+              if (!code) message.success('标题已保存');
             }
           }} className='title'>{form.name}</Typography.Title>
           <DescEditor desc={form.desc} onConfirm={async (newDesc) => {
             const newForm = { ...form, desc: newDesc };
             const prom = editForm(form.id, { desc: newDesc });
             reloadForm(newForm, prom);
-            await prom;
-            message.success('简介已保存');
+            const { code } = await prom;
+            if (!code) message.success('简介已保存');
           }} />
 
           {groups.map((group, index) => <GroupCard key={group.id}

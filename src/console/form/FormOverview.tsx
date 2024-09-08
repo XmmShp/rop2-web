@@ -35,8 +35,7 @@ export default function FormOverview() {
                   return;
                 }
                 const { code } = await createForm(newName);
-                if (!code)
-                  message.success('新建成功');
+                if (!code) message.success('新建成功');
                 reload(forms);
               },
             });

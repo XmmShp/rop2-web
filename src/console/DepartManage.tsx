@@ -32,8 +32,7 @@ export default function DepartManage() {
                   return;
                 }
                 const { code } = await addDepart(newName);
-                if (!code)
-                  message.success('新建成功');
+                if (!code) message.success('新建部门成功');
                 reload(orgInfo);
               },
             });
@@ -86,8 +85,7 @@ export default function DepartManage() {
                         return;
                       }
                       const { code } = await renameDepart(record.id, newName);
-                      if (!code)
-                        message.success('重命名成功');
+                      if (!code) message.success('重命名成功');
                       reload(orgInfo);
                     }
                   });
@@ -103,8 +101,7 @@ export default function DepartManage() {
                   okButtonProps: { danger: true },
                   async onConfirm() {
                     const { code } = await deleteDepart(record.id);
-                    if (!code)
-                      message.success('删除成功');
+                    if (!code) message.success('删除成功');
                     reload(orgInfo);
                   }
                 })}>删除</Button>
