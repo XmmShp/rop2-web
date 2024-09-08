@@ -62,22 +62,39 @@ export async function postApi(
   });
 }
 
-/**发送POST请求。
+type PkgPostResult = Promise<{ code: number, message?: string }> & {
+  /**如果此次pkgPost成功完成(code和message均为假值)，显示一条成功消息。  
+   * 返回一个Promise，其兑现值表示pkgPost是否成功完成。
+   */
+  msgSuccess(message: string): Promise<boolean>
+}
+/**发送POST请求。返回的Promise带有额外的`msgSuccess`方法。
  * 
  * 若收到响应，将其视为json解析并返回（无论其状态码是否为200）。  
  * 
  * 如果`code`或`message`不为空，则显示一条错误消息，返回值不变。
  */
-export async function pkgPost(...args: Parameters<typeof postApi>): Promise<{ code: number, message?: string }> {
-  const resp = await postApi(...args);
-  try {
-    const jsonObj = await resp.json();
-    const { code, message: errMsg } = jsonObj;
-    if (code || errMsg)
-      message.error(errMsg ?? '未知错误');
-    return jsonObj;
-  } catch (e) {
-    message.error('网络错误')
+export function pkgPost(...args: Parameters<typeof postApi>): PkgPostResult {
+  let success = false
+  const prom = new Promise((rs, rj) => {
+    postApi(...args)
+      .then(r => r.json())
+      .then(jsonObj => {
+        try {
+          const { code, message: errMsg } = jsonObj;
+          if (code || errMsg) message.error(errMsg ?? '未知错误');
+          else success = true;
+          rs(jsonObj);
+        } catch (e) {
+          message.error('网络错误')
+        }
+        rs({ code: -1, message: '__pkgPost错误' })
+      })
+  }) as PkgPostResult
+  prom.msgSuccess = async (msg) => {
+    await prom
+    if (success) message.success(msg)
+    return success
   }
-  return { code: -1, message: '__pkgPost错误' }
+  return prom
 }

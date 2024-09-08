@@ -123,13 +123,17 @@ export default function StatusPage() {
       async (resp) => {
         if (resp.status === 401)
           location.href = getLoginRedirectUrl();
-        return { ...(resp.status === 200 ? await resp.json() : defaultForm), respStatus: resp.status };
+        return {
+          ...(resp.status === 200 ? await resp.json() : defaultForm),
+          respStatus: resp.status
+        };
       }, { ...defaultForm, respStatus: 0 }, { id: formId }, [formId], formId > 0);
   const zjuId = useMemo(() => kvGet(zjuIdKey)!, []);
+  console.log({ formLoading, owner, name, formId })
 
   //虽然form的实际数据(owner)需要等待useForm加载，但是formId是有效的，故intents获取不需要等待useForm
   const [intents] = useData<Intent[]>('/applicant/status', async (resp) => resp.json(), [], { formId }, [formId]);
-  const [departs, departsLoading] = useData<Depart[]>('/applicant/org', (resp) => resp.json(), [], { id: owner }, [owner], !formLoading && owner > 0);
+  const [departs, departsLoading] = useData<Depart[]>('/applicant/org', (resp) => resp.json(), [], { id: owner }, [owner], !formLoading);
   return (<Flex justify='center' className='status'>
     <Card className='card'>
       {respStatus === 401

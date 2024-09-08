@@ -10,9 +10,9 @@ import { useData } from '../../api/useData';
 import { useForm } from '../shared/useForm';
 import { basename, num } from '../../utils';
 import { useState } from 'react';
-import { pkgPost } from '../../api/core';
 import { useNavigate } from 'react-router-dom';
 import CopyZone from '../../shared/CopyZone';
+import { addInterview, deleteInterview, freezeInterview } from '../../api/interview';
 
 export const stepsWithInterview = [1, 2] as const;
 export default function InterviewManage() {
@@ -127,15 +127,15 @@ export default function InterviewManage() {
                   }
                   const startAt = startTime;
                   const endAt = startTime.add(num(durationRef.value, 0), 'minute');
-                  const { code } = await pkgPost('/interview/add', {
+                  const { code } = await addInterview(
                     formId,
-                    depart: ivDepart,
+                    ivDepart,
                     step,
                     capacity,
                     location,
                     startAt,
                     endAt
-                  })
+                  )
                   if (!code) message.success('新建面试成功');
                   reload();
                 }
@@ -146,7 +146,6 @@ export default function InterviewManage() {
         <InterviewList interviews={interviews} departs={departs} orgName={orgName}
           links={[{
             label: '查看报名表',
-            // disabled(curInterview) { return curInterview.usedCapacity <= 0 },
             onClick(curInterview) { navigate(`/console/interview/schedule/${curInterview.id}`) },
           }, {
             label: '冻结',
@@ -161,7 +160,7 @@ export default function InterviewManage() {
                   冻结后不可恢复。
                 </Typography.Text>),
                 async onConfirm() {
-                  const { code } = await pkgPost('/interview/freeze', { id: curInterview.id });
+                  const { code } = await freezeInterview(curInterview.id);
                   if (!code) message.success('冻结面试成功');
                   reload();
                 }
@@ -181,7 +180,7 @@ export default function InterviewManage() {
                   删除后无法恢复。
                 </Typography.Text>),
                 async onConfirm() {
-                  const { code } = await pkgPost('/interview/delete', { id: curInterview.id });
+                  const { code } = await deleteInterview(curInterview.id);
                   if (!code) message.success('删除面试成功');
                   reload();
                 }
