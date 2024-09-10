@@ -7,16 +7,13 @@
   word-break: break-all;
 
   .interview-card {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    height: min-content;
     padding: .5em 1em;
     width: 18em;
     box-sizing: border-box;
     border-radius: 5px;
     border: var(--ant-line-width) var(--ant-line-type) var(--ant-color-border-secondary);
     box-shadow: 0 0 4px 0 color-mix(in srgb, var(--ant-color-text) 15%, transparent);
-    transition: all 0.3s;
 
     .info {
       .time-left {
@@ -25,8 +22,6 @@
         border-bottom: 1px solid var(--ant-color-border);
         margin-bottom: .4em;
       }
-
-
     }
 
     .operations {

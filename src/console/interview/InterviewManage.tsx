@@ -63,6 +63,7 @@ export default function InterviewManage() {
               startTime = startTime.set('minute', 0);
               startTime = startTime.set('second', 0);
               const durationRef = { value: '60' };
+              const commentRef = { value: '' };
               showModal({
                 title: '新建面试',
                 content: (<Form size='small'>
@@ -100,6 +101,9 @@ export default function InterviewManage() {
                   </Form.Item>
                   <Form.Item label='持续时间(分钟)' required>
                     <TempInput inputMode='numeric' vref={durationRef} maxLength={3} />
+                  </Form.Item>
+                  <Form.Item label='备注'>
+                    <TempInput placeholder='选择此面试时的注意事项，可留空' inputMode='text' vref={commentRef} />
                   </Form.Item>
                 </Form>),
                 async onConfirm() {

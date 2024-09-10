@@ -112,8 +112,8 @@ export default function Dash() {
               <Flex vertical gap='small'>
                 <Flex wrap='wrap' gap='large'>
                   <Statistic title='阶段' value={getStepLabel(id)} />
-                  <Statistic title='待定人数' value={peopleCount} prefix={<TeamOutlined />} />
-                  <Statistic title='待定志愿' value={intentsCount} />
+                  <Statistic title='人数' value={peopleCount} prefix={<TeamOutlined />} />
+                  <Statistic title='志愿数' value={intentsCount} />
                 </Flex>
                 {interviewCount == 0 && !stepsWithInterview.some(v => v === id) ? <></>//目前没有安排面试的阶段不显示面试信息
                   : <Flex wrap='wrap' gap='large'>

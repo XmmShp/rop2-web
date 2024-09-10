@@ -96,7 +96,7 @@ export default function AdminManage() {
         }]}
         dataSource={admins}
         pagination={{
-          total: count,
+          total: filteredCount,
           hideOnSinglePage: false,
           showSizeChanger: true,
           showQuickJumper: true,
