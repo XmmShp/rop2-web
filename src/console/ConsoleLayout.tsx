@@ -2,10 +2,10 @@ import { Avatar, Dropdown, Flex, GetProp, Layout, Menu, Skeleton, Space, Typogra
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { num, singleMatch, useNickname, useReloader } from '../utils';
 import './ConsoleLayout.scss';
-import { getLoginRedirectUrl, logout } from '../api/auth';
+import { getLoginRedirectUrl, logout, switchOrg } from '../api/auth';
 import { OrgContext, useOrg } from './shared/useOrg';
 import { createContext, useMemo } from 'react';
-import { DownOutlined } from '@ant-design/icons';
+import { CheckOutlined, DownOutlined } from '@ant-design/icons';
 import { kvGet, kvSet, zjuIdKey } from '../store/kvCache';
 import { message } from '../App';
 import { FormIdContext } from './shared/useForm';
@@ -42,8 +42,13 @@ export default function ConsoleLayout({ routes }: { routes: (GetProp<typeof Menu
   }, Object.assign([], { respStatus: 0 }));
   const [formList, formListLoading] = formListTuple;
   const orgDataTuple = useOrg(); //TODO: 根据useDeparts选择性渲染
-  const [{ org: { useDeparts }, respStatus }, orgLoading] = orgDataTuple;
+  const [{ org: { useDeparts, id: at }, respStatus }, orgLoading] = orgDataTuple;
   const zjuId = useMemo(() => kvGet(zjuIdKey), []);
+  const [availableOrgs] = useData<{ orgId: number, orgName: string }[]>('/availableOrgs',
+    async (resp) => {
+      if (resp.status !== 200) return []
+      return await resp.json()
+    }, []);
   const reloader = useReloader();
   consoleLayoutUpdater = (newFormId: number) => {
     //把/console/result/:formId重定向到/console/result/newFormId
@@ -111,11 +116,23 @@ export default function ConsoleLayout({ routes }: { routes: (GetProp<typeof Menu
           </Typography.Link>
         </Dropdown>
         {nickname ? <Dropdown trigger={['click']} menu={{
-          items: [{ label: '退出', }].map((v) => { return { ...v, key: v.label } }),
-          onClick(info) {
-            if (info.key === '退出')
-              logout();
-          }
+          items: [
+            {
+              key: 'switchOrg', label: '切换组织',
+              children: availableOrgs.map(({ orgId, orgName }) => {
+                return {
+                  key: orgId, label: orgName,
+                  icon: at === orgId ? <CheckOutlined /> : undefined,
+                  async onClick() {
+                    if (at === orgId) return
+                    await switchOrg(orgId).msgSuccess(`已切换到组织 ${orgName}`)
+                    location.reload()
+                  }
+                }
+              })
+            },
+            { key: 'logout', label: '退出', onClick() { logout() } }
+          ]
         }}>
           <Flex className='user-area' align='center'>
             <Avatar className='avatar'>{nickname}</Avatar>

@@ -1,6 +1,6 @@
 import { base64 } from 'rfc4648';
 import { kvClear, kvGet, kvSet, scopedKeyPrefix, zjuIdKey } from '../store/kvCache';
-import { getApiUrl } from './core';
+import { getApiUrl, pkgPost } from './core';
 
 export const tokenHeaderKey = 'rop-token';
 const tokenStoreKey = 'token';
@@ -52,4 +52,11 @@ export function getLoginRedirectUrl() {
   const redirectUrl =
     `https://www.qsc.zju.edu.cn/passport/v4/zju/login?success=${encodeURIComponent(loginCallbackUrl)}`;
   return redirectUrl;
+}
+
+export function switchOrg(orgId: number) {
+  //清除部分与组织绑定的本地缓存
+  kvSet('form', '')
+  kvSet('filterDeparts', '[]')
+  return pkgPost(`/switchOrg`, { orgId })
 }

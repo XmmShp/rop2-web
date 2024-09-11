@@ -120,6 +120,7 @@ export function moveElement<T>(array: T[], prevIndex: number, delta: number) {
   return newArray;
 }
 
+/**返回一个同步至localStorage的State。存储时会使用JSON序列化/反序列化 */
 export function useStoredState<T>(initer: T | (() => T), storeKey: string) {
   const [value, setValue] = useState(() => {
     const storedValue = kvGet(storeKey);

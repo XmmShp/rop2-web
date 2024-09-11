@@ -1,5 +1,7 @@
 import { createContext, useContext } from 'react';
 import { DataTuple, useData } from '../../api/useData';
+import { kvGet } from '../../store/kvCache';
+import { num } from '../../utils';
 
 export type Depart = {
   id: number;
@@ -8,6 +10,7 @@ export type Depart = {
 };
 export type OrgInfo = {
   org: {
+    id: number;
     defaultDepart: number;
     name: string;
     useDeparts: number;//TODO 解析&使用该属性
@@ -26,7 +29,7 @@ export function useOrg(): DataTuple<OrgInfo> {
   const v = useData<OrgInfo>('/org', async (resp) => {
     const result = resp.status >= 400 ? defaultOrg : await resp.json();
     return { ...result, respStatus: resp.status };
-  }, { ...defaultOrg, respStatus: 0 });
+  }, { ...defaultOrg, org: { ...defaultOrg.org, id: num(kvGet('at')) }, respStatus: 0 });
   v[0].departs = v[0].departs.filter(d => d.id !== v[0].org.defaultDepart);
   return v;
 }
