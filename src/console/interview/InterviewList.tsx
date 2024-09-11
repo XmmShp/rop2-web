@@ -36,23 +36,26 @@ export function formatPeriod(startAt: Dayjs, endAt: Dayjs) {
   return result;
 }
 
-function formatTimeLeft(time: Dayjs, verb: string = '') {
-  const hourDiff = time.diff(dayjs(), 'hour');
-  if (hourDiff < 0)
+function formatTimeLeft(startAt: Dayjs, endAt: Dayjs) {
+  const now = dayjs()
+  if (now.isAfter(endAt))
     return '已结束';
-  else if (hourDiff < 1)
-    return `即将${verb}`;
+  if (now.isAfter(startAt))
+    return '进行中';
+  const hourDiff = startAt.diff(now, 'hour')
+  if (hourDiff < 1)
+    return `即将开始`;
   if (hourDiff < 24)
-    return `${hourDiff}小时后${verb}`;
-  return `${time.diff(dayjs(), 'day')}天${hourDiff % 24}小时后${verb}`;
+    return `${hourDiff}小时后开始`;
+  return `${startAt.diff(now, 'day')}天${hourDiff % 24}小时后开始`;
 }
 
-export default function InterviewList({ interviews, departs, links, orgName }: {
+export default function InterviewList({ interviews, departs, links }: {
   interviews: Interview[];
   departs: Depart[];
   orgName?: string;
   links: {
-    label: string,
+    label: string | ((curInverview: Interview) => string),
     danger?: boolean, disabled?: boolean | ((curInterview: Interview) => boolean),
     onClick: (curInterview: Interview) => void
   }[]
@@ -64,7 +67,7 @@ export default function InterviewList({ interviews, departs, links, orgName }: {
           <Flex vertical className='info'>
             <div className='period'>{formatPeriod(curInterview.startAt, curInterview.endAt)}</div>
             <div className='time-left'>
-              {formatTimeLeft(curInterview.startAt, '开始') + ` (ID: ${curInterview.id})`}
+              {formatTimeLeft(curInterview.startAt, curInterview.endAt) + ` (ID: ${curInterview.id})`}
               {curInterview.status !== 0 && ' (' + (interviewStatus[curInterview.status] ?? `未知状态${curInterview.status}`) + ')'}
             </div>
             <InterviewInfo showUsedCapacity interview={curInterview} departs={departs} />
@@ -79,7 +82,7 @@ export default function InterviewList({ interviews, departs, links, orgName }: {
               return (<Button key={i} type='link' size='small'
                 danger={link.danger} disabled={disabled}
                 onClick={() => link.onClick(curInterview)}>
-                {link.label}
+                {link.label instanceof Function ? link.label(curInterview) : link.label}
               </Button>);
             })}
           </div>

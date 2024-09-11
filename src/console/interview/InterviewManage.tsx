@@ -1,14 +1,14 @@
-import { Alert, Button, Card, DatePicker, Flex, Form, Radio, Space, Tabs, Typography } from 'antd';
+import { Alert, Button, Card, Checkbox, DatePicker, Flex, Form, Radio, Space, Tabs, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { getStepLabel } from '../result/ResultOverview';
 import { useFilterDeparts, FilterDepartsComponent } from '../shared/FilterDeparts';
-import InterviewList from './InterviewList';
+import InterviewList, { Interview } from './InterviewList';
 import dayjs from 'dayjs';
 import { message } from '../../App';
 import { showModal, TempInput } from '../../shared/LightComponent';
 import { useData } from '../../api/useData';
 import { useForm } from '../shared/useForm';
-import { basename, num } from '../../utils';
+import { basename, num, useStoredState } from '../../utils';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CopyZone from '../../shared/CopyZone';
@@ -21,12 +21,15 @@ export default function InterviewManage() {
   const [form] = useForm();
   const formId = form.id;
   const [step, setStep] = useState(1);
-  const [interviews, interviewsLoading, reload] = useData('/interview', async (resp) => {
+  const [interviews, interviewsLoading, reload] = useData<Interview[]>('/interview', async (resp) => {
     const value = await resp.json();
     return value.map((iv: any) => {
       return { ...iv, startAt: dayjs(iv.startAt), endAt: dayjs(iv.endAt) };
     })
   }, [], { formId, step, depart: [defaultDepart, ...filterDeparts].join(',') }, [formId, step, filterDeparts, orgInfoLoading], !orgInfoLoading);
+  const [showEndedInterviews, setShowEndedInterviews] = useStoredState(false, 'showEndedInterviews');
+  //还未结束的面试
+  const interviewsNotEnded = interviews.filter(iv => iv.endAt.isAfter(dayjs()));
   return (<Card>
     <Flex vertical gap='middle'>
       <Typography.Text>候选人选择面试链接：
@@ -146,13 +149,15 @@ export default function InterviewManage() {
               });
             }}
           >新建面试</Button>
+          <Checkbox checked={showEndedInterviews}
+            onChange={({ target: { checked: v } }) => setShowEndedInterviews(v)}>显示已结束面试 ({interviews.length - interviewsNotEnded.length} 项)</Checkbox>
         </Space>
-        <InterviewList interviews={interviews} departs={departs} orgName={orgName}
+        <InterviewList interviews={showEndedInterviews ? interviews : interviewsNotEnded} departs={departs} orgName={orgName}
           links={[{
             label: '查看报名表',
             onClick(curInterview) { navigate(`/console/interview/schedule/${curInterview.id}`) },
           }, {
-            label: '冻结',
+            label(curInterview) { return curInterview.status === 20 ? '已冻结' : '冻结' },
             onClick(curInterview) {
               showModal({
                 title: '冻结面试',

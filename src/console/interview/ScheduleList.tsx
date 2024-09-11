@@ -2,7 +2,7 @@ import { Button, Card, Dropdown, Flex, message, Space, Typography } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useData } from '../../api/useData';
 import dayjs from 'dayjs';
-import { formatPeriod } from './InterviewList';
+import { Interview } from './InterviewList';
 import { useForm } from '../shared/useForm';
 import { useOrgFromContext } from '../shared/useOrg';
 import ResultDisplay from '../shared/ResultDisplay';
@@ -12,17 +12,23 @@ import { addInterviewSchedule, deleteInterviewSchedule } from '../../api/intervi
 import { num } from '../../utils';
 import { showModal, TempInput } from '../../shared/LightComponent';
 import { getStepLabel } from '../result/ResultOverview';
+import { InterviewInfo } from './InterviewInfo';
 
 export default function ScheduleList() {
   const { interviewId } = useParams();
   const numIvId = num(interviewId)
-  const [{ startAt, endAt, location, capacity, step, depart }] = useData('/interview/detail', async (resp) => {
+  const [scheduledIds, scheduledIdsLoading, reloadScheduledIds] = useData<string[]>('/interview/schedule', async (resp) => resp.json(), [], { id: numIvId }, [interviewId]);
+  const [interview] = useData<Interview>('/interview/detail', async (resp) => {
     const obj = await resp.json();
     obj.startAt = dayjs(obj.startAt);
     obj.endAt = dayjs(obj.endAt);
     return obj;
-  }, { startAt: dayjs(), endAt: dayjs() } as const, { id: interviewId }, [interviewId]);
-  const [scheduledIds, scheduledIdsLoading, reloadScheduledIds] = useData<string[]>('/interview/schedule', async (resp) => resp.json(), [], { id: interviewId }, [interviewId]);
+  }, {
+    id: numIvId, startAt: dayjs(), endAt: dayjs(),
+    depart: NaN, step: NaN, capacity: NaN, status: 0, location: '加载中', usedCapacity: NaN
+  } as const, { id: interviewId }, [interviewId]);
+  interview.usedCapacity = scheduledIds.length;
+  const { step, depart } = interview;
   const [form] = useForm();
   const [{ departs }] = useOrgFromContext();
   const navigate = useNavigate();
@@ -30,9 +36,7 @@ export default function ScheduleList() {
   return (<Card>
     <Flex vertical gap='small'>
       <Button onClick={() => navigate('/console/interview')} style={{ 'alignSelf': 'flex-start' }} icon={<ArrowLeftOutlined />} type='link'>返回</Button>
-      <Typography.Text>面试时间：{formatPeriod(startAt, endAt)}</Typography.Text>
-      <Typography.Text>面试地点：{location}</Typography.Text>
-      <Typography.Text>报名人数：{scheduledIds.length} / {capacity}</Typography.Text>
+      <InterviewInfo interview={interview} departs={departs} showUsedCapacity />
       <Space>
         <Button type='primary'
           onClick={() => {
