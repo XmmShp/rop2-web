@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useMemo } from 'react';
 import { DataTuple, useData } from '../../api/useData';
 import { kvGet } from '../../store/kvCache';
 import { num } from '../../utils';
@@ -26,10 +26,12 @@ const defaultOrg = {
   departs: []
 };
 export function useOrg(): DataTuple<OrgInfo> {
+  // adminAt仅在页面加载时刷新
+  const adminAt = useMemo(() => num(kvGet('at'), -1), []);
   const v = useData<OrgInfo>('/org', async (resp) => {
     const result = resp.status >= 400 ? defaultOrg : await resp.json();
     return { ...result, respStatus: resp.status };
-  }, { ...defaultOrg, org: { ...defaultOrg.org, id: num(kvGet('at')) }, respStatus: 0 });
+  }, { ...defaultOrg, org: { ...defaultOrg.org, id: adminAt }, respStatus: 0 });
   v[0].departs = v[0].departs.filter(d => d.id !== v[0].org.defaultDepart);
   return v;
 }
