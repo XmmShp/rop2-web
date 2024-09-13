@@ -4,6 +4,7 @@ import './InterviewList.scss';
 import { Depart } from '../shared/useOrg';
 import { Button, Empty, Flex } from 'antd';
 import { InterviewInfo } from './InterviewInfo';
+import { useMemo } from 'react';
 
 export type InterviewStatus = keyof typeof interviewStatus;
 export const interviewStatus = {
@@ -50,7 +51,7 @@ function formatTimeLeft(startAt: Dayjs, endAt: Dayjs) {
   return `${startAt.diff(now, 'day')}天${hourDiff % 24}小时后开始`;
 }
 
-export default function InterviewList({ interviews, departs, links }: {
+export default function InterviewList({ interviews, departs, links, keepOrder = false }: {
   interviews: Interview[];
   departs: Depart[];
   orgName?: string;
@@ -58,11 +59,17 @@ export default function InterviewList({ interviews, departs, links }: {
     label: string | ((curInverview: Interview) => string),
     danger?: boolean, disabled?: boolean | ((curInterview: Interview) => boolean),
     onClick: (curInterview: Interview) => void
-  }[]
+  }[],
+  /**是否保持原有顺序（一般按id升序）显示面试列表。默认按面试开始时间升序显示。 */
+  keepOrder?: boolean
 }) {
+  const showInterviews = useMemo(() => {
+    if (!keepOrder) return interviews.toSorted((a, b) => a.startAt.diff(b.startAt));
+    else return interviews;
+  }, [interviews, keepOrder])
   return (<div className='interview-list'>
-    {interviews.length
-      ? interviews.map(curInterview => {
+    {showInterviews.length
+      ? showInterviews.map(curInterview => {
         return <Flex vertical key={curInterview.id} className='interview-card'>
           <Flex vertical className='info'>
             <div className='period'>{formatPeriod(curInterview.startAt, curInterview.endAt)}</div>
