@@ -1,5 +1,5 @@
 import { Alert, Button, Card, Checkbox, Dropdown, Flex, message, Segmented, Space, Table, Typography } from 'antd';
-import { debounce, numSC } from '../../utils';
+import { debounce, numSC, useStoredState } from '../../utils';
 import { useState } from 'react';
 import { useForm } from '../shared/useForm';
 import DisabledContext from 'antd/es/config-provider/DisabledContext';
@@ -74,7 +74,7 @@ export default function ResultOverview() {
   const [limit, setLimit] = useState(pageSizeOptions[0]);
   const [filter, setFilter] = useState('');
   const debouncedSetFilter = debounce(withResetOffset(setFilter), 250);
-  const [step, _setStep] = useState<StepType>(0);
+  const [step, _setStep] = useStoredState<StepType>(0, 'resultStep');
   const hasInterview = stepsWithInterview.includes(step as any);
   const [copyPhonesWithoutInterviewOnly, setCopyPhonesWithoutInterviewOnly] = useState(true);
   const setStep = withResetOffset(_setStep);

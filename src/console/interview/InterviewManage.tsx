@@ -20,7 +20,7 @@ export default function InterviewManage() {
   const [filterDeparts, setFilterDeparts, { departs, org: { name: orgName, defaultDepart } }, orgInfoLoading] = useFilterDeparts();
   const [form] = useForm();
   const formId = form.id;
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useStoredState(1, 'interviewStep');
   const [interviews, interviewsLoading, reload] = useData<Interview[]>('/interview', async (resp) => {
     const value = await resp.json();
     return value.map((iv: any) => {
