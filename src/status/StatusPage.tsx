@@ -162,7 +162,7 @@ export default function StatusPage() {
                           showAll={showAll} setShowAll={setShowAll} />,
                         forceRender: true,
                       };
-                    }).filter(v => v !== null)} />
+                    }).filter(v => v !== null) as any} />
                 </>
                 : <>
                   <Typography.Text>
