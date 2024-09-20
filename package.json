@@ -9,20 +9,20 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@types/react": "^18.2.61",
-    "@types/react-dom": "^18.2.19",
-    "@vitejs/plugin-react-swc": "^3.6.0",
-    "sass": "^1.71.1",
-    "typescript": "^5.3.3",
-    "vite": "^5.1.4"
+    "@types/react": "^18.3.7",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react-swc": "^3.7.0",
+    "sass": "^1.79.1",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.6"
   },
   "dependencies": {
-    "@ant-design/icons": "^5.3.1",
-    "antd": "^5.15.0",
-    "dayjs": "^1.11.10",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.22.2",
+    "@ant-design/icons": "^5.4.0",
+    "antd": "^5.20.6",
+    "dayjs": "^1.11.13",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2",
     "rfc4648": "^1.5.3"
   }
 }
