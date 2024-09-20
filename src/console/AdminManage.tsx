@@ -14,13 +14,13 @@ export type AdminProfile = { nickname: string; zjuId: string; level: number; cre
 export type AdminList = { admins: AdminProfile[]; count: number; filteredCount: number; };
 function describeLevel(level: number) { return levels[level] || levels['_'].replace('{}', level.toString()) }
 export default function AdminManage() {
-  const [filter, setFilter] = useState('');
-  const setFilterDebounced = debounce(//节流，避免每个字符都查一次服务器
-    (f) => {
-      setFilter(f);
-      setOffset(0); //修改filter时同时重置offset
-    }
-    , 250);
+  const [filter, _setFilter] = useState('');
+  const setFilterDebounced = debounce(
+    //节流，避免每个字符都查一次服务器
+    (f: string) => {
+      _setFilter(f);
+      setOffset(0); //修改filter时同时重置offset(返回第一页)
+    }, 250);
   const [limit, setLimit] = useState(10);
   const [offset, setOffset] = useState(0);
   const [list, loading, reload] = useData<AdminList>('/admin', async (resp) => {
@@ -73,7 +73,7 @@ export default function AdminManage() {
           onClick={() => showEditModal('', '', 20, 'add')}
         >新建</Button>
       </Flex>
-      <Search onChange={({ target: { value: searchValue } }) => setFilterDebounced(searchValue)} />
+      <Search onChangeTrimmed={(v) => setFilterDebounced(v)} />
       <Table bordered
         loading={!!loading}
         title={(d) => `管理员列表 (本页 ${d.length} 项${filter ? ` / 筛选到 ${filteredCount} 项` : ''} / 共 ${count} 项)`}

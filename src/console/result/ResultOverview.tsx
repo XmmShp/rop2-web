@@ -72,8 +72,8 @@ export default function ResultOverview() {
   const [form] = useForm();
 
   const [limit, setLimit] = useState(pageSizeOptions[0]);
-  const [filter, setFilter] = useState('');
-  const debouncedSetFilter = debounce(withResetOffset(setFilter), 250);
+  const [filter, _setFilter] = useState('');
+  const setFilterDebounced = debounce(withResetOffset(_setFilter), 250);
   const [step, _setStep] = useStoredState<StepType>(0, 'resultStep');
   const hasInterview = stepsWithInterview.includes(step as any);
   const [copyPhonesWithoutInterviewOnly, setCopyPhonesWithoutInterviewOnly] = useState(true);
@@ -225,7 +225,7 @@ export default function ResultOverview() {
         <Alert showIcon type='warning' message={`您正在查看来自多个部门的候选人(已选中 ${filterDeparts.length} 个部门)。`} />}
       {filterDeparts.length === 0 &&
         <Alert showIcon type='error' message='您没有选择任何部门，请先选择至少一个部门。' />}
-      <Search onChange={({ target: { value } }) => debouncedSetFilter(value)} placeholder='筛选姓名/学号/手机号' />
+      <Search onChangeTrimmed={(v) => setFilterDebounced(v)} placeholder='筛选姓名 / 学号 / 手机号' />
       <Table
         loading={Boolean(loading)}
         pagination={{

@@ -3,7 +3,6 @@ import { Flex, Typography, Button, Table, Space, Card } from 'antd';
 import { basename } from '../../utils';
 import { useContext, useState } from 'react';
 import Search from '../shared/Search';
-import { kvSet } from '../../store/kvCache';
 import { showModal, TempInput } from '../../shared/LightComponent';
 import { message } from '../../App';
 import dayjs from 'dayjs';
@@ -12,6 +11,7 @@ import { FormListContext } from '../ConsoleLayout';
 
 export default function FormOverview() {
   const [forms, loadingPromise, reload] = useContext(FormListContext);
+  //注：此searchValue是用于前端搜索，不会传到后端
   const [searchValue, setSearchValue] = useState('');
   return (<Card>
     <Flex vertical gap='small'>
@@ -42,8 +42,7 @@ export default function FormOverview() {
           }}
         >新建</Button>
       </Flex>
-      <Search value={searchValue}
-        onChange={({ target: { value } }) => setSearchValue(value)} />
+      <Search onChangeTrimmed={(v) => setSearchValue(v)} />
       <Table title={(d) => `表单列表 (本页 ${d.length} 项 / 共 ${forms.length} 项)`} rowKey='id' bordered columns={[{
         title: '名称',
         dataIndex: 'name'
