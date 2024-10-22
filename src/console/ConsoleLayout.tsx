@@ -149,9 +149,10 @@ export default function ConsoleLayout({ routes }: { routes: (GetProp<typeof Menu
                 ? <Skeleton active loading /> //未加载完组织信息时不渲染
                 : (respStatus === 403
                   ? <>
-                    您似乎没有访问此页面的权限。(学号：{zjuId})
+                    您似乎没有有效的管理权限。(学号：{zjuId})
                     <br />访问纳新系统后台需要组织管理员为您授权。
-                    <br />如果您已有相应权限，请尝试<a onClick={() => { logout(getLoginRedirectUrl()) }}>重新登录</a>。
+                    <br />如果您已获取相应权限，请尝试<a onClick={() => { logout(getLoginRedirectUrl()) }}>重新登录</a>。
+                    <br />您也可以<a target='_self' href='https://docs.qq.com/form/page/DSERWdXFFT3JOTEla'>创建新组织</a>。
                   </>
                   : (respStatus === 401
                     ? <> 您需要<a href={getLoginRedirectUrl()}>统一认证登录</a>后才能访问纳新系统后台。</>

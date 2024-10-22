@@ -2,9 +2,19 @@
 
   .card {
     margin: 1em 1%;
-    padding: 0 min(3%, 3em) 2em;
+    padding: 0 min(3%, 3em);
     flex: 1 1 auto;
     max-width: min(95%, 54em);
     white-space: pre-wrap;
+
+    .intent-list {
+      margin-top: .6em;
+    }
+
+    .support {
+      font-size: .9em;
+      text-align: center;
+      margin-top: 2em;
+    }
   }
 }

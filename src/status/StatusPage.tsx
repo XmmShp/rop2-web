@@ -3,14 +3,14 @@ import { useData } from "../api/useData";
 import { Depart } from "../console/shared/useOrg";
 import { defaultForm } from "../console/shared/useForm";
 import { kvGet, zjuIdKey } from "../store/kvCache";
-import { num, numSC } from "../utils";
+import { basename, num, numSC } from "../utils";
 import { getStepLabel } from "../console/result/ResultOverview";
 import './StatusPage.scss';
 import InterviewList, { formatPeriod, Interview } from "../console/interview/InterviewList";
 import dayjs, { Dayjs } from "dayjs";
 import { pkgPost } from "../api/core";
 import { showModal } from "../shared/LightComponent";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { getLoginRedirectUrl } from "../api/auth";
 import { stepsWithInterview } from "../console/interview/InterviewManage";
@@ -129,7 +129,7 @@ export default function StatusPage() {
         };
       }, { ...defaultForm, respStatus: 0 }, { id: formId }, [formId], formId > 0);
   const zjuId = useMemo(() => kvGet(zjuIdKey)!, []);
-  console.log({ formLoading, owner, name, formId })
+  // console.log({ formLoading, owner, name, formId })
 
   //虽然form的实际数据(owner)需要等待useForm加载，但是formId是有效的，故intents获取不需要等待useForm
   const [intents] = useData<Intent[]>('/applicant/status', async (resp) => resp.json(), [], { formId }, [formId]);
@@ -142,28 +142,27 @@ export default function StatusPage() {
         : (formLoading || departsLoading
           ? <Skeleton active loading />
           : (respStatus === 200
-            ? <Flex vertical gap='4px'>
+            ? <Flex vertical gap='small'>
               <Typography.Text>您的学号: {zjuId}</Typography.Text>
               <Typography.Text>
                 您在 <Typography.Text strong>{name}</Typography.Text> 各志愿的状态：
               </Typography.Text>
               {intents.length
-                ? <>
-                  <Collapse
-                    accordion={false} destroyInactivePanel={false}
-                    collapsible='header'
-                    items={intents.map(intent => {
-                      const departId = intent.depart;
-                      const depart = departs.find(d => d.id === departId);
-                      if (!depart) return null;
-                      return {
-                        label: `【第${numSC(intent.order)}志愿】${depart.name}`, key: departId,
-                        children: <IntentStatus intent={intent} formId={formId} depart={depart} departs={departs}
-                          showAll={showAll} setShowAll={setShowAll} />,
-                        forceRender: true,
-                      };
-                    }).filter(v => v !== null) as any} />
-                </>
+                ? <Collapse className="intent-list"
+                  accordion={false} destroyInactivePanel={false}
+                  collapsible='header' defaultActiveKey={intents[0].depart}
+                  items={intents.map(intent => {
+                    const departId = intent.depart;
+                    const depart = departs.find(d => d.id === departId);
+                    if (!depart) return null;
+                    const orderInfo = `【第${numSC(intent.order)}志愿】`;
+                    return {
+                      label: `${intents.length > 1 ? orderInfo : ''}${depart.name}`, key: departId,
+                      children: <IntentStatus intent={intent} formId={formId} depart={depart} departs={departs}
+                        showAll={showAll} setShowAll={setShowAll} />,
+                      forceRender: true,
+                    };
+                  }).filter(v => v !== null) as any} />
                 : <>
                   <Typography.Text>
                     <Typography.Text strong>未找到您在该表单下的报名信息</Typography.Text>。请确认您是否点击了正确的链接(ID: {formId})。
@@ -178,6 +177,7 @@ export default function StatusPage() {
             )
           )
         )}
+      <Typography.Text className="support" type='secondary'>技术支持 <Link target="_blank" to={`${location.origin}${basename}`}>求是潮纳新开放系统</Link></Typography.Text>
     </Card>
   </Flex>);
 }
