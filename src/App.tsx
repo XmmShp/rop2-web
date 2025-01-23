@@ -1,7 +1,7 @@
-import React, { ComponentProps, ReactNode, useState } from 'react';
-import { LazyRouteFunction, LoaderFunction, Navigate, RouteObject, RouterProvider, createBrowserRouter, isRouteErrorResponse, useRouteError } from 'react-router-dom';
+import React, { ComponentProps, ReactNode, useState, useContext} from 'react';
+import { LazyRouteFunction, LoaderFunction, Navigate, RouteObject, RouterProvider, createBrowserRouter, isRouteErrorResponse, useRouteError, useNavigate, Link, } from 'react-router-dom';
 import { ConfigProvider, theme, App as AntdApp } from 'antd';
-import { DashboardOutlined, ApartmentOutlined, FormOutlined, BarsOutlined, IdcardOutlined, FundViewOutlined, MessageOutlined, FunnelPlotOutlined } from '@ant-design/icons';
+import { DashboardOutlined, ApartmentOutlined, FormOutlined, BarsOutlined, IdcardOutlined, FundViewOutlined, MessageOutlined, FunnelPlotOutlined, QuestionCircleFilled, QuestionCircleOutlined } from '@ant-design/icons';
 import { basename, useDarkMode } from './utils';
 import { useAppProps } from 'antd/es/app/context';
 import { getApiUrl } from './api/core.ts';
@@ -13,6 +13,16 @@ function getConsoleLoader<C extends keyof typeof import('./console/index.ts'), M
     return { element: (<Component {...props as any} />), loader };
   }
 }
+function RedirectToExternal({ url }: { url: string }) {
+  const navigate = useNavigate();
+
+  React.useEffect(() => {
+    navigate('/'); 
+    window.location.href = url; 
+  }, [url]); 
+  return null;
+}
+
 //注：有label的会显示在侧边菜单中，否则仅有路由
 export const consoleRoutes = [
   {
@@ -26,7 +36,7 @@ export const consoleRoutes = [
     icon: <DashboardOutlined />,
     lazy: getConsoleLoader('Dash')
   }, {
-    label: '表单',
+    label: '报名表',
     path: 'form',
     icon: <FormOutlined />,
     lazy: getConsoleLoader('FormOverview')
@@ -34,7 +44,7 @@ export const consoleRoutes = [
     path: 'form/edit/:formId?',
     lazy: getConsoleLoader('FormEdit')
   }, {
-    label: '报名表',
+    label: '候选人',
     path: 'result/:formId?',
     icon: <BarsOutlined />,
     lazy: getConsoleLoader('ResultOverview')
@@ -66,7 +76,13 @@ export const consoleRoutes = [
     path: 'depart',
     icon: <ApartmentOutlined />,
     lazy: getConsoleLoader('DepartManage')
-  },
+  }, {
+    label: '帮助和反馈',
+    path: 'help',
+    icon: <QuestionCircleOutlined />,
+    element: <RedirectToExternal url='https://ccnqoieaz7g3.feishu.cn/wiki/Pigvw7n2didZU2kCi8JcEu9Pnrf?chat_type=single&from=message&lang=zh&message_type=text#share-SWSodRfDaoeYn0xnWZtcAoNCnNf'/>
+    
+  }
 ].map(v => { return { ...v, title: v.label, key: v.path } });
 
 function ErrorElement() {

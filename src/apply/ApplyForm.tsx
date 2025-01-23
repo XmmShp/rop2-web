@@ -13,6 +13,19 @@ import { basename, num } from '../utils';
 import CopyZone from '../shared/CopyZone';
 import { kvGet, kvSet, zjuIdKey } from '../store/kvCache';
 import { getLoginRedirectUrl } from '../api/auth';
+import { QRCodeCanvas } from 'qrcode.react';
+
+function QRCodeDisplay({ link }: { link: string }) {
+  return (
+    <Flex className='qrcode'>
+      <QRCodeCanvas
+        value={link}
+        size={300}
+        level="H"
+      />
+    </Flex>
+  );
+}
 
 export function validate(question: ValidQuestion, value: unknown): boolean {
   if (!question.optional) {
@@ -147,6 +160,7 @@ export default function ApplyForm() {
           {isPreview && <Flex vertical>
             <Typography.Text>您目前正在预览该表单。</Typography.Text>
             <Typography.Text>候选人正常填表地址：<CopyZone inline text={`${location.origin}${basename}/apply/${formId}`} /></Typography.Text>
+            <QRCodeDisplay link={`${location.origin}${basename}/apply/${formId}`}/>
           </Flex>}
           {'message' in children
             ? /**问卷存在异常，只显示message */

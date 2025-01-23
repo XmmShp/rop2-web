@@ -30,4 +30,9 @@
     // text-decoration-color: initial;
     // text-underline-offset: calc(.223 * var(--ant-font-size));
   }
+
+  .qrcode {
+    display: flex;
+    justify-content: center,  
+  }
 }

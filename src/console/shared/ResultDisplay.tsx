@@ -7,6 +7,7 @@ import { Depart } from './useOrg';
 import { ResultDetail } from '../../api/result';
 import { useMemo } from 'react';
 import { calcRevealGroups } from '../../apply/ApplyForm';
+import React, { useEffect, useState } from 'react';
 
 /**将问题标题按 `[问题组名] 问题` 格式化 */
 export function formatQuestionTitle(group: QuestionGroup, question: ValidQuestion): string {
@@ -28,10 +29,11 @@ export function formatAnswer(question: ValidQuestion, answer: unknown, departs: 
   else
     return String(answer)
 }
-export default function ResultDisplay({ form, zjuId, departs }: {
+export default function ResultDisplay({ form, zjuId, departs, onDataLoaded}: {
   form: FormDetail;
   zjuId: string;
   departs: Depart[];
+  onDataLoaded?: (data: { name: string; phone: string; zjuId: string}) => void;
 }) {
   const formId = form.id;
   const defaultResult: ResultDetail = { content: {}, name: '加载中', phone: '', zjuId };
@@ -42,6 +44,11 @@ export default function ResultDisplay({ form, zjuId, departs }: {
     return result.map((r: any) => { return { ...r, content: JSON.parse(r.content) } })
   }, [defaultResult], { formId, target: zjuId }, [formId, zjuId]);
   const displayedGroups = useMemo(() => calcRevealGroups(form.children, content), [form, content]);
+  useEffect(() => {
+    if (onDataLoaded) {
+      onDataLoaded({ name, phone, zjuId });
+    }
+  }, [name, phone, zjuId, onDataLoaded]);
   return (<div>
     <Descriptions layout='vertical' size='small'
       column={12} colon={false} bordered

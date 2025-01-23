@@ -5,7 +5,7 @@ import { useOrgFromContext } from '../shared/useOrg';
 import './Dash.scss';
 import dayjs, { Dayjs } from 'dayjs';
 import { useData } from '../../api/useData';
-import { getStepLabel, StepType, validSteps } from '../result/ResultOverview';
+import { getStepLabel, StepType, validSteps, getStepColor } from '../result/ResultOverview';
 import { stepsWithInterview } from '../interview/InterviewManage';
 import { FormListContext } from '../ConsoleLayout';
 import { useContext, useMemo } from 'react';
@@ -111,7 +111,7 @@ export default function Dash() {
             (<Card key={id}>
               <Flex vertical gap='small'>
                 <Flex wrap='wrap' gap='large'>
-                  <Statistic title='阶段' value={getStepLabel(id)} />
+                  <Statistic title='阶段' value={getStepLabel(id)} valueStyle={{ color: getStepColor(id),fontWeight: 'bold', }}/>
                   <Statistic title='人数' value={peopleCount} prefix={<TeamOutlined />} />
                   <Statistic title='志愿数' value={intentsCount} />
                 </Flex>

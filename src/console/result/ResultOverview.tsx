@@ -35,6 +35,13 @@ function getNextStep(n: number): number {
   if (n >= 2) return accepted;
   return n + 1;
 }
+export function getStepColor(n: number): string {
+  if (n===-2) return '#7F8C8D'
+  if (n===-1) return '#E74C3C'
+  if (n===-50) return '#2ECC71'
+  if (n===0) return '#000000'
+  return '#00B8FF'
+}
 export type Person = { name: string, zjuId: string, phone: string, };
 function toCsv(data: string[][]): string {
   return data.map((row) =>
@@ -70,7 +77,6 @@ export default function ResultOverview() {
 
   //使用表单的问题来生成简历
   const [form] = useForm();
-
   const [limit, setLimit] = useState(pageSizeOptions[0]);
   const [filter, _setFilter] = useState('');
   const setFilterDebounced = debounce(withResetOffset(_setFilter), 250);
@@ -108,7 +114,7 @@ export default function ResultOverview() {
         defaultValue={0}
         value={step}
         onChange={setStep}
-        options={validSteps.map(n => { return { label: getStepLabel(n), value: n } })} />
+        options={validSteps.map(n => { return { label: <>{getStepLabel(n)} {n === step ? (count) : null}</> , value: n } })} />
       {/* <Radio.Group defaultValue='pend'>
         <Radio value='instance'>操作立即生效</Radio>
         <Radio value='pend'>操作在确认发送通知后生效</Radio>

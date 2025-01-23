@@ -13,10 +13,39 @@ import { num } from '../../utils';
 import { showModal, TempInput } from '../../shared/LightComponent';
 import { getStepLabel } from '../result/ResultOverview';
 import { InterviewInfo } from './InterviewInfo';
+import { useState, useCallback} from 'react'
 
 export default function ScheduleList() {
   const { interviewId } = useParams();
   const numIvId = num(interviewId)
+  const [exportData, setExportData] = useState<{ name: string; phone: string; zjuId: string }[]>([]);
+    const handleDataLoaded = useCallback((data: { name: string; phone: string; zjuId: string }) => {
+      if (data.name !== '加载中' && data.phone !== '加载中') {
+        setExportData(prevData => {
+          if (!prevData.some(item => item.zjuId === data.zjuId)) {
+            return [...prevData, data];
+          }
+          return prevData;
+        });
+      }
+    }, []);
+    const exportToCSV = () => {
+      if (exportData.length === 0) {
+        message.warning('没有数据可导出');
+        return;
+      }
+      const csvHeader = '姓名,学号,手机号\n';
+      const csvRows = exportData
+        .map(({ name, zjuId, phone }) => `${name},${zjuId},${phone}`)
+        .join('\n');
+      const csvContent = csvHeader + csvRows;
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `面试安排.csv`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    };
   const [scheduledIds, scheduledIdsLoading, reloadScheduledIds] = useData<string[]>('/interview/schedule', async (resp) => resp.json(), [], { id: numIvId }, [interviewId]);
   const [interview] = useData<Interview>('/interview/detail', async (resp) => {
     const obj = await resp.json();
@@ -48,7 +77,7 @@ export default function ScheduleList() {
           }}>选中全部</Button>
         受浏览器限制，选中后需自行Ctrl+C复制。
       </Space>
-      <Space>
+      <Space >
         <Button onClick={() => {
           const vref = { value: '' }
           showModal({
@@ -87,9 +116,15 @@ export default function ScheduleList() {
               key: zjuId,
               label: zjuId,
               async onClick({ key }: { key: string }) {
-                await deleteInterviewSchedule(numIvId, zjuId)
-                  .msgSuccess('已移除该面试报名')
-                reloadScheduledIds()
+                showModal({
+                  title:'确认删除',
+                  content:`你确认要删除学号为${zjuId}的面试者吗`,
+                  async onConfirm() {
+                    await deleteInterviewSchedule(numIvId, zjuId)
+                    .msgSuccess('已移除该面试报名')
+                  reloadScheduledIds()
+                  },
+                })
               }
             }
           })
@@ -99,10 +134,15 @@ export default function ScheduleList() {
               <DownOutlined />
             </Space>
           </Button></Dropdown>
+            <Space>
+              <Button onClick={exportToCSV}>
+                导出CSV
+              </Button>
+            </Space>
       </Space>
       <Flex ref={listRef} vertical gap='large'>
         {scheduledIds.map((z, i) =>
-          <ResultDisplay key={i} form={form} zjuId={z} departs={departs} />
+          <ResultDisplay key={i} form={form} zjuId={z} departs={departs} onDataLoaded={handleDataLoaded}/>
         )}
       </Flex>
     </Flex>
