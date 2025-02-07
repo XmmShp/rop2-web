@@ -76,9 +76,9 @@ export default function FormOverview() {
               href={`${basename}/apply/${formId}?preview=1`} target='_blank'>
               预览
             </Button>
-            <Button size='small' type='link'
-              onClick={() => {/**TODO: 复制表单 */ }}
-            >复制</Button>
+            {/**<Button size='small' type='link'
+              onClick={() => {'TODO: 复制表单' }}
+            >复制</Button>*/}
             <Button size='small' danger type='link'
               onClick={() => showModal({
                 title: '删除表单',
