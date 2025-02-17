@@ -1,0 +1,48 @@
+name: 文档改进
+description: 为我们的文档提出改进建议
+title: "[文档]: "
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢您花时间帮助我们改进文档！
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: 文档类型
+      description: 需要改进哪种类型的文档？
+      options:
+        - README 文件
+        - API 文档
+        - 代码注释
+        - 使用示例
+        - 安装指南
+        - 其他
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-state
+    attributes:
+      label: 当前文档状态
+      description: 请描述当前文档的内容
+      placeholder: 当前文档说明...
+    validations:
+      required: true
+
+  - type: textarea
+    id: improvement
+    attributes:
+      label: 建议的改进
+      description: 请描述您认为应该更改或添加的内容
+      placeholder: 文档应该...
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 补充说明
+      description: 在此添加关于文档改进的任何其他说明
