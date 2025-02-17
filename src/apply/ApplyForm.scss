@@ -7,7 +7,7 @@
 
   .title {
     text-align: center;
-    margin: .8em 0;
+    margin: 0.8em 0;
   }
 
   .divider {
@@ -25,7 +25,7 @@
   .support {
     display: block;
     text-align: center;
-    font-size: calc(.89 * var(--ant-font-size));
+    font-size: calc(0.89 * var(--ant-font-size));
     // text-decoration: underline dashed 1px;
     // text-decoration-color: initial;
     // text-underline-offset: calc(.223 * var(--ant-font-size));
@@ -33,6 +33,6 @@
 
   .qrcode {
     display: flex;
-    justify-content: center,  
+    justify-content: center;
   }
 }

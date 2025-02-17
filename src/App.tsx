@@ -25,7 +25,7 @@ import { basename, useDarkMode } from './utils';
 import { useAppProps } from 'antd/es/app/context';
 import { getApiUrl } from './api/core.ts';
 
-function getConsoleLoader<C extends keyof typeof import('./console/index.ts'), M extends typeof import('./console/index.ts')[C]>(
+function getConsoleLoader<C extends keyof typeof import('./console/index.ts'), M extends (typeof import('./console/index.ts'))[C]>(
   comName: C,
   props: ComponentProps<M> = {} as any
 ): LazyRouteFunction<RouteObject> {

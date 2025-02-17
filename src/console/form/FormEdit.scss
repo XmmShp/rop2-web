@@ -50,7 +50,7 @@
 
     .ops {
       opacity: 0;
-      transition: all .2s;
+      transition: all 0.2s;
     }
 
     &:hover .ops {
@@ -59,13 +59,12 @@
   }
 
   .editing {
-
     .prompt {
       flex: 0 0 auto;
     }
 
     .choice-card {
-      padding: .15em .3em;
+      padding: 0.15em 0.3em;
       border-radius: calc(0.75 * var(--ant-border-radius-lg));
       border: var(--ant-line-width) var(--ant-line-type) var(--ant-color-border);
 

@@ -21,10 +21,12 @@ export interface ChoiceDepartQuestion extends Question {
   optional?: false;
   /**最多选择项数 */
   maxSelection: number;
-  choices: {
-    //选择对应id揭示的问题组
-    [departId: string]: Id | null | undefined;
-  } | OrderedChoices;
+  choices:
+    | {
+        //选择对应id揭示的问题组
+        [departId: string]: Id | null | undefined;
+      }
+    | OrderedChoices;
 }
 export type BuiltinQuestion = ChoiceDepartQuestion;
 export interface CustomQuestion extends Question {
@@ -40,9 +42,11 @@ export interface ChoiceQuestion extends CustomQuestion {
   type: 'choice';
   /**最多选择项数，为空则可全选 */
   maxSelection?: number;
-  choices: {
-    [label: string]: Id | null;
-  } | OrderedChoices;
+  choices:
+    | {
+        [label: string]: Id | null;
+      }
+    | OrderedChoices;
 }
 export type ValidQuestion = BuiltinQuestion | TextQuestion | ChoiceQuestion;
 export interface QuestionGroup {
@@ -62,11 +66,11 @@ export type FormDetail = {
   /**首个问题组默认为1 */
   startAt: Dayjs | null;
   endAt: Dayjs | null;
-}
+};
 /**
  * 获取当前表单id。若无法获取，返回-1。
  * @param avoidFormList 是否避免useFormList。一个组件请保持为常量否则Hook报错。
- * @returns 
+ * @returns
  */
 export function useFormId(): Id {
   return useContext(FormIdContext);
@@ -79,7 +83,7 @@ export const defaultForm = {
   desc: '',
   children: [{ id: 1, label: 'loading', children: [], hideSeparator: true } satisfies QuestionGroup],
   startAt: null,
-  endAt: null
+  endAt: null,
 };
 /**以管理员权限获取单个表单详情。 */
 export function useForm(): DataTuple<FormDetail> {
@@ -103,7 +107,10 @@ export function useForm(): DataTuple<FormDetail> {
       return value;
     },
     defaultFormWithId,
-    { id: formId }, [formId], formId > 0);
+    { id: formId },
+    [formId],
+    formId > 0
+  );
   return [form, loadPromise, reload];
 }
 

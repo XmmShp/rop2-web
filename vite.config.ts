@@ -5,11 +5,11 @@ import react from '@vitejs/plugin-react-swc';
 export default defineConfig({
   plugins: [react()],
   css: {
-    devSourcemap: true
+    devSourcemap: true,
   },
   server: {
     port: 5173,
-    strictPort: true
+    strictPort: true,
   },
   build: {
     chunkSizeWarningLimit: 1024,
@@ -21,8 +21,8 @@ export default defineConfig({
         manualChunks: {
           react: ['react-router-dom', 'react-dom', 'react'],
           antd: ['antd', '@ant-design/icons'],
-        }
-      }
-    }
+        },
+      },
+    },
   },
 });

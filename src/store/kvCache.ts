@@ -2,8 +2,8 @@
 //此储存方式适用于储存不同结构、小规模的值
 
 /**生成项目特定的localStorage key，防止冲突 */
-export const scopedKeyPrefix = 'rop2:';
-function scopedKey<S extends string>(from: S): `rop2:${S}` {
+export const scopedKeyPrefix = 'rop2:' as const;
+function scopedKey<S extends string>(from: S): `${typeof scopedKeyPrefix}${S}` {
   return `${scopedKeyPrefix}${from}`;
 }
 
@@ -24,8 +24,7 @@ export function kvClear(keepChecker: (fullKey: string, value: string) => boolean
   const keysToRemove: string[] = [];
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
-    if (key?.startsWith(scopedKeyPrefix) && !keepChecker(key, localStorage.getItem(key)!))
-      keysToRemove.push(key);
+    if (key?.startsWith(scopedKeyPrefix) && !keepChecker(key, localStorage.getItem(key)!)) keysToRemove.push(key);
   }
-  keysToRemove.forEach(k => localStorage.removeItem(k));
+  keysToRemove.forEach((k) => localStorage.removeItem(k));
 }

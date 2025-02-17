@@ -1,0 +1,12 @@
+node_modules
+
+dist
+
+public
+
+*.md
+*.html
+
+# npm will format these files
+package.json
+package-lock.json

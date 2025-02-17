@@ -3,8 +3,7 @@ import { kvGet, kvSet } from './store/kvCache';
 
 export function singleMatch(str: string, regexp: RegExp): string | null {
   const result = str.match(regexp);
-  if (!result)
-    return null;
+  if (!result) return null;
   return result[1];
 }
 
@@ -15,15 +14,16 @@ export function useDarkMode(): boolean {
     const m = globalThis.matchMedia('(prefers-color-scheme: dark)');
     m.addEventListener('change', updateMatches);
     if (m.matches) setIsDark(true);
-    return () => { m.removeEventListener('change', updateMatches); }
+    return () => {
+      m.removeEventListener('change', updateMatches);
+    };
   });
   return isDark;
 }
 
 export function without<K extends string | symbol, O extends Record<K, any>>(obj: O, keys: K[]): Omit<O, K> {
   const nObj: any = {};
-  for (const [k, v] of Object.entries(obj))
-    if (!keys.includes(k as any)) nObj[k] = v;
+  for (const [k, v] of Object.entries(obj)) if (!keys.includes(k as any)) nObj[k] = v;
   return nObj;
 }
 
@@ -72,10 +72,10 @@ export function delay(ms: number): Promise<void> {
 }
 
 /**如果`arg`为`undefined`或`null`，返回空数组；
- * 
+ *
  * 否则，返回`arg`或`[arg]`(取决于`arg`是否为数组)。 */
 export function toArray<T extends NonNullable<any>>(arg: undefined | null | T | T[]): T[] {
-  if (arg === null || arg === undefined) return []
+  if (arg === null || arg === undefined) return [];
   if (Array.isArray(arg)) return arg;
   return [arg];
 }
@@ -130,10 +130,13 @@ export function useStoredState<T>(initer: T | (() => T), storeKey: string) {
       else return initer;
     }
   });
-  return [value, (newValue: T) => {
-    setValue(newValue);
-    kvSet(storeKey, JSON.stringify(newValue));
-  }] as const;
+  return [
+    value,
+    (newValue: T) => {
+      setValue(newValue);
+      kvSet(storeKey, JSON.stringify(newValue));
+    },
+  ] as const;
 }
 
 /**保证不以/结尾的basename，如/rop2。如果直接在根目录部署，返回空字符串 */
@@ -156,7 +159,7 @@ export function usePeriod(second: number): number {
       countRef.current = newCount;
     }, second * 1000);
     return () => clearInterval(timerId);
-  }, [second])
+  }, [second]);
   return count;
 }
 export function useNickname() {
@@ -179,7 +182,9 @@ export function debounce<A extends any[]>(f: (...args: A) => void, wait: number)
   };
 }
 
-export const throwArgs = (...args: any[]) => { throw args };
+export const throwArgs = (...args: any[]) => {
+  throw args;
+};
 
 export function pathname(): string {
   const p = location.pathname;
@@ -188,7 +193,7 @@ export function pathname(): string {
   return p;
 }
 
-export function useReloader(): { (): void, count: number } {
+export function useReloader(): { (): void; count: number } {
   const [count, setCount] = useState(0);
   const result = () => setCount(count + 1);
   result.count = count;

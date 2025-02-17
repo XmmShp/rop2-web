@@ -13,13 +13,13 @@
       white-space: pre-wrap;
       display: block;
       color: var(--ant-color-text-secondary);
-      font-size: calc(.95 * var(--ant-font-size));
+      font-size: calc(0.95 * var(--ant-font-size));
       display: block;
       padding: var(--ant-form-vertical-label-padding);
     }
   }
 
-  .ant-form-item-label>label.ant-form-item-required:not(.ant-form-item-required-mark-optional) {
+  .ant-form-item-label > label.ant-form-item-required:not(.ant-form-item-required-mark-optional) {
     align-items: flex-start;
 
     &::before {
@@ -27,7 +27,7 @@
     }
   }
 
-  input[type="number"]::-webkit-inner-spin-button {
+  input[type='number']::-webkit-inner-spin-button {
     display: none;
     appearance: none;
   }

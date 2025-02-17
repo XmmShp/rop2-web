@@ -13,26 +13,29 @@ export type OrgInfo = {
     id: number;
     defaultDepart: number;
     name: string;
-    useDeparts: number;//TODO 解析&使用该属性
+    useDeparts: number; //TODO 解析&使用该属性
   };
   departs: Depart[];
   /**生成此OrgInfo的响应状态码，未请求时为0 */
   respStatus: number;
 };
 
-
 const defaultOrg = {
   org: { defaultDepart: -1, name: '加载中', useDeparts: 0 },
-  departs: []
+  departs: [],
 };
 export function useOrg(): DataTuple<OrgInfo> {
   // adminAt仅在页面加载时刷新
   const adminAt = useMemo(() => num(kvGet('at'), -1), []);
-  const v = useData<OrgInfo>('/org', async (resp) => {
-    const result = resp.status >= 400 ? defaultOrg : await resp.json();
-    return { ...result, respStatus: resp.status };
-  }, { ...defaultOrg, org: { ...defaultOrg.org, id: adminAt }, respStatus: 0 });
-  v[0].departs = v[0].departs.filter(d => d.id !== v[0].org.defaultDepart);
+  const v = useData<OrgInfo>(
+    '/org',
+    async (resp) => {
+      const result = resp.status >= 400 ? defaultOrg : await resp.json();
+      return { ...result, respStatus: resp.status };
+    },
+    { ...defaultOrg, org: { ...defaultOrg.org, id: adminAt }, respStatus: 0 }
+  );
+  v[0].departs = v[0].departs.filter((d) => d.id !== v[0].org.defaultDepart);
   return v;
 }
 /**使用Context传递的组织信息。 */

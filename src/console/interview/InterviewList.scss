@@ -3,12 +3,12 @@
   flex-wrap: wrap;
   flex-direction: row;
   justify-content: flex-start;
-  gap: .8em;
+  gap: 0.8em;
   word-break: break-all;
 
   .interview-card {
     height: min-content;
-    padding: .5em 1em;
+    padding: 0.5em 1em;
     width: 18em;
     box-sizing: border-box;
     border-radius: 5px;
@@ -18,14 +18,14 @@
     .info {
       .time-left {
         color: var(--ant-color-text-secondary);
-        font-size: calc(.8 * var(--ant-font-size));
+        font-size: calc(0.8 * var(--ant-font-size));
         border-bottom: 1px solid var(--ant-color-border);
-        margin-bottom: .4em;
+        margin-bottom: 0.4em;
       }
     }
 
     .operations {
-      margin-top: .4em;
+      margin-top: 0.4em;
       align-self: flex-end;
     }
   }

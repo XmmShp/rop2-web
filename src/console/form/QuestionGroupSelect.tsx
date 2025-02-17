@@ -27,24 +27,27 @@ export default function QuestionGroupSelect({ groups, thisGroup, value, onChange
       return {
         label: g.label,
         disabled: g.id === thisGroup,
-        value: g.id
+        value: g.id,
       };
-    })
+    }),
   ];
-  if (allowHide)
-    options.unshift({ label: '隐藏选项', value: -2 });
-  if (value === undefined)
-    value = -2;
-  else if (value === null || !groups.some((gr: QuestionGroup) => gr.id === value))
-    value = -1;
-  return (<Select title={title} showSearch={false}
-    size={size} value={value}
-    className='group-select'
-    popupMatchSelectWidth={false}
-    onSelect={(v) => {
-      if (v === -1) onChange(null);
-      else if (v === -2) onChange(undefined);
-      else onChange(v);
-    }}
-    options={options} />);
+  if (allowHide) options.unshift({ label: '隐藏选项', value: -2 });
+  if (value === undefined) value = -2;
+  else if (value === null || !groups.some((gr: QuestionGroup) => gr.id === value)) value = -1;
+  return (
+    <Select
+      title={title}
+      showSearch={false}
+      size={size}
+      value={value}
+      className="group-select"
+      popupMatchSelectWidth={false}
+      onSelect={(v) => {
+        if (v === -1) onChange(null);
+        else if (v === -2) onChange(undefined);
+        else onChange(v);
+      }}
+      options={options}
+    />
+  );
 }
