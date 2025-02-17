@@ -1,0 +1,6 @@
+blank_issues_enabled: true  # 允许创建空白 issue
+
+contact_links:
+  - name: 项目文档
+    url: https://github.com/QSCTech/rop2-web#readme
+    about: 在创建 issue 之前，请查看我们的文档
