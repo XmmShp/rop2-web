@@ -1,6 +1,6 @@
 name: 文档改进
 description: 为我们的文档提出改进建议
-title: "[文档]: "
+title: "[文档]"
 labels: ["documentation"]
 body:
   - type: markdown
