@@ -24,6 +24,7 @@ tests/
 *.spec.js
 
 # 忽略 Git 相关文件
+.github/
 .git/
 .gitignore
 .gitattributes
