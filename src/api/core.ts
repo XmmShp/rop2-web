@@ -1,9 +1,18 @@
 import { without } from '../utils';
 import { message } from '../App';
 import { tokenHeaderKey, saveToken, getToken } from './auth';
+import { env } from '../env';
+
+declare global {
+  interface Window {
+    __env__: {
+      APIBASE: string;
+    };
+  }
+}
 
 /**从环境变量读取api基路径(api基路径和前端基路径无关)。该值不能以/结尾 */
-const apiBase = import.meta.env.VITE_APIBASE ?? 'http://127.0.0.1:8080';
+const apiBase = env.APIBASE;
 export function getApiUrl(route: '' | `/${string}` = '', params?: Record<string, string>) {
   return apiBase + route + (params ? '?' + new URLSearchParams(params).toString() : '');
 }
