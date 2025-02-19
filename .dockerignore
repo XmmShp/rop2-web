@@ -1,0 +1,34 @@
+# 忽略所有节点模块
+node_modules/
+
+# 忽略构建输出目录
+dist/
+
+# 忽略 IDE 和编辑器文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+
+# 忽略临时文件和缓存
+*.log
+*.tmp
+*.bak
+*.cache
+
+# 忽略测试文件
+test/
+tests/
+*.test.js
+*.spec.js
+
+# 忽略 Git 相关文件
+.git/
+.gitignore
+.gitattributes
+
+# 忽略其他不需要的文件
+README.md
+LICENSE
+CHANGELOG.md
