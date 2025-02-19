@@ -2,6 +2,7 @@
 FROM node:latest AS build-stage
 WORKDIR /app
 COPY ./package*.json ./
+COPY ./.npmrc ./
 RUN npm install
 COPY . .
 RUN npm run build
