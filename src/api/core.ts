@@ -1,19 +1,28 @@
 import { without } from '../utils';
 import { message } from '../App';
 import { tokenHeaderKey, saveToken, getToken } from './auth';
-import { env } from '../env';
+import { getEnv } from '../env';
 
-declare global {
-  interface Window {
-    __env__: {
-      APIBASE: string;
-    };
+/**从环境变量读取api基路径(api基路径和前端基路径无关)。该值不能以/结尾 */
+let apiBase: string;
+getEnv().then(env => {
+  apiBase = env.APIBASE;
+  console.log('API Base URL:', apiBase);
+});
+
+// 等待环境变量加载，最多等待1秒
+async function waitForApiBase(): Promise<void> {
+  const startTime = Date.now();
+  while (!apiBase && Date.now() - startTime < 1000) {
+    await new Promise(resolve => setTimeout(resolve, 50));
+  }
+  if (!apiBase) {
+    throw new Error('Environment is not initialized after 1 second timeout');
   }
 }
 
-/**从环境变量读取api基路径(api基路径和前端基路径无关)。该值不能以/结尾 */
-const apiBase = env.APIBASE;
-export function getApiUrl(route: '' | `/${string}` = '', params?: Record<string, string>) {
+export async function getApiUrl(route: '' | `/${string}` = '', params?: Record<string, string>) {
+  await waitForApiBase();
   return apiBase + route + (params ? '?' + new URLSearchParams(params).toString() : '');
 }
 
@@ -37,7 +46,7 @@ async function innerFetch(...[url, config]: Parameters<typeof fetch>): ReturnTyp
 }
 
 export async function getApi(pathname: `/${string}`, params: Record<string, any> = {}, fetchConfig: RequestInit = {}): Promise<Response> {
-  let url = getApiUrl(pathname);
+  let url = await getApiUrl(pathname);
   const paramsEntries = Object.entries(params);
   if (paramsEntries.length) {
     url += '?';
@@ -51,7 +60,7 @@ export async function getApi(pathname: `/${string}`, params: Record<string, any>
 }
 
 export async function postApi(pathname: `/${string}`, body: Record<string, any>, fetchConfig: RequestInit = {}): Promise<Response> {
-  return await innerFetch(getApiUrl(pathname), {
+  return await innerFetch(await getApiUrl(pathname), {
     method: 'POST',
     body: JSON.stringify(body),
     headers: { 'content-type': 'application/json' },
