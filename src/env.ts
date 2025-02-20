@@ -1,73 +1,29 @@
-interface Env {
-  APIBASE: string;
-}
+import { basename } from './utils';
 
 declare global {
   interface Window {
-    __env__: Env;
+    /**运行时环境变量配置对象。可能不存在，若存在必须包含以下全部键 */
+    __env__?: {
+      APIBASE: string;
+    };
+  }
+
+  interface ImportMetaEnv {
+    VITE_APIBASE?: string;
+    VITE_ENABLE_RUNTIME_CONFIG?: string;
   }
 }
 
-// 环境变量管理类
-class Environment {
-  private env: Env | null = null;
-  private initPromise: Promise<void>;
+/**api基路径(api基路径和前端基路径无关)。该值不能以/结尾 */
+export let APIBASE = import.meta.env.VITE_APIBASE?.replace(/\/+$/, '') ?? 'http://127.0.0.1:8080';
 
-  constructor() {
-    this.initPromise = new Promise((resolve) => {
-      if (import.meta.env.VITE_ENABLE_RUNTIME_CONFIG === 'true') {
-        const script = document.createElement('script');
-        script.src = `${location.origin}/env-config.js`;
-        script.onload = () => {
-          this.env = {
-            APIBASE: this.getApiBase(),
-          };
-          resolve();
-        };
-        script.onerror = () => {
-          console.debug('No runtime env config found, using default values');
-          this.env = {
-            APIBASE: this.getApiBase(),
-          };
-          resolve();
-        };
-        document.head.appendChild(script);
-      } else {
-        this.env = {
-          APIBASE: this.getApiBase(),
-        };
-        resolve();
-      }
-    });
+export const envInitPromise = (async () => {
+  if (import.meta.env.VITE_ENABLE_RUNTIME_CONFIG?.match(/^true|1$/i)) {
+    const envConfigModule = `${location.origin}${basename}/env-config.js`;
+    await import(/* @vite-ignore */ envConfigModule).catch((err) => console.error(`导入运行时环境文件失败: ${envConfigModule}`, err));
   }
-
-  private getApiBase(): string {
-    // 只有在启用运行时配置时才使用 window.__env__
-    if (import.meta.env.VITE_ENABLE_RUNTIME_CONFIG === 'true' && typeof window !== 'undefined' && window.__env__?.APIBASE) {
-      return window.__env__.APIBASE.replace(/\/+$/, '');
-    }
-    // 开发环境下使用 Vite 环境变量
-    if (import.meta.env.VITE_APIBASE) {
-      return import.meta.env.VITE_APIBASE.replace(/\/+$/, '');
-    }
-    // 默认值
-    return 'http://127.0.0.1:8080';
-  }
-
-  getEnv(): Env {
-    if (!this.env) {
-      throw new Error('Environment not initialized. Call waitForInit() before accessing environment.');
-    }
-    return this.env;
-  }
-
-  waitForInit(): Promise<void> {
-    return this.initPromise;
-  }
-}
-
-// 创建单例实例
-const environment = new Environment();
-
-export const getEnv = () => environment.getEnv();
-export const envInitPromise = () => environment.waitForInit();
+  if (self.__env__) {
+    ({ APIBASE } = self.__env__);
+    console.log('已使用__env__', self.__env__);
+  } else console.log('未使用__env__');
+})();

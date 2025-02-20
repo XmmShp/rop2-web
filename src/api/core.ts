@@ -1,12 +1,10 @@
 import { without } from '../utils';
 import { message } from '../App';
 import { tokenHeaderKey, saveToken, getToken } from './auth';
-import { getEnv } from '../env';
+import { APIBASE } from '../env';
 
 export function getApiUrl(route: '' | `/${string}` = '', params?: Record<string, string>) {
-  /**从环境变量读取api基路径(api基路径和前端基路径无关)。该值不能以/结尾 */
-  const apiBase = getEnv().APIBASE;
-  return apiBase + route + (params ? '?' + new URLSearchParams(params).toString() : '');
+  return APIBASE + route + (params ? '?' + new URLSearchParams(params).toString() : '');
 }
 
 /**fetch的封装，禁用缓存、自动添加token、负责token刷新。不检查HTTP状态码，将fetch结果原样返回(包括401/403)。 */
