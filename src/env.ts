@@ -71,4 +71,3 @@ const environment = new Environment();
 
 export const getEnv = () => environment.getEnv();
 export const envInitPromise = () => environment.waitForInit();
-
