@@ -5,24 +5,12 @@ import { getEnv } from '../env';
 
 /**从环境变量读取api基路径(api基路径和前端基路径无关)。该值不能以/结尾 */
 let apiBase: string;
-getEnv().then(env => {
+let getApiBasePromise = getEnv().then(env => {
   apiBase = env.APIBASE;
-  console.log('API Base URL:', apiBase);
 });
 
-// 等待环境变量加载，最多等待1秒
-async function waitForApiBase(): Promise<void> {
-  const startTime = Date.now();
-  while (!apiBase && Date.now() - startTime < 1000) {
-    await new Promise(resolve => setTimeout(resolve, 50));
-  }
-  if (!apiBase) {
-    throw new Error('Environment is not initialized after 1 second timeout');
-  }
-}
-
 export async function getApiUrl(route: '' | `/${string}` = '', params?: Record<string, string>) {
-  await waitForApiBase();
+  await getApiBasePromise;
   return apiBase + route + (params ? '?' + new URLSearchParams(params).toString() : '');
 }
 
