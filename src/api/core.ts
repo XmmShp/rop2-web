@@ -3,14 +3,9 @@ import { message } from '../App';
 import { tokenHeaderKey, saveToken, getToken } from './auth';
 import { getEnv } from '../env';
 
-/**从环境变量读取api基路径(api基路径和前端基路径无关)。该值不能以/结尾 */
-let apiBase: string;
-let getApiBasePromise = getEnv().then(env => {
-  apiBase = env.APIBASE;
-});
-
-export async function getApiUrl(route: '' | `/${string}` = '', params?: Record<string, string>) {
-  await getApiBasePromise;
+export function getApiUrl(route: '' | `/${string}` = '', params?: Record<string, string>) {
+  /**从环境变量读取api基路径(api基路径和前端基路径无关)。该值不能以/结尾 */
+  const apiBase = getEnv().APIBASE;
   return apiBase + route + (params ? '?' + new URLSearchParams(params).toString() : '');
 }
 
@@ -34,7 +29,7 @@ async function innerFetch(...[url, config]: Parameters<typeof fetch>): ReturnTyp
 }
 
 export async function getApi(pathname: `/${string}`, params: Record<string, any> = {}, fetchConfig: RequestInit = {}): Promise<Response> {
-  let url = await getApiUrl(pathname);
+  let url = getApiUrl(pathname);
   const paramsEntries = Object.entries(params);
   if (paramsEntries.length) {
     url += '?';
@@ -48,7 +43,7 @@ export async function getApi(pathname: `/${string}`, params: Record<string, any>
 }
 
 export async function postApi(pathname: `/${string}`, body: Record<string, any>, fetchConfig: RequestInit = {}): Promise<Response> {
-  return await innerFetch(await getApiUrl(pathname), {
+  return await innerFetch(getApiUrl(pathname), {
     method: 'POST',
     body: JSON.stringify(body),
     headers: { 'content-type': 'application/json' },
@@ -92,3 +87,4 @@ export function pkgPost(...args: Parameters<typeof postApi>): PkgPostResult {
   };
   return prom;
 }
+
