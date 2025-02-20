@@ -18,12 +18,15 @@ class Environment {
   }
 
   private async init() {
-    try {
-      // 尝试加载环境配置，使用 vite-ignore 避免构建时转译
-      await import(/* @vite-ignore */ `${location.origin}/env-config.js`);
-    } catch (err) {
-      // 如果配置文件不存在，静默失败
-      console.debug('No runtime env config found, using default values');
+    // 只有在启用运行时配置时才加载 env-config.js
+    if (import.meta.env.VITE_ENABLE_RUNTIME_CONFIG === 'true') {
+      try {
+        // 尝试加载环境配置，使用 vite-ignore 避免构建时转译
+        await import(/* @vite-ignore */ `${location.origin}/env-config.js`);
+      } catch (err) {
+        // 如果配置文件不存在，静默失败
+        console.debug('No runtime env config found, using default values');
+      }
     }
 
     // 初始化环境变量
@@ -33,8 +36,10 @@ class Environment {
   }
 
   private getApiBase(): string {
-    // 优先使用运行时环境变量
-    if (typeof window !== 'undefined' && window.__env__?.APIBASE) {
+    // 只有在启用运行时配置时才使用 window.__env__
+    if (import.meta.env.VITE_ENABLE_RUNTIME_CONFIG === 'true' && 
+        typeof window !== 'undefined' && 
+        window.__env__?.APIBASE) {
       return window.__env__.APIBASE.replace(/\/+$/, '');
     }
     // 开发环境下使用 Vite 环境变量

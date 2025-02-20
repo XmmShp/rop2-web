@@ -5,6 +5,7 @@ COPY ./package*.json ./
 COPY ./.npmrc ./
 RUN npm install
 COPY . .
+ENV VITE_ENABLE_RUNTIME_CONFIG=true
 RUN npm run build
 
 # 发布阶段
