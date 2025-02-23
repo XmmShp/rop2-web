@@ -6,6 +6,9 @@ public
 
 *.md
 *.html
+*.sh
+Dockerfile
+*.conf
 
 # npm will format these files
 package.json
