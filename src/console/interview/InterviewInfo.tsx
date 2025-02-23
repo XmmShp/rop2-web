@@ -1,9 +1,10 @@
-import { Depart } from '../shared/useOrg';
+import { Depart, useOrgFromContext } from '../shared/useOrg';
 import { Interview } from './InterviewList';
 
 /**显示面试地点、部门、人数、备注等信息。 */
 export function InterviewInfo({ interview, departs, showUsedCapacity = true }: { interview: Interview; departs: Depart[]; showUsedCapacity?: boolean }) {
-  const dep = departs.find(({ id }) => id === interview.depart);
+  const [{ org }] = useOrgFromContext();
+  const dep = departs.find(({ id }) => id === interview.depart) ?? org;
   return (
     <>
       <div>面试地点：{interview.location}</div>

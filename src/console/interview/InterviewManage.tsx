@@ -100,7 +100,13 @@ export default function InterviewManage() {
                           defaultValue={ivDepart}
                           onChange={(e) => (ivDepart = e.target.value satisfies number)}
                           //注意，这里把默认部门关了
-                          options={departs.map((dep) => {
+                          options={[
+                            {
+                              name: orgName,
+                              id: defaultDepart,
+                            },
+                            ...departs,
+                          ].map((dep) => {
                             return {
                               label: dep.name,
                               value: dep.id,
