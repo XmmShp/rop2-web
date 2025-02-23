@@ -40,7 +40,7 @@ export function getStepColor(n: number): string {
   if (n === -2) return '#7F8C8D';
   if (n === -1) return '#E74C3C';
   if (n === -50) return '#2ECC71';
-  if (n === 0) return '#000000';
+  if (n === 0) return 'unset';
   return '#00B8FF';
 }
 export type Person = { name: string; zjuId: string; phone: string };
@@ -116,7 +116,7 @@ export default function ResultOverview() {
   return (
     <Card loading={!!orgInfoLoading}>
       <Flex vertical gap="middle">
-        <FilterDepartsComponent {...{ departs, filterDeparts, setFilterDeparts }} />
+        <FilterDepartsComponent {...{ filterDeparts, setFilterDeparts }} />
         <Segmented
           block
           defaultValue={0}

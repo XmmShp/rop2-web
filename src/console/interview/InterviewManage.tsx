@@ -52,7 +52,7 @@ export default function InterviewManage() {
           候选人选择面试链接：
           <CopyZone inline text={`${location.origin}${basename}/status/${formId}`} />
         </Typography.Text>
-        <FilterDepartsComponent {...{ departs, filterDeparts, setFilterDeparts }} />
+        <FilterDepartsComponent {...{ filterDeparts, setFilterDeparts }} />
         {filterDeparts.length > 1 && <Alert showIcon type="warning" message={`您正在查看来自多个部门的面试(已选中 ${filterDeparts.length} 个部门)。`} />}
         {filterDeparts.length === 0 && <Alert showIcon type="error" message="您没有选择任何部门，请先选择至少一个部门。" />}
         <Tabs
