@@ -156,9 +156,10 @@ export default function InterviewManage() {
                       message.error('地点不能超过50字');
                       return false;
                     }
+                    let comment = commentRef.value.trim() || undefined; //如果为空则传undefined
                     const startAt = startTime;
                     const endAt = startTime.add(num(durationRef.value, 0), 'minute');
-                    const { code } = await addInterview(formId, ivDepart, step, capacity, location, startAt, endAt);
+                    const { code } = await addInterview(formId, ivDepart, step, capacity, location, startAt, endAt, comment);
                     if (!code) message.success('新建面试成功');
                     reload();
                   },

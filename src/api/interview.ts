@@ -4,7 +4,16 @@ import { Dayjs } from 'dayjs';
 import { StepType } from '../console/result/ResultOverview';
 import { pkgPost } from './core';
 
-export function addInterview(formId: number, depart: number, step: StepType, capacity: number, location: string, startAt: Dayjs, endAt: Dayjs) {
+export function addInterview(
+  formId: number,
+  depart: number,
+  step: StepType,
+  capacity: number,
+  location: string,
+  startAt: Dayjs,
+  endAt: Dayjs,
+  comment?: string
+) {
   return pkgPost('/interview/add', {
     formId,
     depart,
@@ -13,6 +22,7 @@ export function addInterview(formId: number, depart: number, step: StepType, cap
     location,
     startAt,
     endAt,
+    comment,
   });
 }
 
