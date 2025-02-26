@@ -69,7 +69,7 @@ export default function ScheduleList() {
   interview.usedCapacity = scheduledIds.length;
   const { step, depart } = interview;
   const [form] = useForm();
-  const [{ departs }] = useOrgFromContext();
+  const [{ departs }] = useOrgFromContext(true);
   const navigate = useNavigate();
   const listRef = createRef<HTMLElement>();
   return (

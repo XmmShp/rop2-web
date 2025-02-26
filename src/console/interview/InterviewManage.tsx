@@ -9,7 +9,6 @@ import { showModal, TempInput } from '../../shared/LightComponent';
 import { useData } from '../../api/useData';
 import { useForm } from '../shared/useForm';
 import { basename, num, useStoredState } from '../../utils';
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CopyZone from '../../shared/CopyZone';
 import { addInterview, deleteInterview, freezeInterview } from '../../api/interview';
@@ -22,7 +21,7 @@ export default function InterviewManage() {
     setFilterDeparts,
     {
       departs,
-      org: { name: orgName, defaultDepart },
+      org: { name: orgName },
     },
     orgInfoLoading,
   ] = useFilterDeparts();
@@ -38,7 +37,7 @@ export default function InterviewManage() {
       });
     },
     [],
-    { formId, step, depart: [defaultDepart, ...filterDeparts].join(',') },
+    { formId, step, depart: filterDeparts.join(',') },
     [formId, step, filterDeparts, orgInfoLoading],
     !orgInfoLoading
   );
@@ -99,14 +98,7 @@ export default function InterviewManage() {
                         <Radio.Group
                           defaultValue={ivDepart}
                           onChange={(e) => (ivDepart = e.target.value satisfies number)}
-                          //注意，这里把默认部门关了
-                          options={[
-                            {
-                              name: orgName,
-                              id: defaultDepart,
-                            },
-                            ...departs,
-                          ].map((dep) => {
+                          options={departs.map((dep) => {
                             return {
                               label: dep.name,
                               value: dep.id,

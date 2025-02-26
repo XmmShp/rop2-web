@@ -66,7 +66,7 @@ export default function Dash() {
     {
       org: { name: orgName },
     },
-  ] = useOrgFromContext();
+  ] = useOrgFromContext(true);
 
   type StepStatistics = {
     steps: {

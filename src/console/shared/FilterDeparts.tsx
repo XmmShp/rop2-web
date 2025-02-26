@@ -2,7 +2,7 @@ import { Flex, Checkbox } from 'antd';
 import { useEffect } from 'react';
 import { useStoredState } from '../../utils';
 import { Id } from './useForm';
-import { useOrgFromContext, Depart } from './useOrg';
+import { useOrgFromContext } from './useOrg';
 
 /**
  * react hook，从localStorage读写部门过滤选项；同时也返回useOrgContext的结果。
@@ -11,7 +11,7 @@ import { useOrgFromContext, Depart } from './useOrg';
  */
 export function useFilterDeparts(setHook?: (newValue: Id[]) => void) {
   const [filterDeparts, setFilterDeparts] = useStoredState<Id[]>([], 'filterDeparts');
-  const [orgInfo, orgInfoLoading] = useOrgFromContext();
+  const [orgInfo, orgInfoLoading] = useOrgFromContext(true);
   const { departs } = orgInfo;
   useEffect(() => {
     //初始化(下载部门信息)后如果没有选择任何部门，自动全选
@@ -32,13 +32,7 @@ export function useFilterDeparts(setHook?: (newValue: Id[]) => void) {
 }
 
 export function FilterDepartsComponent({ filterDeparts, setFilterDeparts }: { filterDeparts: Id[]; setFilterDeparts: (newValue: Id[]) => void }) {
-  const [
-    {
-      departs: departsWithoutDefault,
-      org: { defaultDepart, name: orgName },
-    },
-  ] = useOrgFromContext();
-  const departs = [{ id: defaultDepart, name: orgName }, ...departsWithoutDefault];
+  const [{ departs: departs }] = useOrgFromContext(true);
   return (
     <Flex wrap="wrap">
       <Checkbox

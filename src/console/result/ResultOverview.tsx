@@ -95,7 +95,7 @@ export default function ResultOverview() {
       offset,
       limit,
       filter,
-      depart: [...new Set([defaultDepart, ...filterDeparts])].join(','),
+      depart: filterDeparts.join(','),
       formId: form.id,
       step,
     },
@@ -508,7 +508,7 @@ export default function ResultOverview() {
   /**将志愿显示为 `[志愿序号] 部门名` */
   function formatIntentDepart(intent: IntentOutline) {
     const depId = intent.depart;
-    const depName = depId === defaultDepart ? orgName : (departs.find((d) => d.id === intent.depart)?.name ?? `未知(${depId})`);
+    const depName = departs.find((d) => d.id === intent.depart)?.name ?? `未知(${depId})`;
     return `[${intent.order}]${depName}`;
   }
   function formatInterviewTime(intent: IntentOutline) {
