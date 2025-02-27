@@ -1,4 +1,4 @@
-import { Avatar, Dropdown, Flex, GetProp, Layout, Menu, Skeleton, Space, Typography } from 'antd';
+import { Avatar, Dropdown, Flex, GetProp, Layout, Menu, Skeleton, Space, Tooltip, Typography } from 'antd';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { num, singleMatch, useNickname, useReloader } from '../utils';
 import './ConsoleLayout.scss';
@@ -128,7 +128,12 @@ export default function ConsoleLayout({
 
       <Layout.Content className="main">
         <Flex className="title-bar" align="center" justify="space-between">
-          <span className="title">求是潮纳新开放系统V2</span>
+          <div className="title">
+            <span className="major">求是潮纳新开放系统</span>
+            <Tooltip title={<span style={{ whiteSpace: 'pre-wrap' }}>{import.meta.env.VITE_BUILD_INFO_DETAIL ?? '未获取到构建详情'}</span>}>
+              <span className="minor">{import.meta.env.VITE_BUILD_INFO ?? '构建版本未知'}</span>
+            </Tooltip>
+          </div>
           <Dropdown
             className="current-activity"
             trigger={['hover']}

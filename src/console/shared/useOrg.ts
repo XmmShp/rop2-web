@@ -47,7 +47,6 @@ export function useOrg(): DataTuple<OrgInfo> {
 export function useOrgFromContext(includeDefaultDepart = false): DataTuple<OrgInfo> {
   let v = useContext(OrgContext);
   if (includeDefaultDepart) v = [{ ...v[0], departs: [v[0].defaultDepart, ...v[0].departs] }, ...(v.slice(1) as any)] as any;
-  console.warn('use org context', includeDefaultDepart, v[0]);
   return v;
 }
 export const OrgContext = createContext<DataTuple<OrgInfo>>(null as any);

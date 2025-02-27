@@ -26,7 +26,17 @@
       box-shadow: 0 1px 6px color-mix(in srgb, var(--ant-color-text) 15%, transparent);
 
       .title {
-        font-size: 1.2em;
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        .major {
+          font-size: 1.3em;
+        }
+
+        .minor {
+          color: var(--ant-color-text-secondary);
+          font-size: 0.9em;
+        }
       }
 
       .current-activity {

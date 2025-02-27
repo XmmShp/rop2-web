@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 import { basename } from './utils';
 
 declare global {
@@ -11,6 +13,7 @@ declare global {
   interface ImportMetaEnv {
     VITE_APIBASE?: string;
     VITE_ENABLE_RUNTIME_CONFIG?: string;
+    VITE_BUILD_INFO?: string;
   }
 }
 

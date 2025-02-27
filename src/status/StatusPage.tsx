@@ -165,7 +165,6 @@ export default function StatusPage() {
     formId > 0
   );
   const zjuId = useMemo(() => kvGet(zjuIdKey)!, []);
-  // console.log({ formLoading, owner, name, formId })
 
   //虽然form的实际数据(owner)需要等待useForm加载，但是formId是有效的，故intents获取不需要等待useForm
   const [intents] = useData<Intent[]>('/applicant/status', async (resp) => resp.json(), [], { formId }, [formId]);
