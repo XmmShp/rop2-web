@@ -14,6 +14,7 @@ declare global {
     VITE_APIBASE?: string;
     VITE_ENABLE_RUNTIME_CONFIG?: string;
     VITE_BUILD_INFO?: string;
+    VITE_BUILD_INFO_DETAIL?: string;
   }
 }
 

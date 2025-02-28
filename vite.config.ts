@@ -14,7 +14,7 @@ const anyChanges = sh('git status --porcelain -uall').length > 0;
 export default defineConfig({
   define: {
     'import.meta.env.VITE_BUILD_INFO': JSON.stringify(`构建版本 ${headCommitCount}${anyChanges ? '*' : ''}`),
-    'import.meta.env.VITE_BUILD_INFO_DETAIL': JSON.stringify(`${anyChanges ? '有未提交的更改\n' : ''}branch: ${headBranch}\ncommmit: ${headSha}`),
+    'import.meta.env.VITE_BUILD_INFO_DETAIL': JSON.stringify(`${anyChanges ? '有未提交的更改\n' : ''}branch: ${headBranch}\ncommit: ${headSha}`),
   },
   plugins: [react()],
   css: {
