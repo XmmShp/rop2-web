@@ -6,10 +6,19 @@ import { execSync } from 'node:child_process';
 function sh(cmd: string) {
   return execSync(cmd, { encoding: 'utf-8' }).trim();
 }
-const headSha = sh('git rev-parse HEAD');
-const headCommitCount = sh('git rev-list --count HEAD');
-const headBranch = sh('git rev-parse --abbrev-ref HEAD');
-const anyChanges = sh('git status --porcelain -uall').length > 0;
+let headSha: string, headCommitCount: string, headBranch: string, anyChanges: boolean;
+try {
+  headSha = sh('git rev-parse HEAD');
+  headCommitCount = sh('git rev-list --count HEAD');
+  headBranch = sh('git rev-parse --abbrev-ref HEAD');
+  anyChanges = sh('git status --porcelain -uall').length > 0;
+} catch {
+  headSha = 'unknown';
+  headCommitCount = 'unknown';
+  headBranch = 'unknown';
+  anyChanges = false;
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
   define: {

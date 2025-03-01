@@ -130,9 +130,15 @@ export default function ConsoleLayout({
         <Flex className="title-bar" align="center" justify="space-between">
           <div className="title">
             <span className="major">求是潮纳新开放系统</span>
-            <Tooltip title={<span style={{ whiteSpace: 'pre-wrap' }}>{import.meta.env.VITE_BUILD_INFO_DETAIL ?? '未获取到构建详情'}</span>}>
-              <span className="minor">{import.meta.env.VITE_BUILD_INFO ?? '构建版本未知'}</span>
-            </Tooltip>
+            {import.meta.env.VITE_IS_DOCKER_ENVIRONMENT?.match(/^(true|1)$/i) ? (
+              <Tooltip title={<span style={{ whiteSpace: 'pre-wrap' }}>Docker 构建版本</span>}>
+                <span className="minor">Docker 构建版本</span>
+              </Tooltip>
+            ) : (
+              <Tooltip title={<span style={{ whiteSpace: 'pre-wrap' }}>{import.meta.env.VITE_BUILD_INFO_DETAIL ?? '未获取到构建详情'}</span>}>
+                <span className="minor">{import.meta.env.VITE_BUILD_INFO ?? '构建版本未知'}</span>
+              </Tooltip>
+            )}
           </div>
           <Dropdown
             className="current-activity"
